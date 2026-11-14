@@ -84,6 +84,7 @@ func _run_all_tests() -> void:
 	await process_frame
 	assert(opening_preview._bedroom_wakeup_completed == false, "2.0: A abertura deve iniciar antes do despertar")
 	assert(opening_preview.pablita.current_state == Pablita.State.CINEMATIC_LOCKED, "2.0a: Pablita deve começar deitada e sem controle")
+	assert(not (opening_preview.hud.get_node("RootControl") as Control).visible, "2.0a.1: HUD deve ficar oculto durante o despertar")
 	assert(opening_preview._esquecido_occlusion != null and opening_preview._esquecido_occlusion.visible, "2.0b: O Esquecido deve começar coberto")
 	assert(is_equal_approx(opening_preview._esquecido_occlusion.color.a, 1.0), "2.0c: A máscara do Esquecido deve começar totalmente opaca")
 	assert((opening_preview.get_node("BedroomArtDark") as Sprite2D).visible, "2.0d: A arte escura do quarto deve estar visível")
