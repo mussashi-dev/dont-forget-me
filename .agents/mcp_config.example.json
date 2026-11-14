@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "dfm-team-hub": {
+      "command": "C:\\\\Users\\\\SEU_USUARIO\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python311\\\\python.exe",
+      "args": [
+        "C:\\\\CAMINHO\\\\PARA\\\\dont-forget-me\\\\tools\\\\dfm_team_mcp\\\\server.py"
+      ],
+      "env": {
+        "DFM_PROJECT_ROOT": "C:\\\\CAMINHO\\\\PARA\\\\dont-forget-me",
+        "DFM_TEAM_DATA": "C:\\\\Users\\\\SEU_USUARIO\\\\.dfm-team"
+      }
+    }
+  }
+}
