@@ -48,3 +48,8 @@ desktop.ini
 # GameForge session state (local, per machine)
 production/session-state/
 production/session-logs/
+
+# Local Python venv & Antigravity MCP config (machine-specific paths)
+.venv/
+.agents/mcp_config.json
+

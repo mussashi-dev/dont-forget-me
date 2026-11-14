@@ -1,0 +1,27 @@
+{
+  "passed": false,
+  "asset_name": "bad_opaque_64",
+  "task_id": null,
+  "source_file": "C:\\Users\\dann1\\OneDrive\\Desktop\\gravity\\jogo_pablita\\assets\\_generated\\inbox\\bad_opaque_64.png",
+  "converted_from": null,
+  "rejected_at": "2026-11-14T19:07:47.437Z",
+  "errors": [
+    "Width mismatch: expected 32px, got 64px.",
+    "Height mismatch: expected 32px, got 64px.",
+    "PNG has 0 transparent pixels (solid background was not removed)."
+  ],
+  "inspection": {
+    "validFormat": true,
+    "detectedFormat": "PNG",
+    "width": 64,
+    "height": 64,
+    "bitDepth": 8,
+    "colorType": 6,
+    "hasAlphaChannel": true,
+    "transparentPixels": 0,
+    "opaquePixels": 4096,
+    "semitransparentPixels": 0,
+    "uniqueColors": 1,
+    "fileBytes": 246
+  }
+}

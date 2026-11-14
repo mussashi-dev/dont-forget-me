@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "dfm-team-hub": {
+      "command": "C:\\Users\\dann1\\OneDrive\\Desktop\\gravity\\jogo_pablita\\.venv\\Scripts\\python.exe",
+      "args": [
+        "C:\\Users\\dann1\\OneDrive\\Desktop\\gravity\\jogo_pablita\\tools\\dfm_team_mcp\\server.py"
+      ],
+      "env": {
+        "DFM_PROJECT_ROOT": "C:\\Users\\dann1\\OneDrive\\Desktop\\gravity\\jogo_pablita",
+        "DFM_TEAM_DATA": "C:\\Users\\dann1\\.dfm-team"
+      }
+    }
+  }
+}

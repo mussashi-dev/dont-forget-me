@@ -1,0 +1,17 @@
+{
+  "passed": false,
+  "asset_name": "bad_raw_key",
+  "task_id": null,
+  "source_file": "C:\\Users\\dann1\\OneDrive\\Desktop\\gravity\\jogo_pablita\\assets\\_generated\\inbox\\bad_raw_key.jpg",
+  "converted_from": null,
+  "rejected_at": "2026-11-14T19:07:45.244Z",
+  "errors": [
+    "Invalid PNG binary signature (detected JPEG)."
+  ],
+  "inspection": {
+    "validFormat": false,
+    "detectedFormat": "JPEG",
+    "fileBytes": 389162,
+    "error": "Invalid PNG binary signature (detected JPEG)."
+  }
+}

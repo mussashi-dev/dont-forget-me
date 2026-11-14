@@ -1,0 +1,56 @@
+{
+  "passed": true,
+  "asset_name": "forgotten_key",
+  "task_id": "DFM-22217028",
+  "brief_path": "assets/_generated/briefs/DFM-22217028.json",
+  "validated_path": "assets/_generated/validated/forgotten_key.png",
+  "target_path": "assets/objects/forgotten_key.png",
+  "converted_from": "../../../../.gemini/antigravity/brain/ba8d5c55-4357-40d2-96c3-6c9a0d62d1c5/test_key_1794682648848.jpg",
+  "validated_at": "2026-11-14T19:08:20.928Z",
+  "validation": {
+    "format": "PNG",
+    "width": 32,
+    "height": 32,
+    "bit_depth": 8,
+    "color_type": 6,
+    "has_alpha_channel": true,
+    "transparent_pixels": 829,
+    "opaque_pixels": 195,
+    "semitransparent_pixels": 0,
+    "unique_colors": 65,
+    "file_bytes": 554
+  },
+  "pixel_art_mcp": {
+    "server": "pixellab",
+    "tool": "pixelart_workbench",
+    "status": "passed",
+    "suggested_commands": [
+      [
+        "score",
+        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAG/SURBVFhH5VahjsQgEN3POIlEIpFIJBKJrEQikZXIysrKlZUr76/m8oayt6m4W1HaXO4lhCVLM28eD2Zut78IZwTNo6NlG1YJ2u/pgsErWidPy2goOkmDkzyvxdI6BzI9ieTBcOB7sRx4zpruo6EcFC3F0ZI1PWbfT43PxVPykkrUz+AYIJNAIhsqUdEYzfEESrI0DooDIjiyxhrZQhUQmHOdsT78KECgBWmZG/XBQR5z4HVJhoKT238HE4CsrwpgXqd6AxqhkvRGUh9PwGnBJsuDYvnv5TtwU2ZOmklivf/+EMBgMCBkZh8M1XjeCopeUrCCCVkj+xAwUnD2CI6AMUgKvpLCGkeCB2r/3eGwWnD27QggPa4iCO73dgNMBjXgfGc7Sf4b8CzjCA53/DtwWtJjCdUPvVz/E5C10YLgh0sUAJxT5N1FRwDgBsSrPACgLOPVu5bAv1cARegyAim2vuAiAlCgS/fzLkDgVQEUIx5nEXoqoAW36kxoM+Z+bxfkWNt0ZAwlpqzPrYxDqL0hCIyx/k5Bn0dgypsCWnAviMaktWz7vV2ALrgRQHlGV4TgqJD7vV2A5pOHOinjXvgC1FebBb8xa4gAAAAASUVORK5CYII="
+      ],
+      [
+        "lint",
+        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAG/SURBVFhH5VahjsQgEN3POIlEIpFIJBKJrEQikZXIysrKlZUr76/m8oayt6m4W1HaXO4lhCVLM28eD2Zut78IZwTNo6NlG1YJ2u/pgsErWidPy2goOkmDkzyvxdI6BzI9ieTBcOB7sRx4zpruo6EcFC3F0ZI1PWbfT43PxVPykkrUz+AYIJNAIhsqUdEYzfEESrI0DooDIjiyxhrZQhUQmHOdsT78KECgBWmZG/XBQR5z4HVJhoKT238HE4CsrwpgXqd6AxqhkvRGUh9PwGnBJsuDYvnv5TtwU2ZOmklivf/+EMBgMCBkZh8M1XjeCopeUrCCCVkj+xAwUnD2CI6AMUgKvpLCGkeCB2r/3eGwWnD27QggPa4iCO73dgNMBjXgfGc7Sf4b8CzjCA53/DtwWtJjCdUPvVz/E5C10YLgh0sUAJxT5N1FRwDgBsSrPACgLOPVu5bAv1cARegyAim2vuAiAlCgS/fzLkDgVQEUIx5nEXoqoAW36kxoM+Z+bxfkWNt0ZAwlpqzPrYxDqL0hCIyx/k5Bn0dgypsCWnAviMaktWz7vV2ALrgRQHlGV4TgqJD7vV2A5pOHOinjXvgC1FebBb8xa4gAAAAASUVORK5CYII="
+      ],
+      [
+        "inspect",
+        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAG/SURBVFhH5VahjsQgEN3POIlEIpFIJBKJrEQikZXIysrKlZUr76/m8oayt6m4W1HaXO4lhCVLM28eD2Zut78IZwTNo6NlG1YJ2u/pgsErWidPy2goOkmDkzyvxdI6BzI9ieTBcOB7sRx4zpruo6EcFC3F0ZI1PWbfT43PxVPykkrUz+AYIJNAIhsqUdEYzfEESrI0DooDIjiyxhrZQhUQmHOdsT78KECgBWmZG/XBQR5z4HVJhoKT238HE4CsrwpgXqd6AxqhkvRGUh9PwGnBJsuDYvnv5TtwU2ZOmklivf/+EMBgMCBkZh8M1XjeCopeUrCCCVkj+xAwUnD2CI6AMUgKvpLCGkeCB2r/3eGwWnD27QggPa4iCO73dgNMBjXgfGc7Sf4b8CzjCA53/DtwWtJjCdUPvVz/E5C10YLgh0sUAJxT5N1FRwDgBsSrPACgLOPVu5bAv1cARegyAim2vuAiAlCgS/fzLkDgVQEUIx5nEXoqoAW36kxoM+Z+bxfkWNt0ZAwlpqzPrYxDqL0hCIyx/k5Bn0dgypsCWnAviMaktWz7vV2ALrgRQHlGV4TgqJD7vV2A5pOHOinjXvgC1FebBb8xa4gAAAAASUVORK5CYII=",
+        "--region",
+        "0,0,31,31",
+        "--scale",
+        "10"
+      ]
+    ],
+    "data_url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAG/SURBVFhH5VahjsQgEN3POIlEIpFIJBKJrEQikZXIysrKlZUr76/m8oayt6m4W1HaXO4lhCVLM28eD2Zut78IZwTNo6NlG1YJ2u/pgsErWidPy2goOkmDkzyvxdI6BzI9ieTBcOB7sRx4zpruo6EcFC3F0ZI1PWbfT43PxVPykkrUz+AYIJNAIhsqUdEYzfEESrI0DooDIjiyxhrZQhUQmHOdsT78KECgBWmZG/XBQR5z4HVJhoKT238HE4CsrwpgXqd6AxqhkvRGUh9PwGnBJsuDYvnv5TtwU2ZOmklivf/+EMBgMCBkZh8M1XjeCopeUrCCCVkj+xAwUnD2CI6AMUgKvpLCGkeCB2r/3eGwWnD27QggPa4iCO73dgNMBjXgfGc7Sf4b8CzjCA53/DtwWtJjCdUPvVz/E5C10YLgh0sUAJxT5N1FRwDgBsSrPACgLOPVu5bAv1cARegyAim2vuAiAlCgS/fzLkDgVQEUIx5nEXoqoAW36kxoM+Z+bxfkWNt0ZAwlpqzPrYxDqL0hCIyx/k5Bn0dgypsCWnAviMaktWz7vV2ALrgRQHlGV4TgqJD7vV2A5pOHOinjXvgC1FebBb8xa4gAAAAASUVORK5CYII=",
+    "score": 61.2,
+    "summary": "pixellab:pixelart_workbench score 58.7->61.2 after repair (defringe=0, snap=0, stray=3, holes=1); lint 0 error(s), 0 warning(s), 3 info (65 colors from JPEG source; clean 1x32x32 RGBA).",
+    "reviewed_at": "2026-11-14T19:09:56.707Z"
+  },
+  "godot_integration": {
+    "approved": false,
+    "integrated": false,
+    "target_path": "assets/objects/forgotten_key.png",
+    "required_import_settings": "2D Pixel (Lossless compress/mode=0, Nearest filter, Mipmaps disabled)"
+  }
+}
