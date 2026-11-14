@@ -20,6 +20,7 @@ func _run_all_tests() -> void:
 	assert(gm != null, "GameManagerService deve estar ativo")
 	gm.reset_campaign()
 	gm.unlock_pipop() # Habilita Pipop para os testes diretos de combate (A, B, C, D)
+	gm.set_story_flag("f1_bedroom_wakeup_done", true)
 
 	# Carregar Fase 1 para os Testes A, B, C, D e início do E
 	var lvl1_packed: PackedScene = load("res://scenes/levels/level_01_intro.tscn")

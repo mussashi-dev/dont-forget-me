@@ -59,7 +59,10 @@ func _physics_process(delta: float) -> void:
 		if fd != Vector2.ZERO:
 			pablita_dir = fd.normalized()
 
-	var desired_follow_offset: Vector2 = -pablita_dir * follow_distance + Vector2(0, -6)
+	var side_perp := Vector2(-pablita_dir.y, pablita_dir.x)
+	if absf(side_perp.x) < 0.2:
+		side_perp.x = -1.0
+	var desired_follow_offset: Vector2 = -pablita_dir * follow_distance + Vector2(side_perp.x * 14.0, -4.0)
 
 	match current_state:
 		State.FOLLOW:
@@ -150,6 +153,7 @@ func _update_sprite_animation(pablita_dir: Vector2) -> void:
 	var shadow: CanvasItem = get_node_or_null("Shadow") as CanvasItem
 	if spr == null:
 		return
+	spr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	if current_state == State.PHYSICAL:
 		# Na forma de manopla, o corpo acompanhante se acopla ao braço de Pablita
 		spr.visible = false
@@ -167,7 +171,14 @@ func _update_sprite_animation(pablita_dir: Vector2) -> void:
 		is_moving = v.length() > 10.0
 	if current_state == State.SONIC_APPROACH or current_state == State.SONIC_RETURN:
 		is_moving = true
+
 	var anim_name: String = ("walk_" if is_moving else "idle_") + dir_str
+	if (current_state == State.SONIC_APPROACH or current_state == State.SONIC_ATTACK) and spr.sprite_frames and spr.sprite_frames.has_animation("sonic_roar"):
+		anim_name = "sonic_roar"
+		spr.flip_h = look_dir.x < -0.1
+	else:
+		spr.flip_h = false
+
 	if spr.sprite_frames and spr.sprite_frames.has_animation(anim_name):
 		if spr.animation != anim_name or not spr.is_playing():
 			spr.play(anim_name)
@@ -175,19 +186,22 @@ func _update_sprite_animation(pablita_dir: Vector2) -> void:
 func _draw() -> void:
 	match current_state:
 		State.FOLLOW, State.SONIC_RETURN:
-			# Halo sutil rosado de Pipop e coração costurado
-			draw_arc(Vector2(0, -8), 7.5, 0.0, TAU, 16, Color(1.0, 0.65, 0.88, 0.35), 1.2)
+			pass
 		State.PHYSICAL:
-			# Manopla felpuda de Pipop envolvendo o braço de Pablita
+			# Manopla felpuda rosa de Pipop com o coração quebrado remendado
 			var rect := Rect2(Vector2(-7, -7), Vector2(14, 14))
-			draw_rect(rect, Color(0.96, 0.38, 0.68, 0.95), true)
-			draw_rect(rect, Color(1.0, 0.88, 0.45, 1.0), false, 1.8)
-			draw_circle(Vector2.ZERO, 3.0, Color(0.95, 0.18, 0.35, 0.95))
+			draw_rect(rect, Color(0.95, 0.28, 0.62, 0.96), true)
+			draw_rect(rect, Color(1.0, 0.65, 0.85, 0.95), false, 1.8)
+			draw_circle(Vector2(0, 0), 3.4, Color(0.96, 0.22, 0.55, 1.0))
+			# Rachadura preta + curativo cinza costurado
+			draw_line(Vector2(-1, -3), Vector2(1, 3), Color(0.12, 0.06, 0.14, 1.0), 1.3)
+			draw_rect(Rect2(Vector2(-2.5, -1.0), Vector2(5.0, 2.2)), Color(0.76, 0.78, 0.84, 0.95), true)
 		State.SONIC_APPROACH:
-			draw_arc(Vector2(0, -8), 9.0, 0.0, TAU, 18, Color(0.65, 0.9, 1.0, 0.75), 1.8)
+			draw_arc(Vector2(0, -8), 9.0, 0.0, TAU, 18, Color(0.96, 0.42, 0.78, 0.75), 1.8)
 		State.SONIC_ATTACK:
-			# Anéis concêntricos de rosnado sônico (roxo/ciano conforme prancha conceitual)
-			draw_arc(Vector2(0, -8), 10.0, 0.0, TAU, 20, Color(0.75, 0.45, 1.0, 0.95), 2.2)
-			draw_arc(Vector2(0, -8), 14.5, 0.0, TAU, 22, Color(0.45, 0.95, 1.0, 0.80), 1.6)
+			# Anéis concêntricos de grunhido sônico (roxo e rosa conforme Bíblia 3.2)
+			draw_arc(Vector2(0, -8), 10.5, 0.0, TAU, 22, Color(0.72, 0.30, 1.0, 0.95), 2.2)
+			draw_arc(Vector2(0, -8), 15.0, 0.0, TAU, 24, Color(0.98, 0.38, 0.75, 0.85), 1.8)
+			draw_arc(Vector2(0, -8), 19.5, 0.0, TAU, 24, Color(0.58, 0.20, 0.88, 0.55), 1.3)
 
 

@@ -58,17 +58,24 @@ var virtual_joystick_node: Control
 var touch_controls_node: Control
 var physical_attack_btn: Control
 var sonic_attack_btn: Control
+var dash_btn_node: Control
 var capacity_row_node: Control
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	if pipop_icon:
-		pipop_icon.texture = null
-		pipop_icon.custom_minimum_size = Vector2(22, 22)
-		var ph := ColorRect.new()
-		ph.color = Color(0.95, 0.3, 0.65, 1.0)
-		ph.set_anchors_preset(Control.PRESET_FULL_RECT)
-		pipop_icon.add_child(ph)
+		pipop_icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		pipop_icon.custom_minimum_size = Vector2(24, 24)
+		pipop_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		var portrait_path: String = "res://assets/characters/pipop/pipop_portrait.png"
+		if ResourceLoader.exists(portrait_path):
+			pipop_icon.texture = load(portrait_path) as Texture2D
+		else:
+			pipop_icon.texture = null
+			var ph := ColorRect.new()
+			ph.color = Color(0.95, 0.3, 0.65, 1.0)
+			ph.set_anchors_preset(Control.PRESET_FULL_RECT)
+			pipop_icon.add_child(ph)
 
 	prompt_container.visible = false
 	dialogue_box.visible = false
@@ -145,11 +152,24 @@ func _refresh_pipop_and_device_ui() -> void:
 		physical_attack_btn.visible = pipop_unlocked
 	if sonic_attack_btn:
 		sonic_attack_btn.visible = pipop_unlocked
+	if dash_btn_node:
+		dash_btn_node.visible = is_mobile
+	if interact_button:
+		if pipop_unlocked:
+			interact_button.offset_left = -136.0
+			interact_button.offset_top = -126.0
+			interact_button.offset_right = -78.0
+			interact_button.offset_bottom = -68.0
+		else:
+			interact_button.offset_left = -72.0
+			interact_button.offset_top = -72.0
+			interact_button.offset_right = -12.0
+			interact_button.offset_bottom = -12.0
 
 	if virtual_joystick_node:
 		virtual_joystick_node.visible = is_mobile and not any_modal_open
 	if touch_controls_node:
-		touch_controls_node.visible = is_mobile and not any_modal_open
+		touch_controls_node.visible = (is_mobile or (interact_button != null and interact_button.visible)) and not any_modal_open
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_pause"):
@@ -185,6 +205,7 @@ func _build_dynamic_ui() -> void:
 			phys_btn.offset_top = -68.0
 			phys_btn.offset_right = -4.0
 			phys_btn.offset_bottom = -4.0
+			_attach_action_button_icon(phys_btn, "res://assets/ui/hud_btn_physical_gauntlet.png")
 		var sonic_btn: Control = touch_ctrl.get_node_or_null("SonicAttackBtn")
 		sonic_attack_btn = sonic_btn
 		if sonic_btn:
@@ -192,7 +213,9 @@ func _build_dynamic_ui() -> void:
 			sonic_btn.offset_top = -60.0
 			sonic_btn.offset_right = -78.0
 			sonic_btn.offset_bottom = -2.0
+			_attach_action_button_icon(sonic_btn, "res://assets/ui/hud_btn_sonic_waves.png")
 		var dash_btn: Control = touch_ctrl.get_node_or_null("DashBtn")
+		dash_btn_node = dash_btn
 		if dash_btn:
 			dash_btn.offset_left = -64.0
 			dash_btn.offset_top = -132.0
@@ -205,29 +228,40 @@ func _build_dynamic_ui() -> void:
 			act_btn.offset_right = -78.0
 			act_btn.offset_bottom = -68.0
 
-	# Rótulo da fase atual no topo
+	var top_left_vbox := root_ctrl.get_node_or_null("TopLeftMargin/VBoxContainer") as VBoxContainer
+	var label_parent: Control = top_left_vbox if top_left_vbox != null else root_ctrl
+
+	# Rótulo da fase atual e objetivo empilhados no topo esquerdo (sem sobreposição)
 	level_title_label = Label.new()
 	level_title_label.text = "Fase 1"
 	level_title_label.add_theme_font_size_override("font_size", 10)
-	level_title_label.modulate = Color(0.85, 0.85, 0.95, 0.9)
-	level_title_label.position = Vector2(14, 62)
-	root_ctrl.add_child(level_title_label)
+	level_title_label.add_theme_constant_override("outline_size", 2)
+	level_title_label.add_theme_color_override("font_outline_color", Color(0.08, 0.06, 0.12, 0.95))
+	level_title_label.add_theme_constant_override("shadow_size", 0)
+	level_title_label.modulate = Color(0.92, 0.92, 0.98, 0.96)
+	label_parent.add_child(level_title_label)
 
 	objective_label = Label.new()
 	objective_label.text = "Objetivo: Explorar"
+	objective_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	objective_label.custom_minimum_size = Vector2(260, 0)
 	objective_label.add_theme_font_size_override("font_size", 9)
-	objective_label.modulate = Color(0.75, 0.95, 0.85, 0.95)
-	objective_label.position = Vector2(14, 76)
-	root_ctrl.add_child(objective_label)
+	objective_label.add_theme_constant_override("outline_size", 2)
+	objective_label.add_theme_color_override("font_outline_color", Color(0.08, 0.06, 0.12, 0.95))
+	objective_label.add_theme_constant_override("shadow_size", 0)
+	objective_label.modulate = Color(0.75, 0.96, 0.85, 0.98)
+	label_parent.add_child(objective_label)
 
 	debug_combat_label = Label.new()
 	debug_combat_label.name = "DebugCombatLabel"
 	debug_combat_label.add_theme_font_size_override("font_size", 8)
-	debug_combat_label.modulate = Color(0.85, 0.92, 1.0, 0.88)
-	debug_combat_label.position = Vector2(14, 92)
+	debug_combat_label.add_theme_constant_override("outline_size", 2)
+	debug_combat_label.add_theme_color_override("font_outline_color", Color(0.08, 0.06, 0.12, 0.95))
+	debug_combat_label.add_theme_constant_override("shadow_size", 0)
+	debug_combat_label.modulate = Color(0.85, 0.92, 1.0, 0.92)
 	debug_combat_label.text = "[DEBUG COMBATE]\nCmd: NENHUM | Hab: NENHUMA\nPipop: FOLLOW | Hitbox: NENHUMA\nAlvo: NENHUM | Dano: 0"
 	debug_combat_label.visible = false
-	root_ctrl.add_child(debug_combat_label)
+	label_parent.add_child(debug_combat_label)
 
 	# Barra superior direita: Botões de ENCARTES e PAUSA (acessíveis por toque)
 	top_right_bar = HBoxContainer.new()
@@ -592,24 +626,60 @@ func update_debug_combat(info: Dictionary) -> void:
 		int(info.get("last_damage", 0))
 	]
 
+func _attach_action_button_icon(btn: Control, icon_path: String) -> void:
+	if btn == null or not ResourceLoader.exists(icon_path):
+		return
+	var icon_rect := btn.get_node_or_null("ActionIcon") as TextureRect
+	if icon_rect == null:
+		icon_rect = TextureRect.new()
+		icon_rect.name = "ActionIcon"
+		icon_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		icon_rect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		icon_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		icon_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+		icon_rect.offset_left = 6.0
+		icon_rect.offset_top = 4.0
+		icon_rect.offset_right = -6.0
+		icon_rect.offset_bottom = -12.0
+		btn.add_child(icon_rect)
+	icon_rect.texture = load(icon_path) as Texture2D
+	for child in btn.get_children():
+		if child is Label:
+			(child as Label).vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
+
 func update_pipop_capacity(used_slots: int, total_slots: int) -> void:
 	for child in capacity_slots_container.get_children():
 		child.queue_free()
 
+	var filled_path: String = "res://assets/ui/hud_slot_filled.png"
+	var empty_path: String = "res://assets/ui/hud_slot_empty.png"
+	var has_tex: bool = ResourceLoader.exists(filled_path) and ResourceLoader.exists(empty_path)
+	var tex_filled: Texture2D = load(filled_path) as Texture2D if has_tex else null
+	var tex_empty: Texture2D = load(empty_path) as Texture2D if has_tex else null
+
 	for i in range(total_slots):
-		var slot_panel := Panel.new()
-		slot_panel.custom_minimum_size = Vector2(14, 14)
-		var style := StyleBoxFlat.new()
-		style.set_corner_radius_all(3)
-		if i < used_slots:
-			style.bg_color = Color(0.92, 0.25, 0.55)
-			style.border_color = Color(1.0, 0.7, 0.85)
+		if has_tex and tex_filled != null and tex_empty != null:
+			var slot_tex := TextureRect.new()
+			slot_tex.custom_minimum_size = Vector2(14, 14)
+			slot_tex.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+			slot_tex.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			slot_tex.texture = tex_filled if i < used_slots else tex_empty
+			capacity_slots_container.add_child(slot_tex)
 		else:
-			style.bg_color = Color(0.2, 0.16, 0.24, 0.7)
-			style.border_color = Color(0.4, 0.35, 0.45)
-		style.set_border_width_all(1)
-		slot_panel.add_theme_stylebox_override("panel", style)
-		capacity_slots_container.add_child(slot_panel)
+			var slot_panel := Panel.new()
+			slot_panel.custom_minimum_size = Vector2(14, 14)
+			var style := StyleBoxFlat.new()
+			style.set_corner_radius_all(3)
+			if i < used_slots:
+				style.bg_color = Color(0.92, 0.25, 0.55)
+				style.border_color = Color(1.0, 0.7, 0.85)
+			else:
+				style.bg_color = Color(0.2, 0.16, 0.24, 0.7)
+				style.border_color = Color(0.4, 0.35, 0.45)
+			style.set_border_width_all(1)
+			slot_panel.add_theme_stylebox_override("panel", style)
+			capacity_slots_container.add_child(slot_panel)
 
 func show_boss_health(boss_name: String, current: int, maximum: int) -> void:
 	if not boss_bar_panel:
@@ -628,6 +698,7 @@ func update_interaction_prompt(prompt_text: String, is_visible: bool) -> void:
 	prompt_container.visible = is_visible
 	if interact_button:
 		interact_button.visible = is_visible or _is_dialogue_open
+	_refresh_pipop_and_device_ui()
 
 # ---------- Diálogos ----------
 

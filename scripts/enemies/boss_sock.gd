@@ -40,12 +40,15 @@ var health_component: HealthComponent
 var hurtbox: Hurtbox
 var hitbox: Hitbox
 var body_collision: CollisionShape2D
+var boss_sprite: Sprite2D = null
 
 func _ready() -> void:
 	add_to_group("enemies")
 	add_to_group("bosses")
 	_setup_components()
+	_setup_boss_sprite()
 	call_deferred("_spawn_arena_anchors")
+	_update_boss_visual()
 	queue_redraw()
 
 func _setup_components() -> void:
@@ -115,6 +118,7 @@ func _spawn_arena_anchors() -> void:
 		anchor.activated.connect(_on_anchor_broken)
 		get_tree().current_scene.add_child(anchor)
 		active_anchors.append(anchor)
+	_update_boss_visual()
 	queue_redraw()
 
 func get_intact_anchor_count() -> int:
@@ -133,6 +137,7 @@ func _on_anchor_broken(_anchor: WorldObject) -> void:
 		velocity = Vector2.ZERO
 		current_state = State.VULNERABLE_RECOVERY
 		state_timer = 3.2
+	_update_boss_visual()
 	queue_redraw()
 
 func _physics_process(delta: float) -> void:
@@ -195,6 +200,7 @@ func _physics_process(delta: float) -> void:
 				current_state = State.IDLE
 				state_timer = 1.1
 
+	_update_boss_visual()
 	queue_redraw()
 
 func _select_next_attack() -> void:
@@ -330,16 +336,51 @@ func _draw() -> void:
 		if is_instance_valid(anc) and not anc.is_activated:
 			draw_line(Vector2.ZERO, to_local(anc.global_position), Color(0.85, 0.5, 1.0, 0.55), 2.0)
 
-	var col := Color(0.72, 0.32, 0.88, 1.0) if current_phase == 1 else Color(0.92, 0.22, 0.68, 1.0)
-	if current_state == State.TELEGRAPH:
-		col = Color(1.0, 0.88, 0.25, 1.0)
-	elif current_state == State.VULNERABLE_RECOVERY:
-		col = Color(0.35, 0.95, 0.55, 1.0) # Verde indicando janela clara de vulnerabilidade!
+	# Sombra suave na arena (escala 300%)
+	draw_circle(Vector2(0, 22), body_radius * 1.15, Color(0.06, 0.03, 0.1, 0.42))
 
-	draw_circle(Vector2.ZERO, body_radius, col)
-	draw_arc(Vector2.ZERO, body_radius, 0.0, TAU, 24, Color.WHITE, 2.2)
+	if boss_sprite == null or boss_sprite.texture == null:
+		var col := Color(0.72, 0.32, 0.88, 1.0) if current_phase == 1 else Color(0.92, 0.22, 0.68, 1.0)
+		if current_state == State.TELEGRAPH:
+			col = Color(1.0, 0.88, 0.25, 1.0)
+		elif current_state == State.VULNERABLE_RECOVERY:
+			col = Color(0.35, 0.95, 0.55, 1.0)
+		draw_circle(Vector2.ZERO, body_radius, col)
+		draw_arc(Vector2.ZERO, body_radius, 0.0, TAU, 24, Color.WHITE, 2.2)
 
-	if current_state == State.TELEGRAPH:
+	if current_state == State.VULNERABLE_RECOVERY:
+		draw_arc(Vector2.ZERO, body_radius + 6.0, 0.0, TAU, 28, Color(0.35, 0.95, 0.55, 0.85), 2.6)
+	elif current_state == State.TELEGRAPH:
 		draw_line(Vector2.ZERO, target_dir * 48.0, Color(1.0, 0.25, 0.25, 0.95), 3.0)
+		draw_arc(Vector2.ZERO, body_radius + 4.0, 0.0, TAU, 24, Color(1.0, 0.3, 0.3, 0.85), 2.2)
 	elif current_state == State.LINT_WHIP:
 		draw_line(Vector2(-46, 0), Vector2(46, 0), Color(1.0, 0.9, 0.4, 0.95), 5.0)
+
+func _setup_boss_sprite() -> void:
+	var tex_path: String = "res://assets/characters/enemies/boss_sock.png"
+	if not ResourceLoader.exists(tex_path):
+		return
+	boss_sprite = Sprite2D.new()
+	boss_sprite.name = "BossSprite"
+	boss_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	boss_sprite.texture = load(tex_path) as Texture2D
+	boss_sprite.offset = Vector2(0, -10)
+	add_child(boss_sprite)
+
+func _update_boss_visual() -> void:
+	if boss_sprite == null:
+		return
+	if current_state == State.DEAD:
+		boss_sprite.visible = false
+		return
+	boss_sprite.visible = true
+	if absf(target_dir.x) > 0.12:
+		boss_sprite.flip_h = target_dir.x < 0.0
+	if current_state == State.TELEGRAPH:
+		boss_sprite.modulate = Color(1.3, 1.15, 0.55, 1.0)
+	elif current_state == State.VULNERABLE_RECOVERY:
+		boss_sprite.modulate = Color(0.65, 1.35, 0.80, 1.0)
+	elif current_phase == 2:
+		boss_sprite.modulate = Color(1.18, 0.82, 0.95, 1.0)
+	else:
+		boss_sprite.modulate = Color.WHITE

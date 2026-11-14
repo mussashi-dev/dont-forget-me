@@ -33,3 +33,9 @@
 - Import pixel art textures with **Nearest** filter (never Linear) for crisp rendering.
 - Use `.ogg` for music loops and `.wav` for short sound effects.
 - Organize sprite sheets in consistent grid layouts.
+
+## GameForge Integration (Always Active)
+- This repository is wired with **AlterLab GameForge** (`.gameforge/project.json`).
+- At the start of every conversation or task, read `.gameforge/project.json` and `production/session-state/active.md` to align with current phase, pillars, and active focus.
+- Always invoke/read the appropriate GameForge specialist skill (`game-godot-specialist`, `game-designer`, `game-gdd-author`, `game-art-director`, `game-qa-lead`, `game-code-review`, etc., as mapped in `.agents/rules/GAMEFORGE.md`) before designing, reviewing, or building.
+- Update `production/session-state/active.md` when completing milestones or recording key decisions.
