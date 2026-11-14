@@ -74,6 +74,27 @@ func _run_all_tests() -> void:
 	# 2. TESTE DA FASE 1: ROUBO DO CD, DIÁLOGO EM PARTES E RETORNO DE CÂMERA
 	# -------------------------------------------------------------------------
 	var lvl1_packed: PackedScene = load("res://scenes/levels/level_01_intro.tscn")
+
+	# A primeira visita precisa começar no escuro, com Pablita deitada e o
+	# Esquecido integralmente oculto.
+	var opening_preview := lvl1_packed.instantiate() as CampaignLevel
+	root.add_child(opening_preview)
+	current_scene = opening_preview
+	await process_frame
+	await process_frame
+	assert(opening_preview._bedroom_wakeup_completed == false, "2.0: A abertura deve iniciar antes do despertar")
+	assert(opening_preview.hud != null, "2.0a.0: HUD deve existir antes da sequência de abertura")
+	assert(opening_preview.pablita.current_state == Pablita.State.CINEMATIC_LOCKED, "2.0a: Pablita deve começar deitada e sem controle")
+	assert(not (opening_preview.hud.get_node("RootControl") as Control).visible, "2.0a.1: HUD deve ficar oculto durante o despertar")
+	assert(opening_preview._esquecido_occlusion != null and opening_preview._esquecido_occlusion.visible, "2.0b: O Esquecido deve começar coberto")
+	assert(is_equal_approx(opening_preview._esquecido_occlusion.color.a, 1.0), "2.0c: A máscara do Esquecido deve começar totalmente opaca")
+	assert((opening_preview.get_node("BedroomArtDark") as Sprite2D).visible, "2.0d: A arte escura do quarto deve estar visível")
+	assert(is_equal_approx((opening_preview.get_node("BedroomArtLit") as Sprite2D).modulate.a, 0.0), "2.0e: A arte iluminada deve começar invisível")
+	opening_preview.queue_free()
+	await process_frame
+
+	# O teste da cinemática do armário parte de um save em que Pablita já despertou.
+	gm.set_story_flag("f1_bedroom_wakeup_done", true)
 	var lvl1 := lvl1_packed.instantiate() as CampaignLevel
 	root.add_child(lvl1)
 	current_scene = lvl1
@@ -118,9 +139,11 @@ func _run_all_tests() -> void:
 	if lvl1.pablita._active_camera_tween and lvl1.pablita._active_camera_tween.is_valid():
 		await lvl1.pablita._active_camera_tween.finished
 	await process_frame
+	await create_timer(0.35).timeout # Aguarda a transição de revelação do Esquecido terminar.
 
 	assert(lvl1.pablita.current_state == Pablita.State.IDLE, "2.10: Controle de Pablita deve ser devolvido após retorno da câmera")
 	assert(lvl1._show_thief_visual == false, "2.11: Visual provisório da meia deve ser ocultado")
+	assert(not lvl1._esquecido_occlusion.visible, "2.12: A máscara deve desaparecer depois de empurrar o armário")
 	print("[PASSOU] Critério 2: Apresentação do roubo do CD, avanço de diálogo e retorno suave da câmera validados.")
 
 	lvl1.queue_free()

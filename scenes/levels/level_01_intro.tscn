@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://b7b9q28t7b22n"]
 
 [ext_resource type="Script" path="res://scripts/levels/level_01_intro.gd" id="1_level"]
+[ext_resource type="Texture2D" path="res://assets/_reference/concept_pack/02_ambientes/Quarto/quarto_pablita_luz_acesa_e_apagada.jpg" id="10_bedroom_reference"]
 [ext_resource type="Texture2D" path="res://assets/environments/forgotten_realm/mainlevbuild.png" id="2_tileset"]
 [ext_resource type="Texture2D" path="res://assets/environments/forgotten_realm/decorative.png" id="3_decor"]
 [ext_resource type="PackedScene" path="res://scenes/characters/pablita.tscn" id="4_pablita"]
@@ -9,6 +10,14 @@
 [ext_resource type="PackedScene" path="res://scenes/environments/forgotten_cd_item.tscn" id="7_cd"]
 [ext_resource type="PackedScene" path="res://scenes/environments/candle.tscn" id="8_candle"]
 [ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="9_hud"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bedroom_dark"]
+atlas = ExtResource("10_bedroom_reference")
+region = Rect2(910, 68, 775, 752)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bedroom_lit"]
+atlas = ExtResource("10_bedroom_reference")
+region = Rect2(45, 68, 775, 752)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_wall_h"]
 size = Vector2(720, 32)
@@ -21,6 +30,19 @@ radius = 16.0
 
 [node name="Level01Intro" type="Node2D"]
 script = ExtResource("1_level")
+
+# Arte do quarto em dois estados de luz. A camada acesa começa transparente
+# e é revelada pelo controlador depois do ruído atrás do guarda-roupa.
+[node name="BedroomArtDark" type="Sprite2D" parent="."]
+texture = SubResource("AtlasTexture_bedroom_dark")
+position = Vector2(139, 210)
+scale = Vector2(0.297, 0.297)
+
+[node name="BedroomArtLit" type="Sprite2D" parent="."]
+texture = SubResource("AtlasTexture_bedroom_lit")
+position = Vector2(139, 210)
+scale = Vector2(0.297, 0.297)
+modulate = Color(1, 1, 1, 0)
 
 [node name="AmbientLight" type="CanvasModulate" parent="."]
 color = Color(0.72, 0.68, 0.85, 1)
