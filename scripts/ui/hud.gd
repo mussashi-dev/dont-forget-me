@@ -1,12 +1,14 @@
-﻿class_name HUD
+class_name HUD
 extends CanvasLayer
 ## Interface completa de Gameplay e Mobile:
 ## - Indicador de Vida e Capacidade dos Encartes
-## - Joystick Virtual (esquerdo) e BotÃµes de AÃ§Ã£o Touch (direito: FÃ­sico, SÃ´nico, Dash, InteraÃ§Ã£o)
-## - Caixa de DiÃ¡logo com avanÃ§o de texto e encerramento
-## - Painel de Equipamento de Encartes com comparaÃ§Ã£o de atributos
-## - Painel de Pausa (interrompendo a simulaÃ§Ã£o), Tela de Morte e Tela de VitÃ³ria/Encerramento
-## - Barra de Vida de Chefe (quando aplicÃ¡vel)
+## - Joystick Virtual (esquerdo) e Botões de Ação Touch (direito: Físico, Sônico, Dash, Interação)
+## - Caixa de Diálogo com avanço de texto e encerramento
+## - Painel de Equipamento de Encartes com comparação de atributos
+## - Painel de Pausa (interrompendo a simulação), Tela de Morte e Tela de Vitória/Encerramento
+## - Barra de Vida de Chefe (quando aplicável)
+
+signal dialogue_closed
 
 @onready var health_bar: ProgressBar = %HealthBar
 @onready var health_label: Label = %HealthLabel
@@ -24,7 +26,7 @@ var _dialogue_queue: Array[String] = []
 var _current_speaker: String = ""
 var _is_dialogue_open: bool = false
 
-# NÃ³s criados programaticamente para Pausa, Encartes, Barra de Chefe e Estados Finais
+# Nós criados programaticamente para Pausa, Encartes, Barra de Chefe e Estados Finais
 var level_title_label: Label
 var objective_label: Label
 var debug_combat_label: Label
@@ -43,6 +45,7 @@ var encartes_comparison_label: Label
 var _selected_preview_id: String = ""
 
 var pause_panel: PanelContainer
+var pause_controls_panel: PanelContainer
 var state_overlay_panel: PanelContainer
 var state_title_label: Label
 var state_subtitle_label: Label
@@ -50,6 +53,12 @@ var state_btn_primary: Button
 var state_btn_secondary: Button
 
 var dialogue_next_btn: Button
+
+var virtual_joystick_node: Control
+var touch_controls_node: Control
+var physical_attack_btn: Control
+var sonic_attack_btn: Control
+var capacity_row_node: Control
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -68,6 +77,7 @@ func _ready() -> void:
 
 	_build_dynamic_ui()
 	_connect_player_and_managers()
+	_refresh_pipop_and_device_ui()
 
 func _connect_player_and_managers() -> void:
 	var players := get_tree().get_nodes_in_group("player")
@@ -88,19 +98,58 @@ func _connect_player_and_managers() -> void:
 			update_pipop_capacity(pablita.pipop.current_used_slots, pablita.pipop.max_capacity_slots)
 			pablita.pipop._emit_debug_info()
 
-	if GameManagerService.get_gm():
-		if not GameManagerService.get_gm().capacity_updated.is_connected(update_pipop_capacity):
-			GameManagerService.get_gm().capacity_updated.connect(update_pipop_capacity)
-		if not GameManagerService.get_gm().equipment_changed.is_connected(_refresh_encartes_ui):
-			GameManagerService.get_gm().equipment_changed.connect(_refresh_encartes_ui)
-		if not GameManagerService.get_gm().encarte_collected.is_connected(_on_encarte_collected):
-			GameManagerService.get_gm().encarte_collected.connect(_on_encarte_collected)
-		if not GameManagerService.get_gm().game_state_changed.is_connected(_on_game_state_changed):
-			GameManagerService.get_gm().game_state_changed.connect(_on_game_state_changed)
-		update_pipop_capacity(GameManagerService.get_gm().get_used_capacity(), GameManagerService.get_gm().max_capacity)
-		var lvl_idx: int = GameManagerService.get_gm().current_level_index
+	var gm := GameManagerService.get_gm()
+	if gm:
+		if not gm.capacity_updated.is_connected(update_pipop_capacity):
+			gm.capacity_updated.connect(update_pipop_capacity)
+		if not gm.equipment_changed.is_connected(_refresh_encartes_ui):
+			gm.equipment_changed.connect(_refresh_encartes_ui)
+		if not gm.encarte_collected.is_connected(_on_encarte_collected):
+			gm.encarte_collected.connect(_on_encarte_collected)
+		if not gm.game_state_changed.is_connected(_on_game_state_changed):
+			gm.game_state_changed.connect(_on_game_state_changed)
+		if not gm.story_flag_changed.is_connected(_on_story_flag_changed):
+			gm.story_flag_changed.connect(_on_story_flag_changed)
+		if not gm.input_device_changed.is_connected(_on_input_device_changed):
+			gm.input_device_changed.connect(_on_input_device_changed)
+		update_pipop_capacity(gm.get_used_capacity(), gm.max_capacity)
+		var lvl_idx: int = gm.current_level_index
 		if level_title_label:
-			level_title_label.text = GameManagerService.get_gm().LEVEL_TITLES.get(lvl_idx, "Fase %d" % lvl_idx)
+			level_title_label.text = gm.LEVEL_TITLES.get(lvl_idx, "Fase %d" % lvl_idx)
+	_refresh_pipop_and_device_ui()
+
+func _on_story_flag_changed(_flag_name: String, _value: Variant) -> void:
+	_refresh_pipop_and_device_ui()
+
+func _on_input_device_changed(_is_mobile: bool) -> void:
+	_refresh_pipop_and_device_ui()
+
+func _refresh_pipop_and_device_ui() -> void:
+	var gm := GameManagerService.get_gm()
+	var pipop_unlocked: bool = gm.is_pipop_acquired() if gm else true
+	var is_mobile: bool = gm.is_mobile_device if gm else (OS.has_feature("mobile") or OS.get_name() in ["Android", "iOS"])
+	var any_modal_open: bool = (
+		_is_dialogue_open
+		or (pause_panel != null and pause_panel.visible)
+		or (encartes_panel != null and encartes_panel.visible)
+		or (state_overlay_panel != null and state_overlay_panel.visible)
+	)
+
+	if pipop_icon:
+		pipop_icon.visible = pipop_unlocked
+	if capacity_row_node:
+		capacity_row_node.visible = pipop_unlocked
+	if btn_open_encartes:
+		btn_open_encartes.visible = pipop_unlocked
+	if physical_attack_btn:
+		physical_attack_btn.visible = pipop_unlocked
+	if sonic_attack_btn:
+		sonic_attack_btn.visible = pipop_unlocked
+
+	if virtual_joystick_node:
+		virtual_joystick_node.visible = is_mobile and not any_modal_open
+	if touch_controls_node:
+		touch_controls_node.visible = is_mobile and not any_modal_open
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_pause"):
@@ -112,20 +161,32 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif _is_dialogue_open and (event.is_action_pressed("interact") or event.is_action_pressed("ui_accept")):
 		advance_dialogue()
 		get_viewport().set_input_as_handled()
+	elif event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F3:
+		toggle_debug_combat_visibility()
+		get_viewport().set_input_as_handled()
+
+func toggle_debug_combat_visibility() -> void:
+	if debug_combat_label:
+		debug_combat_label.visible = not debug_combat_label.visible
 
 func _build_dynamic_ui() -> void:
 	var root_ctrl: Control = $RootControl
+	virtual_joystick_node = root_ctrl.get_node_or_null("VirtualJoystick")
+	touch_controls_node = root_ctrl.get_node_or_null("TouchControls")
+	capacity_row_node = root_ctrl.get_node_or_null("TopLeftMargin/VBoxContainer/CapacityRow")
 
-	# Ajustar tamanho mÃ­nimo dos botÃµes touch existentes para facilitar toque mobile
-	var touch_ctrl: Control = root_ctrl.get_node_or_null("TouchControls")
+	# Ajustar tamanho mínimo dos botões touch existentes para facilitar toque mobile
+	var touch_ctrl: Control = touch_controls_node
 	if touch_ctrl:
 		var phys_btn: Control = touch_ctrl.get_node_or_null("PhysicalAttackBtn")
+		physical_attack_btn = phys_btn
 		if phys_btn:
 			phys_btn.offset_left = -68.0
 			phys_btn.offset_top = -68.0
 			phys_btn.offset_right = -4.0
 			phys_btn.offset_bottom = -4.0
 		var sonic_btn: Control = touch_ctrl.get_node_or_null("SonicAttackBtn")
+		sonic_attack_btn = sonic_btn
 		if sonic_btn:
 			sonic_btn.offset_left = -136.0
 			sonic_btn.offset_top = -60.0
@@ -144,7 +205,7 @@ func _build_dynamic_ui() -> void:
 			act_btn.offset_right = -78.0
 			act_btn.offset_bottom = -68.0
 
-	# RÃ³tulo da fase atual no topo
+	# Rótulo da fase atual no topo
 	level_title_label = Label.new()
 	level_title_label.text = "Fase 1"
 	level_title_label.add_theme_font_size_override("font_size", 10)
@@ -165,9 +226,10 @@ func _build_dynamic_ui() -> void:
 	debug_combat_label.modulate = Color(0.85, 0.92, 1.0, 0.88)
 	debug_combat_label.position = Vector2(14, 92)
 	debug_combat_label.text = "[DEBUG COMBATE]\nCmd: NENHUM | Hab: NENHUMA\nPipop: FOLLOW | Hitbox: NENHUMA\nAlvo: NENHUM | Dano: 0"
+	debug_combat_label.visible = false
 	root_ctrl.add_child(debug_combat_label)
 
-	# Barra superior direita: BotÃµes de ENCARTES e PAUSA (acessÃ­veis por toque)
+	# Barra superior direita: Botões de ENCARTES e PAUSA (acessíveis por toque)
 	top_right_bar = HBoxContainer.new()
 	top_right_bar.set_anchors_preset(Control.PRESET_TOP_RIGHT)
 	top_right_bar.offset_left = -190.0
@@ -215,11 +277,11 @@ func _build_dynamic_ui() -> void:
 	boss_vbox.add_child(boss_health_bar)
 	root_ctrl.add_child(boss_bar_panel)
 
-	# BotÃ£o de avanÃ§ar/fechar diÃ¡logo dentro da DialogueBox
+	# Botão de avançar/fechar diálogo dentro da DialogueBox
 	var dlg_vbox: Node = dialogue_box.get_node_or_null("Margin/VBox")
 	if dlg_vbox:
 		dialogue_next_btn = Button.new()
-		dialogue_next_btn.text = "AvanÃ§ar / Fechar [AÃ‡ÃƒO]"
+		dialogue_next_btn.text = "Avançar / Fechar [AÇÃO]"
 		dialogue_next_btn.custom_minimum_size = Vector2(140, 24)
 		dialogue_next_btn.add_theme_font_size_override("font_size", 10)
 		dialogue_next_btn.pressed.connect(advance_dialogue)
@@ -294,7 +356,7 @@ func _build_encartes_modal(parent: Control) -> void:
 	encartes_comparison_label.custom_minimum_size = Vector2(210, 0)
 	encartes_comparison_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	encartes_comparison_label.add_theme_font_size_override("font_size", 9)
-	encartes_comparison_label.text = "Selecione um encarte para comparar a configuraÃ§Ã£o atual com a nova."
+	encartes_comparison_label.text = "Selecione um encarte para comparar a configuração atual com a nova."
 	split.add_child(encartes_comparison_label)
 
 	parent.add_child(encartes_panel)
@@ -334,6 +396,7 @@ func _build_pause_modal(parent: Control) -> void:
 			GameManagerService.get_gm().resume_game()
 		else:
 			get_tree().paused = false
+		_refresh_pipop_and_device_ui()
 	)
 	vbox.add_child(btn_resume)
 
@@ -346,11 +409,23 @@ func _build_pause_modal(parent: Control) -> void:
 	)
 	vbox.add_child(btn_encartes)
 
+	var btn_controls := Button.new()
+	btn_controls.name = "PauseControlsButton"
+	btn_controls.text = "Comandos / Controles"
+	btn_controls.custom_minimum_size = Vector2(180, 26)
+	btn_controls.pressed.connect(func():
+		if pause_controls_panel:
+			pause_controls_panel.visible = true
+	)
+	vbox.add_child(btn_controls)
+
 	var btn_restart := Button.new()
 	btn_restart.text = "Reiniciar Fase"
-	btn_restart.custom_minimum_size = Vector2(180, 28)
+	btn_restart.custom_minimum_size = Vector2(180, 26)
 	btn_restart.pressed.connect(func():
 		pause_panel.visible = false
+		if pause_controls_panel:
+			pause_controls_panel.visible = false
 		if GameManagerService.get_gm():
 			GameManagerService.get_gm().restart_current_level()
 		else:
@@ -361,15 +436,92 @@ func _build_pause_modal(parent: Control) -> void:
 
 	var btn_menu := Button.new()
 	btn_menu.text = "Menu Inicial"
-	btn_menu.custom_minimum_size = Vector2(180, 28)
+	btn_menu.custom_minimum_size = Vector2(180, 26)
 	btn_menu.pressed.connect(func():
 		pause_panel.visible = false
+		if pause_controls_panel:
+			pause_controls_panel.visible = false
 		if GameManagerService.get_gm():
 			GameManagerService.get_gm().return_to_main_menu()
 	)
 	vbox.add_child(btn_menu)
 
 	parent.add_child(pause_panel)
+
+	pause_controls_panel = PanelContainer.new()
+	pause_controls_panel.name = "PauseControlsPanel"
+	pause_controls_panel.visible = false
+	pause_controls_panel.set_anchors_preset(Control.PRESET_CENTER)
+	pause_controls_panel.offset_left = -195.0
+	pause_controls_panel.offset_top = -110.0
+	pause_controls_panel.offset_right = 195.0
+	pause_controls_panel.offset_bottom = 110.0
+	pause_controls_panel.add_theme_stylebox_override("panel", style)
+	var ctrl_vbox := VBoxContainer.new()
+	ctrl_vbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	ctrl_vbox.add_theme_constant_override("separation", 6)
+	pause_controls_panel.add_child(ctrl_vbox)
+	var ctrl_title := Label.new()
+	ctrl_title.text = "COMANDOS E CONTROLES"
+	ctrl_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	ctrl_title.add_theme_font_size_override("font_size", 12)
+	ctrl_vbox.add_child(ctrl_title)
+	var ctrl_lbl := Label.new()
+	ctrl_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	ctrl_lbl.add_theme_font_size_override("font_size", 9)
+	ctrl_lbl.text = (
+		"PC (Teclado):\n" +
+		"• Mover: WASD ou Setas | Esquivar: Espaço / Shift\n" +
+		"• Interagir / Avançar: E ou Enter\n" +
+		"• Manopla Física: J | Grito Sônico: K | Pausa: ESC\n\n" +
+		"Mobile (Toque):\n" +
+		"• Esquerda: Joystick | Direita: Botões de Ação"
+	)
+	ctrl_vbox.add_child(ctrl_lbl)
+
+	var acc_row := HBoxContainer.new()
+	acc_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	acc_row.add_theme_constant_override("separation", 8)
+	ctrl_vbox.add_child(acc_row)
+
+	var btn_shake := Button.new()
+	var update_shake_txt := func():
+		var gm := GameManagerService.get_gm()
+		var on: bool = gm.screen_shake_enabled if gm else true
+		btn_shake.text = "Tremor de Tela: %s" % ("SIM" if on else "NÃO")
+	update_shake_txt.call()
+	btn_shake.custom_minimum_size = Vector2(150, 24)
+	btn_shake.add_theme_font_size_override("font_size", 9)
+	btn_shake.pressed.connect(func():
+		var gm := GameManagerService.get_gm()
+		if gm:
+			gm.set_screen_shake_enabled(not gm.screen_shake_enabled)
+		update_shake_txt.call()
+	)
+	acc_row.add_child(btn_shake)
+
+	var btn_legib := Button.new()
+	var update_legib_txt := func():
+		var gm := GameManagerService.get_gm()
+		var on: bool = gm.high_legibility_text if gm else false
+		btn_legib.text = "Texto Ampliado: %s" % ("SIM" if on else "NÃO")
+	update_legib_txt.call()
+	btn_legib.custom_minimum_size = Vector2(150, 24)
+	btn_legib.add_theme_font_size_override("font_size", 9)
+	btn_legib.pressed.connect(func():
+		var gm := GameManagerService.get_gm()
+		if gm:
+			gm.set_high_legibility_text(not gm.high_legibility_text)
+		update_legib_txt.call()
+	)
+	acc_row.add_child(btn_legib)
+
+	var ctrl_close := Button.new()
+	ctrl_close.text = "Voltar à Pausa"
+	ctrl_close.custom_minimum_size = Vector2(140, 26)
+	ctrl_close.pressed.connect(func(): pause_controls_panel.visible = false)
+	ctrl_vbox.add_child(ctrl_close)
+	parent.add_child(pause_controls_panel)
 
 func _build_state_overlay_modal(parent: Control) -> void:
 	state_overlay_panel = PanelContainer.new()
@@ -412,7 +564,7 @@ func _build_state_overlay_modal(parent: Control) -> void:
 
 	parent.add_child(state_overlay_panel)
 
-# ---------- AtualizaÃ§Ã£o de Indicadores ----------
+# ---------- Atualização de Indicadores ----------
 
 func update_health(current: int, maximum: int) -> void:
 	health_bar.max_value = maximum
@@ -477,7 +629,7 @@ func update_interaction_prompt(prompt_text: String, is_visible: bool) -> void:
 	if interact_button:
 		interact_button.visible = is_visible or _is_dialogue_open
 
-# ---------- DiÃ¡logos ----------
+# ---------- Diálogos ----------
 
 func show_dialogue(speaker: String, text: String) -> void:
 	show_dialogue_sequence(speaker, [text])
@@ -490,6 +642,7 @@ func show_dialogue_sequence(speaker: String, lines: Array[String]) -> void:
 	_is_dialogue_open = true
 	if interact_button:
 		interact_button.visible = true
+	_refresh_pipop_and_device_ui()
 	_display_next_dialogue_line()
 
 func _display_next_dialogue_line() -> void:
@@ -497,6 +650,12 @@ func _display_next_dialogue_line() -> void:
 		hide_dialogue()
 		return
 	var next_line: String = _dialogue_queue.pop_front()
+	var am := AudioManagerService.get_am()
+	if am:
+		am.play_sfx("dialogue_blip")
+	var gm := GameManagerService.get_gm()
+	if gm and dialogue_text_label:
+		dialogue_text_label.add_theme_font_size_override("font_size", 13 if gm.high_legibility_text else 11)
 	speaker_label.text = _current_speaker
 	dialogue_box.visible = true
 	if current_dialogue_tween:
@@ -504,7 +663,7 @@ func _display_next_dialogue_line() -> void:
 	dialogue_text_label.visible_characters = -1
 	dialogue_text_label.text = next_line
 	if dialogue_next_btn:
-		dialogue_next_btn.text = "Continuar (%d)" % _dialogue_queue.size() if not _dialogue_queue.is_empty() else "Fechar [AÃ‡ÃƒO]"
+		dialogue_next_btn.text = "Continuar (%d)" % _dialogue_queue.size() if not _dialogue_queue.is_empty() else "Fechar [AÇÃO]"
 
 func advance_dialogue() -> void:
 	if not _is_dialogue_open:
@@ -515,13 +674,17 @@ func advance_dialogue() -> void:
 		_display_next_dialogue_line()
 
 func hide_dialogue() -> void:
+	var was_open: bool = _is_dialogue_open
 	_is_dialogue_open = false
 	_dialogue_queue.clear()
 	dialogue_box.visible = false
 	if interact_button:
 		interact_button.visible = prompt_container.visible
+	_refresh_pipop_and_device_ui()
+	if was_open:
+		dialogue_closed.emit()
 
-# ---------- Encartes e ComparaÃ§Ã£o ----------
+# ---------- Encartes e Comparação ----------
 
 func _toggle_encartes_panel() -> void:
 	if encartes_panel.visible:
@@ -535,16 +698,18 @@ func _open_encartes_panel() -> void:
 	pause_panel.visible = false
 	encartes_panel.visible = true
 	_refresh_encartes_ui()
+	_refresh_pipop_and_device_ui()
 
 func _close_encartes_panel() -> void:
 	encartes_panel.visible = false
 	if GameManagerService.get_gm() and GameManagerService.get_gm().current_state == GameManagerService.get_gm().GameState.PLAYING:
 		get_tree().paused = false
+	_refresh_pipop_and_device_ui()
 
 func _on_encarte_collected(encarte_id: String) -> void:
 	if GameManagerService.get_gm() and GameManagerService.get_gm().catalog.has(encarte_id):
 		var data: EncarteData = GameManagerService.get_gm().catalog[encarte_id]
-		show_dialogue("Encarte Coletado", "%s (Custo: %d)\nBenefÃ­cio: %s\nLimitaÃ§Ã£o: %s" % [
+		show_dialogue("Encarte Coletado", "%s (Custo: %d)\nBenefício: %s\nLimitação: %s" % [
 			data.title, data.capacity_cost, data.benefit_text, data.limitation_text
 		])
 	_refresh_encartes_ui()
@@ -622,7 +787,7 @@ func _refresh_encartes_ui() -> void:
 
 func _update_comparison_view(candidate_id: String) -> void:
 	if not GameManagerService.get_gm() or candidate_id == "" or not GameManagerService.get_gm().catalog.has(candidate_id):
-		encartes_comparison_label.text = "Selecione um encarte na lista para comparar os atributos atuais com a nova configuraÃ§Ã£o."
+		encartes_comparison_label.text = "Selecione um encarte na lista para comparar os atributos atuais com a nova configuração."
 		return
 
 	var data: EncarteData = GameManagerService.get_gm().catalog[candidate_id]
@@ -652,13 +817,13 @@ func _update_comparison_view(candidate_id: String) -> void:
 	encartes_comparison_label.text = (
 		"[%s] (Custo: %d)\n" +
 		"+ %s\n- %s\n\n" +
-		"COMPARAÃ‡ÃƒO (Atual -> %s):\n" +
-		"â€¢ Dano FÃ­sico: %d -> %d\n" +
-		"â€¢ Recarga FÃ­sica: %.2fs -> %.2fs\n" +
-		"â€¢ Dano SÃ´nico: %d -> %d\n" +
-		"â€¢ Velocidade: %d -> %d\n" +
-		"â€¢ Vida MÃ¡x: %d -> %d\n" +
-		"â€¢ Dano Recebido: %d%% -> %d%%"
+		"COMPARAÇÃO (Atual -> %s):\n" +
+		"• Dano Físico: %d -> %d\n" +
+		"• Recarga Física: %.2fs -> %.2fs\n" +
+		"• Dano Sônico: %d -> %d\n" +
+		"• Velocidade: %d -> %d\n" +
+		"• Vida Máx: %d -> %d\n" +
+		"• Dano Recebido: %d%% -> %d%%"
 	) % [
 		data.title, data.capacity_cost,
 		data.benefit_text, data.limitation_text,
@@ -703,8 +868,9 @@ func _show_death_overlay() -> void:
 	pause_panel.visible = false
 	encartes_panel.visible = false
 	state_overlay_panel.visible = true
-	state_title_label.text = "VOCÃŠ FOI ESQUECIDA"
-	state_subtitle_label.text = "Sua presenÃ§a se dissipou nesta sala. Reinicie a fase para tentar novamente."
+	_refresh_pipop_and_device_ui()
+	state_title_label.text = "VOCÊ FOI ESQUECIDA"
+	state_subtitle_label.text = "Sua presença se dissipou nesta sala. Reinicie a fase para tentar novamente."
 	_clear_button_connections(state_btn_primary)
 	_clear_button_connections(state_btn_secondary)
 	state_btn_primary.text = "Reiniciar Fase Agora"
@@ -728,11 +894,12 @@ func show_level_victory_overlay(title_msg: String, subtitle_msg: String) -> void
 	pause_panel.visible = false
 	encartes_panel.visible = false
 	state_overlay_panel.visible = true
+	_refresh_pipop_and_device_ui()
 	state_title_label.text = title_msg
 	state_subtitle_label.text = subtitle_msg
 	_clear_button_connections(state_btn_primary)
 	_clear_button_connections(state_btn_secondary)
-	state_btn_primary.text = "AvanÃ§ar para PrÃ³xima Fase"
+	state_btn_primary.text = "Avançar para Próxima Fase"
 	state_btn_primary.visible = true
 	state_btn_primary.pressed.connect(func():
 		state_overlay_panel.visible = false
@@ -745,8 +912,8 @@ func _show_campaign_complete_overlay() -> void:
 	pause_panel.visible = false
 	encartes_panel.visible = false
 	state_overlay_panel.visible = true
-	state_title_label.text = "CAMPANHA CONCLUÃDA!"
-	state_subtitle_label.text = "VocÃª derrotou A Rainha Empoeirada e atravessou todas as 10 fases do Esquecido!"
+	state_title_label.text = "CAMPANHA CONCLUÍDA!"
+	state_subtitle_label.text = "Você derrotou A Rainha Empoeirada e atravessou todas as 10 fases do Esquecido!"
 	_clear_button_connections(state_btn_primary)
 	_clear_button_connections(state_btn_secondary)
 	state_btn_primary.text = "Jogar Novamente (Fase 1)"

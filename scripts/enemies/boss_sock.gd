@@ -309,6 +309,10 @@ func _on_died() -> void:
 		if is_instance_valid(anc):
 			anc.queue_free()
 	active_anchors.clear()
+	if get_tree():
+		for h in get_tree().get_nodes_in_group("boss_hazards"):
+			if is_instance_valid(h):
+				h.queue_free()
 	boss_health_changed.emit(boss_title, 0, max_health)
 	boss_defeated.emit()
 	queue_free()
