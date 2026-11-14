@@ -44,3 +44,6 @@ desktop.ini
 *.token
 *.pem
 *.key
+
+# Local Antigravity MCP configuration (machine-specific paths)
+.agents/mcp_config.json
