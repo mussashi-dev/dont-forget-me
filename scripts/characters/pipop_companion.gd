@@ -59,7 +59,10 @@ func _physics_process(delta: float) -> void:
 		if fd != Vector2.ZERO:
 			pablita_dir = fd.normalized()
 
-	var desired_follow_offset: Vector2 = -pablita_dir * follow_distance + Vector2(0, -6)
+	var side_perp := Vector2(-pablita_dir.y, pablita_dir.x)
+	if absf(side_perp.x) < 0.2:
+		side_perp.x = -1.0
+	var desired_follow_offset: Vector2 = -pablita_dir * follow_distance + Vector2(side_perp.x * 14.0, -4.0)
 
 	match current_state:
 		State.FOLLOW:
@@ -183,8 +186,7 @@ func _update_sprite_animation(pablita_dir: Vector2) -> void:
 func _draw() -> void:
 	match current_state:
 		State.FOLLOW, State.SONIC_RETURN:
-			# Halo sutil rosado de Pipop e coração costurado
-			draw_arc(Vector2(0, -8), 7.5, 0.0, TAU, 16, Color(1.0, 0.55, 0.85, 0.35), 1.2)
+			pass
 		State.PHYSICAL:
 			# Manopla felpuda rosa de Pipop com o coração quebrado remendado
 			var rect := Rect2(Vector2(-7, -7), Vector2(14, 14))

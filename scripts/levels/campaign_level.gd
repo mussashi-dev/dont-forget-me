@@ -23,10 +23,15 @@ var _show_thief_visual: bool = false
 
 # Apresentação visual exclusiva da abertura da Fase 1.
 var _esquecido_occlusion: Polygon2D = null
+var _bedroom_darkness_overlay: Polygon2D = null
+var _bedroom_wardrobe_body: StaticBody2D = null
 var _bedroom_wakeup_completed: bool = false
 var _env_textures: Dictionary = {}
+var bedroom_floor_layer: TileMapLayer = null
+var esquecido_floor_layer: TileMapLayer = null
 
 func _ready() -> void:
+	y_sort_enabled = true
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	_load_env_textures()
 	# Desativa quaisquer camadas de arte herdadas (caso a cena seja level_01_intro.tscn)
@@ -53,6 +58,9 @@ func _ready() -> void:
 
 	_ensure_player_and_hud()
 	_configure_level_content(level_number)
+	_build_floor_tilemap_layers()
+	if level_number == 1:
+		_build_bedroom_furniture()
 	_build_boundary_and_internal_walls()
 	pablita.set_camera_limits(arena_rect)
 	if level_number == 1:
@@ -261,13 +269,19 @@ func _setup_phase_1_opening_visuals() -> void:
 	_esquecido_occlusion.visible = not wardrobe_already_opened
 	add_child(_esquecido_occlusion)
 
-	var dark_art := get_node_or_null("BedroomArtDark") as Sprite2D
-	var lit_art := get_node_or_null("BedroomArtLit") as Sprite2D
-	if dark_art:
-		dark_art.visible = not _bedroom_wakeup_completed
-	if lit_art:
-		lit_art.visible = true
-		lit_art.modulate = Color(1.0, 1.0, 1.0, 1.0 if _bedroom_wakeup_completed else 0.0)
+	_bedroom_darkness_overlay = Polygon2D.new()
+	_bedroom_darkness_overlay.name = "BedroomDarknessOverlay"
+	_bedroom_darkness_overlay.polygon = PackedVector2Array([
+		Vector2(24, 24),
+		Vector2(254, 24),
+		Vector2(254, 396),
+		Vector2(24, 396)
+	])
+	_bedroom_darkness_overlay.color = Color(0.06, 0.06, 0.16, 0.78)
+	_bedroom_darkness_overlay.z_index = 50
+	_bedroom_darkness_overlay.visible = not _bedroom_wakeup_completed
+	add_child(_bedroom_darkness_overlay)
+
 	if hud:
 		var hud_root := hud.get_node_or_null("RootControl") as Control
 		if hud_root:
@@ -278,8 +292,9 @@ func _setup_phase_1_opening_visuals() -> void:
 			gm.set_story_flag("f1_bedroom_wakeup_done", true)
 		return
 
-	# A posição corresponde ao colchão no cenário de referência.
-	pablita.global_position = Vector2(84, 229)
+	# Pablita desperta deitada sobre a cama (z_index elevado temporariamente sobre o colchão).
+	pablita.global_position = Vector2(64, 120)
+	pablita.z_index = 2
 	pablita.facing_direction = Vector2.RIGHT
 	pablita.set_cinematic_locked(true)
 	if pablita.sprite:
@@ -295,7 +310,7 @@ func _play_phase_1_wakeup() -> void:
 	if level_number != 1 or not is_instance_valid(pablita):
 		return
 
-	# Um breve silêncio permite que a imagem escura seja lida antes do ruído.
+	# Um breve silêncio permite que o quarto no escuro seja sentido antes do ruído.
 	await get_tree().create_timer(0.85).timeout
 	if not is_inside_tree() or not is_instance_valid(pablita):
 		return
@@ -313,12 +328,13 @@ func _play_phase_1_wakeup() -> void:
 		return
 
 	await get_tree().create_timer(0.22).timeout
-	var lit_art := get_node_or_null("BedroomArtLit") as Sprite2D
-	if lit_art:
+	if is_instance_valid(_bedroom_darkness_overlay):
 		var light_tween := create_tween()
 		light_tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-		light_tween.tween_property(lit_art, "modulate:a", 1.0, 0.82)
+		light_tween.tween_property(_bedroom_darkness_overlay, "color:a", 0.0, 0.82)
 		await light_tween.finished
+		if is_instance_valid(_bedroom_darkness_overlay):
+			_bedroom_darkness_overlay.visible = false
 
 	if am:
 		am.play_sfx("ui_confirm")
@@ -330,7 +346,7 @@ func _play_phase_1_wakeup() -> void:
 	if not is_inside_tree() or not is_instance_valid(pablita):
 		return
 
-	# Pablita desperta e se senta/levanta; só então o jogador recebe o controle.
+	# Pablita desperta, desce da cama até o tapete; só então o jogador recebe o controle.
 	pablita.facing_direction = Vector2.DOWN
 	if pablita.sprite:
 		pablita.sprite.play("idle_south")
@@ -338,17 +354,16 @@ func _play_phase_1_wakeup() -> void:
 	wake_tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	wake_tween.tween_property(pablita.sprite, "rotation", 0.0, 0.46)
 	wake_tween.tween_property(pablita.sprite, "scale", Vector2.ONE, 0.46)
-	wake_tween.tween_property(pablita, "global_position", Vector2(90, 220), 0.58)
+	wake_tween.tween_property(pablita, "global_position", Vector2(128, 220), 0.58)
 	await wake_tween.finished
 
-	if pablita.sprite:
-		pablita.sprite.centered = false
-		pablita.sprite.offset = Vector2(-16, -30)
-		pablita.sprite.rotation = 0.0
-		pablita.sprite.scale = Vector2.ONE
-	var dark_art := get_node_or_null("BedroomArtDark") as Sprite2D
-	if dark_art:
-		dark_art.visible = false
+	if is_instance_valid(pablita):
+		pablita.z_index = 0
+		if pablita.sprite:
+			pablita.sprite.centered = false
+			pablita.sprite.offset = Vector2(-16, -30)
+			pablita.sprite.rotation = 0.0
+			pablita.sprite.scale = Vector2.ONE
 
 	var gm := GameManagerService.get_gm()
 	if gm:
@@ -386,6 +401,10 @@ func _play_phase_1_intro_cinematic(wardrobe_gate: WorldObject) -> void:
 	_thief_visual_pos = Vector2(310, 210)
 	if is_instance_valid(wardrobe_gate):
 		wardrobe_gate.queue_free()
+	if is_instance_valid(_bedroom_wardrobe_body):
+		var slide_tween := create_tween()
+		slide_tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		slide_tween.tween_property(_bedroom_wardrobe_body, "position", Vector2(230, 168), 0.45)
 	_reveal_esquecido()
 	queue_redraw()
 
@@ -500,14 +519,14 @@ func _configure_level_content(lvl: int) -> void:
 			_add_wall_block(Rect2(246, 24, 16, 156))
 			_add_wall_block(Rect2(246, 240, 16, 156))
 
-			pablita.global_position = Vector2(90, 220)
+			pablita.global_position = Vector2(128, 220)
 			required_story_flags = ["f1_wardrobe_checked", "f1_chopp_met"]
 
 			if hud:
 				hud.set_objective_text("Fale com Luffy e investigue o barulho atrás do Guarda-Roupa")
 
-			# Luffy, o cachorro de Pablita, no quarto
-			_spawn_npc("Luffy", Vector2(110, 140), [
+			# Luffy, o cachorro de Pablita, na caminha do quarto
+			_spawn_npc("Luffy", Vector2(92, 338), [
 				"Au! Au! (Luffy apoia as patas na beirada do tapete, farejando o ar com o focinho trêmulo.)",
 				"(Ele não tira os olhos do canto do guarda-roupa. Há um sopro morno e um rangido vindo detrás da madeira.)"
 			], Color(0.88, 0.58, 0.28), "f1_luffy_petted")
@@ -519,6 +538,10 @@ func _configure_level_content(lvl: int) -> void:
 				wardrobe_gate = _spawn_crate(Vector2(254, 210))
 			var empty_lines: Array[String] = []
 			var wardrobe_trigger := _spawn_lore_object(Vector2(215, 210), "Afastar Guarda-Roupa e Investigar Brilho", empty_lines, "f1_wardrobe_checked")
+			# A colisão física real pertence ao nó BedroomWardrobe (StaticBody2D); mantém visível apenas a área interativa
+			if wardrobe_trigger._col_shape:
+				wardrobe_trigger._col_shape.disabled = true
+			wardrobe_trigger.visible = false
 			if wardrobe_already_done and wardrobe_trigger._interactable:
 				wardrobe_trigger._interactable.is_active = false
 			wardrobe_trigger.activated.connect(func(_o):
@@ -905,19 +928,8 @@ func _configure_level_content(lvl: int) -> void:
 func _draw() -> void:
 	draw_rect(Rect2(arena_rect), Color(0.08, 0.06, 0.11, 1.0), true)
 
-	for z: Dictionary in _floor_zones:
-		var zr: Rect2 = z["rect"]
-		var zc: Color = z["color"]
-		draw_rect(zr, zc, true)
-		draw_rect(zr, zc.lightened(0.25), false, 1.5)
-
-	# Evolução estética de chão e cenografia inspirada no pacote conceitual (Fases 1 -> 10)
+	# Evolução estética de cenografia e detalhes sobre o TileMapLayer (Fases 1 -> 10)
 	_draw_environment_art_details()
-
-	for x in range(arena_rect.position.x, arena_rect.end.x, 32):
-		draw_line(Vector2(x, arena_rect.position.y), Vector2(x, arena_rect.end.y), Color(1, 1, 1, 0.035), 1.0)
-	for y in range(arena_rect.position.y, arena_rect.end.y, 32):
-		draw_line(Vector2(arena_rect.position.x, y), Vector2(arena_rect.end.x, y), Color(1, 1, 1, 0.035), 1.0)
 
 	for wr: Rect2 in _wall_rects:
 		var wall_fill: Color = Color(0.28, 0.24, 0.36, 1.0)
@@ -943,16 +955,217 @@ func _draw() -> void:
 
 func _load_env_textures() -> void:
 	_env_textures.clear()
-	var names: Array[String] = [
+	var esquecido_names: Array[String] = [
 		"tile_stone_a", "tile_stone_cracked", "tile_dead_roots", "tile_glow_mushrooms",
-		"tile_clutter_toys", "tile_ruin_wall", "tile_wood_blend_a", "tile_rug_patched",
-		"prop_warm_lamp", "prop_giant_teddy", "tile_cobble_vila", "prop_street_lantern",
-		"prop_rusty_gears", "tile_deep_void_stone", "prop_neon_crystals", "prop_ruin_arch_chains"
+		"tile_clutter_toys", "tile_ruin_wall", "tile_wood_planks", "tile_wood_blend_a",
+		"tile_rug_patched", "prop_warm_lamp", "prop_giant_teddy", "tile_cobble_vila",
+		"prop_street_lantern", "prop_rusty_gears", "tile_deep_void_stone",
+		"prop_neon_crystals", "prop_ruin_arch_chains"
 	]
-	for n: String in names:
+	for n: String in esquecido_names:
 		var path: String = "res://assets/environments/esquecido_fase3/%s.png" % n
 		if ResourceLoader.exists(path):
 			_env_textures[n] = load(path) as Texture2D
+
+	var bedroom_names: Array[String] = [
+		"tile_bedroom_wood_0", "tile_bedroom_wood_1", "furn_rug", "furn_bed",
+		"furn_nightstand", "furn_desk", "furn_wardrobe", "furn_bookshelf", "furn_dog_bed"
+	]
+	for n: String in bedroom_names:
+		var path: String = "res://assets/environments/bedroom/%s.png" % n
+		if ResourceLoader.exists(path):
+			_env_textures[n] = load(path) as Texture2D
+
+func _add_tile_source(ts: TileSet, tile_ids: Dictionary, key: String) -> void:
+	var tex: Texture2D = _env_textures.get(key, null) as Texture2D
+	if tex == null:
+		return
+	var src := TileSetAtlasSource.new()
+	src.texture = tex
+	src.texture_region_size = Vector2i(32, 32)
+	src.create_tile(Vector2i(0, 0))
+	tile_ids[key] = ts.add_source(src)
+
+func _build_floor_tilemap_layers() -> void:
+	var ts := TileSet.new()
+	ts.tile_size = Vector2i(32, 32)
+	var tile_ids: Dictionary = {}
+	for key: String in [
+		"tile_bedroom_wood_0", "tile_bedroom_wood_1", "tile_wood_planks",
+		"tile_wood_blend_a", "tile_stone_a", "tile_stone_cracked",
+		"tile_dead_roots", "tile_cobble_vila", "tile_deep_void_stone",
+		"tile_glow_mushrooms"
+	]:
+		_add_tile_source(ts, tile_ids, key)
+
+	var noise := FastNoiseLite.new()
+	noise.noise_type = FastNoiseLite.TYPE_PERLIN
+	noise.seed = 1337 + level_number * 97
+	noise.frequency = 0.22
+
+	var detail_noise := FastNoiseLite.new()
+	detail_noise.noise_type = FastNoiseLite.TYPE_PERLIN
+	detail_noise.seed = 4242 + level_number * 53
+	detail_noise.frequency = 0.45
+
+	var max_col: int = ceili(float(arena_rect.size.x) / 32.0)
+	var max_row: int = ceili(float(arena_rect.size.y) / 32.0)
+
+	if level_number == 1:
+		bedroom_floor_layer = TileMapLayer.new()
+		bedroom_floor_layer.name = "BedroomFloorLayer"
+		bedroom_floor_layer.tile_set = ts
+		bedroom_floor_layer.z_index = -2
+		bedroom_floor_layer.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		add_child(bedroom_floor_layer)
+
+		esquecido_floor_layer = TileMapLayer.new()
+		esquecido_floor_layer.name = "EsquecidoFloorLayer"
+		esquecido_floor_layer.tile_set = ts
+		esquecido_floor_layer.z_index = -2
+		esquecido_floor_layer.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		add_child(esquecido_floor_layer)
+
+		for col: int in range(0, max_col):
+			for row: int in range(0, max_row):
+				var n_val: float = noise.get_noise_2d(float(col), float(row))
+				var d_val: float = detail_noise.get_noise_2d(float(col), float(row))
+				if col < 8:
+					var bed_key: String = "tile_bedroom_wood_1" if n_val > 0.08 else "tile_bedroom_wood_0"
+					var src_id: int = int(tile_ids.get(bed_key, -1))
+					if src_id != -1:
+						bedroom_floor_layer.set_cell(Vector2i(col, row), src_id, Vector2i(0, 0))
+				else:
+					var esq_key: String = _pick_esquecido_tile_key(col, row, n_val, d_val)
+					var src_id: int = int(tile_ids.get(esq_key, -1))
+					if src_id != -1:
+						esquecido_floor_layer.set_cell(Vector2i(col, row), src_id, Vector2i(0, 0))
+	else:
+		esquecido_floor_layer = TileMapLayer.new()
+		esquecido_floor_layer.name = "EsquecidoFloorLayer"
+		esquecido_floor_layer.tile_set = ts
+		esquecido_floor_layer.z_index = -2
+		esquecido_floor_layer.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		add_child(esquecido_floor_layer)
+
+		for col: int in range(0, max_col):
+			for row: int in range(0, max_row):
+				var n_val: float = noise.get_noise_2d(float(col), float(row))
+				var d_val: float = detail_noise.get_noise_2d(float(col), float(row))
+				var tile_key: String = _pick_esquecido_tile_key(col, row, n_val, d_val)
+				var src_id: int = int(tile_ids.get(tile_key, -1))
+				if src_id != -1:
+					esquecido_floor_layer.set_cell(Vector2i(col, row), src_id, Vector2i(0, 0))
+
+func _pick_esquecido_tile_key(col: int, _row: int, n_val: float, d_val: float) -> String:
+	match level_number:
+		1:
+			if col <= 10:
+				if n_val < -0.10:
+					return "tile_stone_a"
+				elif d_val > 0.12:
+					return "tile_wood_planks"
+				return "tile_wood_blend_a"
+			if n_val < -0.22:
+				return "tile_dead_roots"
+			elif n_val < -0.02:
+				return "tile_stone_cracked"
+			elif n_val < 0.22:
+				return "tile_stone_a"
+			elif d_val > 0.10:
+				return "tile_wood_planks"
+			return "tile_wood_blend_a"
+		2:
+			if n_val < -0.20:
+				return "tile_dead_roots"
+			elif n_val < -0.02:
+				return "tile_stone_cracked"
+			elif n_val < 0.16:
+				return "tile_stone_a"
+			elif d_val > 0.08:
+				return "tile_wood_planks"
+			return "tile_wood_blend_a"
+		3:
+			if n_val < -0.22:
+				return "tile_dead_roots"
+			elif n_val < 0.04:
+				return "tile_stone_cracked"
+			return "tile_stone_a"
+		4:
+			if n_val > 0.24 and d_val > 0.10:
+				return "tile_stone_a"
+			return "tile_cobble_vila"
+		5, 6, 7:
+			if n_val < -0.08 or d_val > 0.24:
+				return "tile_stone_cracked"
+			return "tile_cobble_vila"
+		_:
+			if n_val < -0.12:
+				return "tile_stone_cracked"
+			elif n_val > 0.36 and d_val > 0.22:
+				return "tile_glow_mushrooms"
+			return "tile_deep_void_stone"
+
+func _build_bedroom_furniture() -> void:
+	# Tapete e caminha do Luffy no nível do chão (abaixo de personagens e móveis no Y-Sort)
+	var rug_tex: Texture2D = _env_textures.get("furn_rug", null) as Texture2D
+	if rug_tex:
+		var rug := Sprite2D.new()
+		rug.name = "BedroomRug"
+		rug.texture = rug_tex
+		rug.position = Vector2(138, 224)
+		rug.z_index = -1
+		rug.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		add_child(rug)
+
+	var dog_bed_tex: Texture2D = _env_textures.get("furn_dog_bed", null) as Texture2D
+	if dog_bed_tex:
+		var dog_bed := Sprite2D.new()
+		dog_bed.name = "BedroomDogBed"
+		dog_bed.texture = dog_bed_tex
+		dog_bed.position = Vector2(92, 336)
+		dog_bed.z_index = -1
+		dog_bed.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		add_child(dog_bed)
+
+	# Móveis sólidos com StaticBody2D separados e origem na base para Y-Sort correto
+	_spawn_furniture_piece("BedroomBed", "furn_bed", Vector2(64, 156), Vector2(52, 74), Vector2(0, -38))
+	_spawn_furniture_piece("BedroomNightstand", "furn_nightstand", Vector2(46, 62), Vector2(24, 18), Vector2(0, -10))
+	_spawn_furniture_piece("BedroomDesk", "furn_desk", Vector2(168, 72), Vector2(68, 24), Vector2(0, -14))
+
+	var gm := GameManagerService.get_gm()
+	var wardrobe_open: bool = gm != null and gm.has_story_flag("f1_wardrobe_checked")
+	var wardrobe_pos: Vector2 = Vector2(230, 168) if wardrobe_open else Vector2(230, 236)
+	_bedroom_wardrobe_body = _spawn_furniture_piece("BedroomWardrobe", "furn_wardrobe", wardrobe_pos, Vector2(24, 68), Vector2(0, -34))
+
+	_spawn_furniture_piece("BedroomBookshelf", "furn_bookshelf", Vector2(48, 384), Vector2(30, 18), Vector2(0, -10))
+
+func _spawn_furniture_piece(node_name: String, tex_key: String, base_pos: Vector2, col_size: Vector2, col_offset: Vector2) -> StaticBody2D:
+	var body := StaticBody2D.new()
+	body.name = node_name
+	body.position = base_pos
+	body.collision_layer = 2
+	body.collision_mask = 0
+	body.y_sort_enabled = true
+
+	var tex: Texture2D = _env_textures.get(tex_key, null) as Texture2D
+	if tex:
+		var spr := Sprite2D.new()
+		spr.name = "Sprite2D"
+		spr.texture = tex
+		spr.centered = false
+		spr.offset = Vector2(-float(tex.get_width()) * 0.5, -float(tex.get_height()))
+		spr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		body.add_child(spr)
+
+	var cs := CollisionShape2D.new()
+	var rect := RectangleShape2D.new()
+	rect.size = col_size
+	cs.shape = rect
+	cs.position = col_offset
+	body.add_child(cs)
+	add_child(body)
+	return body
 
 func _draw_env_tex(key: String, pos: Vector2, size := Vector2(32, 32), tint := Color.WHITE) -> void:
 	if not _env_textures.has(key):
@@ -961,87 +1174,25 @@ func _draw_env_tex(key: String, pos: Vector2, size := Vector2(32, 32), tint := C
 	if tex:
 		draw_texture_rect(tex, Rect2(pos, size), false, tint)
 
-func _draw_tiled_floor(start_pos: Vector2, end_pos: Vector2, keys: Array[String], seed_offset: int, tint := Color(1.0, 1.0, 1.0, 0.85)) -> void:
-	if keys.is_empty():
-		return
-	var x: float = start_pos.x
-	var col_idx: int = 0
-	while x < end_pos.x - 4.0:
-		var y: float = start_pos.y
-		var row_idx: int = 0
-		var tile_w: float = minf(32.0, end_pos.x - x)
-		while y < end_pos.y - 4.0:
-			var tile_h: float = minf(32.0, end_pos.y - y)
-			var h_val: int = absi((col_idx * 73 + row_idx * 139 + seed_offset * 31) % keys.size())
-			_draw_env_tex(keys[h_val], Vector2(x, y), Vector2(tile_w, tile_h), tint)
-			y += 32.0
-			row_idx += 1
-		x += 32.0
-		col_idx += 1
-
 func _draw_environment_art_details() -> void:
 	var floor_top: float = float(arena_rect.position.y + 24)
 	var floor_left: float = float(arena_rect.position.x + 24)
 	var floor_right: float = float(arena_rect.end.x - 24)
-	var floor_bottom: float = float(arena_rect.end.y - 24)
 
 	match level_number:
 		1:
-			# Quarto de Pablita (esquerda: madeira aconchegante, cama, tapete estrelado, escrivaninha, caminha do Luffy)
-			var bedroom_rect := Rect2(28, 28, 216, 364)
-			draw_rect(bedroom_rect, Color(0.34, 0.23, 0.16, 0.88), true)
-			for wy in range(36, 384, 18):
-				draw_line(Vector2(28, wy), Vector2(244, wy), Color(0.24, 0.15, 0.10, 0.55), 1.0)
-			# Tapete oval aconchegante no centro do quarto
-			draw_circle(Vector2(130, 220), 46.0, Color(0.28, 0.32, 0.52, 0.85))
-			draw_arc(Vector2(130, 220), 46.0, 0.0, TAU, 24, Color(0.92, 0.78, 0.48, 0.85), 2.0)
-			# Cama de Pablita (canto superior esquerdo)
-			draw_rect(Rect2(36, 42, 64, 92), Color(0.42, 0.25, 0.18, 1.0), true)
-			draw_rect(Rect2(40, 48, 56, 24), Color(0.95, 0.92, 0.86, 1.0), true)
-			draw_rect(Rect2(40, 72, 56, 56), Color(0.75, 0.32, 0.42, 1.0), true)
-			# Caminha do Luffy
-			draw_circle(Vector2(110, 142), 18.0, Color(0.62, 0.35, 0.24, 0.9))
-			draw_circle(Vector2(110, 142), 13.0, Color(0.85, 0.68, 0.48, 0.9))
-			# Escrivaninha (onde ficava o CD) e abajur âmbar
-			draw_rect(Rect2(158, 42, 68, 30), Color(0.46, 0.30, 0.20, 1.0), true)
-			draw_circle(Vector2(172, 56), 28.0, Color(1.0, 0.82, 0.42, 0.18))
-			# Guarda-Roupa na divisória (x=230..246)
-			draw_rect(Rect2(226, 155, 20, 110), Color(0.38, 0.22, 0.15, 1.0), true)
-			draw_rect(Rect2(226, 155, 20, 110), Color(0.85, 0.68, 0.42, 0.9), false, 1.5)
-			# Lado direito (x >= 260): Chegada ao Esquecido integrado a tábuas, tapete e pedra roxa
-			_draw_tiled_floor(
-				Vector2(260.0, floor_top),
-				Vector2(floor_right, floor_bottom),
-				["tile_wood_blend_a", "tile_rug_patched", "tile_stone_cracked", "tile_dead_roots", "tile_wood_blend_a"],
-				1,
-				Color(1.0, 1.0, 1.0, 0.82)
-			)
+			# Luz âmbar suave ao redor do abajur sobre a mesinha de cabeceira e adereços na entrada do Esquecido
+			draw_circle(Vector2(46, 46), 34.0, Color(1.0, 0.82, 0.42, 0.16))
 			_draw_env_tex("prop_warm_lamp", Vector2(292, 68), Vector2(32, 32), Color.WHITE)
 			_draw_env_tex("tile_clutter_toys", Vector2(396, 300), Vector2(32, 32), Color.WHITE)
 			_draw_env_tex("prop_giant_teddy", Vector2(548, 60), Vector2(48, 48), Color.WHITE)
 		2:
-			# Fase 2: Esquecido integrado ao Quarto (tábuas quentes cedendo às pedras roxas)
-			_draw_tiled_floor(
-				Vector2(floor_left, floor_top),
-				Vector2(floor_right, floor_bottom),
-				["tile_wood_blend_a", "tile_rug_patched", "tile_stone_cracked", "tile_dead_roots"],
-				2,
-				Color(1.0, 1.0, 1.0, 0.84)
-			)
 			_draw_env_tex("prop_warm_lamp", Vector2(110, 84), Vector2(32, 32), Color.WHITE)
 			_draw_env_tex("prop_warm_lamp", Vector2(460, 276), Vector2(32, 32), Color.WHITE)
 			_draw_env_tex("prop_giant_teddy", Vector2(520, 68), Vector2(48, 48), Color.WHITE)
 			_draw_env_tex("tile_clutter_toys", Vector2(236, 148), Vector2(32, 32), Color.WHITE)
 			_draw_env_tex("tile_clutter_toys", Vector2(332, 296), Vector2(32, 32), Color.WHITE)
 		3:
-			# Fase 3: Transição — Covil da Meia Esquecida (pedra roxa rachada, raízes, cogumelos brilhantes e brinquedos)
-			_draw_tiled_floor(
-				Vector2(floor_left, floor_top),
-				Vector2(floor_right, floor_bottom),
-				["tile_stone_a", "tile_stone_cracked", "tile_dead_roots", "tile_stone_a", "tile_clutter_toys"],
-				3,
-				Color(1.0, 1.0, 1.0, 0.88)
-			)
 			for wx in range(int(floor_left), int(floor_right) - 24, 64):
 				_draw_env_tex("tile_ruin_wall", Vector2(float(wx), floor_top), Vector2(32, 32), Color(1.0, 1.0, 1.0, 0.85))
 			for m_pos: Vector2 in [Vector2(96, 92), Vector2(496, 96), Vector2(128, 312), Vector2(492, 308)]:
@@ -1051,14 +1202,6 @@ func _draw_environment_art_details() -> void:
 			draw_line(Vector2(60, 360), Vector2(580, 60), Color(0.85, 0.55, 0.85, 0.22), 1.5)
 			draw_arc(Vector2(410, 210), 85.0, 0.0, TAU, 32, Color(0.92, 0.45, 0.78, 0.26), 2.0)
 		4:
-			# Fase 4: Vila dos Achados (paralelepípedos arroxeados, retalhos e lampiões quentes)
-			_draw_tiled_floor(
-				Vector2(floor_left, floor_top),
-				Vector2(floor_right, floor_bottom),
-				["tile_cobble_vila", "tile_cobble_vila", "tile_rug_patched", "tile_clutter_toys"],
-				4,
-				Color(1.0, 1.0, 1.0, 0.86)
-			)
 			draw_circle(Vector2(360, 210), 95.0, Color(0.32, 0.25, 0.36, 0.38))
 			draw_arc(Vector2(360, 210), 95.0, 0.0, TAU, 36, Color(0.95, 0.78, 0.45, 0.48), 2.0)
 			for lamp_pos: Vector2 in [Vector2(214, 96), Vector2(344, 240), Vector2(448, 116)]:
@@ -1066,14 +1209,6 @@ func _draw_environment_art_details() -> void:
 				_draw_env_tex("prop_street_lantern", lamp_pos, Vector2(32, 48), Color.WHITE)
 			_draw_env_tex("prop_warm_lamp", Vector2(128, 284), Vector2(32, 32), Color.WHITE)
 		5, 6, 7:
-			# Fases 5 a 7: Transição e Forja Rítmica (paralelepípedos, pedra rachada, engrenagens enferrujadas e lampiões)
-			_draw_tiled_floor(
-				Vector2(floor_left, floor_top),
-				Vector2(floor_right, floor_bottom),
-				["tile_cobble_vila", "tile_stone_cracked", "tile_cobble_vila", "prop_rusty_gears"],
-				level_number,
-				Color(1.0, 1.0, 1.0, 0.85)
-			)
 			for wx in range(int(floor_left), int(floor_right) - 24, 64):
 				_draw_env_tex("tile_ruin_wall", Vector2(float(wx), floor_top), Vector2(32, 32), Color(1.0, 1.0, 1.0, 0.82))
 			for i in range(5):
@@ -1084,14 +1219,6 @@ func _draw_environment_art_details() -> void:
 			_draw_env_tex("prop_street_lantern", Vector2(88, 92), Vector2(32, 48), Color(0.9, 0.85, 1.0, 0.95))
 			_draw_env_tex("prop_street_lantern", Vector2(512, 260), Vector2(32, 48), Color(0.9, 0.85, 1.0, 0.95))
 		8, 9, 10:
-			# Fases 8 a 10: Esquecido Profundo e O Vitral Empoeirado (lajes abissais, arcos com correntes, cristais neon e cogumelos)
-			_draw_tiled_floor(
-				Vector2(floor_left, floor_top),
-				Vector2(floor_right, floor_bottom),
-				["tile_deep_void_stone", "tile_deep_void_stone", "tile_stone_cracked", "tile_glow_mushrooms"],
-				level_number,
-				Color(1.0, 1.0, 1.0, 0.88)
-			)
 			_draw_env_tex("prop_ruin_arch_chains", Vector2(floor_left + 16.0, floor_top), Vector2(48, 48), Color.WHITE)
 			_draw_env_tex("prop_ruin_arch_chains", Vector2(floor_right - 64.0, floor_top), Vector2(48, 48), Color.WHITE)
 			for wx in range(int(floor_left) + 96, int(floor_right) - 96, 64):

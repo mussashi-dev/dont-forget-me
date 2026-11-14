@@ -58,6 +58,7 @@ var virtual_joystick_node: Control
 var touch_controls_node: Control
 var physical_attack_btn: Control
 var sonic_attack_btn: Control
+var dash_btn_node: Control
 var capacity_row_node: Control
 
 func _ready() -> void:
@@ -151,11 +152,24 @@ func _refresh_pipop_and_device_ui() -> void:
 		physical_attack_btn.visible = pipop_unlocked
 	if sonic_attack_btn:
 		sonic_attack_btn.visible = pipop_unlocked
+	if dash_btn_node:
+		dash_btn_node.visible = is_mobile
+	if interact_button:
+		if pipop_unlocked:
+			interact_button.offset_left = -136.0
+			interact_button.offset_top = -126.0
+			interact_button.offset_right = -78.0
+			interact_button.offset_bottom = -68.0
+		else:
+			interact_button.offset_left = -72.0
+			interact_button.offset_top = -72.0
+			interact_button.offset_right = -12.0
+			interact_button.offset_bottom = -12.0
 
 	if virtual_joystick_node:
 		virtual_joystick_node.visible = is_mobile and not any_modal_open
 	if touch_controls_node:
-		touch_controls_node.visible = is_mobile and not any_modal_open
+		touch_controls_node.visible = (is_mobile or (interact_button != null and interact_button.visible)) and not any_modal_open
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_pause"):
@@ -201,6 +215,7 @@ func _build_dynamic_ui() -> void:
 			sonic_btn.offset_bottom = -2.0
 			_attach_action_button_icon(sonic_btn, "res://assets/ui/hud_btn_sonic_waves.png")
 		var dash_btn: Control = touch_ctrl.get_node_or_null("DashBtn")
+		dash_btn_node = dash_btn
 		if dash_btn:
 			dash_btn.offset_left = -64.0
 			dash_btn.offset_top = -132.0
@@ -213,29 +228,40 @@ func _build_dynamic_ui() -> void:
 			act_btn.offset_right = -78.0
 			act_btn.offset_bottom = -68.0
 
-	# Rótulo da fase atual no topo
+	var top_left_vbox := root_ctrl.get_node_or_null("TopLeftMargin/VBoxContainer") as VBoxContainer
+	var label_parent: Control = top_left_vbox if top_left_vbox != null else root_ctrl
+
+	# Rótulo da fase atual e objetivo empilhados no topo esquerdo (sem sobreposição)
 	level_title_label = Label.new()
 	level_title_label.text = "Fase 1"
 	level_title_label.add_theme_font_size_override("font_size", 10)
-	level_title_label.modulate = Color(0.85, 0.85, 0.95, 0.9)
-	level_title_label.position = Vector2(14, 62)
-	root_ctrl.add_child(level_title_label)
+	level_title_label.add_theme_constant_override("outline_size", 2)
+	level_title_label.add_theme_color_override("font_outline_color", Color(0.08, 0.06, 0.12, 0.95))
+	level_title_label.add_theme_constant_override("shadow_size", 0)
+	level_title_label.modulate = Color(0.92, 0.92, 0.98, 0.96)
+	label_parent.add_child(level_title_label)
 
 	objective_label = Label.new()
 	objective_label.text = "Objetivo: Explorar"
+	objective_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	objective_label.custom_minimum_size = Vector2(260, 0)
 	objective_label.add_theme_font_size_override("font_size", 9)
-	objective_label.modulate = Color(0.75, 0.95, 0.85, 0.95)
-	objective_label.position = Vector2(14, 76)
-	root_ctrl.add_child(objective_label)
+	objective_label.add_theme_constant_override("outline_size", 2)
+	objective_label.add_theme_color_override("font_outline_color", Color(0.08, 0.06, 0.12, 0.95))
+	objective_label.add_theme_constant_override("shadow_size", 0)
+	objective_label.modulate = Color(0.75, 0.96, 0.85, 0.98)
+	label_parent.add_child(objective_label)
 
 	debug_combat_label = Label.new()
 	debug_combat_label.name = "DebugCombatLabel"
 	debug_combat_label.add_theme_font_size_override("font_size", 8)
-	debug_combat_label.modulate = Color(0.85, 0.92, 1.0, 0.88)
-	debug_combat_label.position = Vector2(14, 92)
+	debug_combat_label.add_theme_constant_override("outline_size", 2)
+	debug_combat_label.add_theme_color_override("font_outline_color", Color(0.08, 0.06, 0.12, 0.95))
+	debug_combat_label.add_theme_constant_override("shadow_size", 0)
+	debug_combat_label.modulate = Color(0.85, 0.92, 1.0, 0.92)
 	debug_combat_label.text = "[DEBUG COMBATE]\nCmd: NENHUM | Hab: NENHUMA\nPipop: FOLLOW | Hitbox: NENHUMA\nAlvo: NENHUM | Dano: 0"
 	debug_combat_label.visible = false
-	root_ctrl.add_child(debug_combat_label)
+	label_parent.add_child(debug_combat_label)
 
 	# Barra superior direita: Botões de ENCARTES e PAUSA (acessíveis por toque)
 	top_right_bar = HBoxContainer.new()
@@ -672,6 +698,7 @@ func update_interaction_prompt(prompt_text: String, is_visible: bool) -> void:
 	prompt_container.visible = is_visible
 	if interact_button:
 		interact_button.visible = is_visible or _is_dialogue_open
+	_refresh_pipop_and_device_ui()
 
 # ---------- Diálogos ----------
 

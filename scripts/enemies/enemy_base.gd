@@ -425,7 +425,7 @@ func _setup_mob_sprite() -> void:
 	enemy_sprite.name = "EnemyVisualSprite"
 	enemy_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	enemy_sprite.texture = _mob_frames[0]
-	enemy_sprite.offset = Vector2(0, -4)
+	enemy_sprite.offset = Vector2(0, -12)
 	add_child(enemy_sprite)
 
 func _update_mob_sprite(delta: float) -> void:

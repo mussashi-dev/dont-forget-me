@@ -26,15 +26,30 @@ var _chopp_anim_timer: float = 0.0
 @onready var body_collision: CollisionShape2D = $CollisionShape2D
 
 func _ready() -> void:
+	y_sort_enabled = true
 	for i: int in 4:
 		var tex_path: String = "res://assets/characters/chopp/chopp_idle_%d.png" % i
 		if ResourceLoader.exists(tex_path):
 			_chopp_frames.append(load(tex_path) as Texture2D)
 	if sprite:
-		sprite.visible = (speaker_name == "Chopp")
 		sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-		if sprite.visible and not _chopp_frames.is_empty():
-			sprite.texture = _chopp_frames[0]
+		if speaker_name == "Chopp":
+			sprite.visible = true
+			sprite.centered = false
+			sprite.offset = Vector2(-8, -15)
+			if not _chopp_frames.is_empty():
+				sprite.texture = _chopp_frames[0]
+		elif speaker_name.begins_with("Luffy"):
+			var luffy_path: String = "res://assets/environments/bedroom/luffy_dog.png"
+			if ResourceLoader.exists(luffy_path):
+				sprite.texture = load(luffy_path) as Texture2D
+				sprite.visible = true
+				sprite.centered = false
+				sprite.offset = Vector2(-12, -22)
+			else:
+				sprite.visible = false
+		else:
+			sprite.visible = false
 	interactable.prompt_message = "Falar com %s" % speaker_name
 	interactable.interaction_priority = 5
 	interactable.interacted.connect(_on_interacted)
@@ -78,7 +93,7 @@ func _physics_process(delta: float) -> void:
 				sprite.flip_h = dx < 0.0
 		if global_position.distance_to(desired_pos) > 8.0:
 			global_position = global_position.lerp(desired_pos, clampf(follow_lerp_speed * delta, 0.0, 1.0))
-	if sprite and sprite.visible and not _chopp_frames.is_empty():
+	if sprite and sprite.visible and speaker_name == "Chopp" and not _chopp_frames.is_empty():
 		_chopp_anim_timer += delta
 		var frame_idx: int = int(floor(_chopp_anim_timer * 6.0)) % _chopp_frames.size()
 		sprite.texture = _chopp_frames[frame_idx]
@@ -90,14 +105,14 @@ func _on_interacted(_by_who: Node2D) -> void:
 
 func _on_focused() -> void:
 	if prompt_label:
-		prompt_label.visible = true
+		prompt_label.visible = false
 
 func _on_unfocused() -> void:
 	if prompt_label:
 		prompt_label.visible = false
 
 func _draw() -> void:
-	draw_circle(Vector2(0, 2), 8.0, Color(0.06, 0.04, 0.1, 0.45))
+	draw_circle(Vector2(0, -1), 4.5, Color(0.06, 0.04, 0.1, 0.32))
 	if sprite and sprite.visible and sprite.texture != null:
 		return
 	if speaker_name.begins_with("Luffy"):

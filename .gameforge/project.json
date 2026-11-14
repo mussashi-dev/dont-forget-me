@@ -1,0 +1,13 @@
+{
+  "name": "DON'T FORGET ME",
+  "engine": "godot",
+  "engine_version": "4.7",
+  "phase": "prototype",
+  "pillars": [
+    "Aventura e ação top-down com sinergia Pablita (físico) + Pipop (sônico)",
+    "Memória, apego e objetos esquecidos (narrativa acoplada a encartes)",
+    "Pixel art top-down legível e precisa (640x360, escala 1m ≈ 18-19px)"
+  ],
+  "commit_convention": "conventional",
+  "lfs_threshold_mb": 20
+}

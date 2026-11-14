@@ -4,6 +4,7 @@
 [ext_resource type="SpriteFrames" path="res://resources/pipop_topdown_frames.tres" id="2_frames"]
 
 [node name="PipopCompanion" type="CharacterBody2D"]
+y_sort_enabled = true
 collision_layer = 0
 collision_mask = 0
 script = ExtResource("1_pipop")
@@ -14,7 +15,8 @@ color = Color(0.07, 0.04, 0.11, 0.4)
 polygon = PackedVector2Array(-7, -1, -5, -3, -2, -3, 2, -3, 5, -3, 7, -1, 5, 1, 2, 2, -2, 2, -5, 1)
 
 [node name="Sprite" type="AnimatedSprite2D" parent="."]
-position = Vector2(0, -2)
+position = Vector2(0, 0)
+scale = Vector2(0.75, 0.75)
 sprite_frames = ExtResource("2_frames")
 animation = &"idle_south"
 centered = false

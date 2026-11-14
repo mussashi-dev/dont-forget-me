@@ -28,33 +28,37 @@ pal({
 
 // ==================== TILES 32x32 ====================
 
-// Tile 1: Laje de pedra roxa padrão com juntas
+// Tile 1: Laje de pedra roxa padrão contínua (sem borda de caixa 32x32)
 sprite("tile_stone_a", { w: 32, h: 32 }, (c) => {
   c.rect(0, 0, 32, 32, "p")
-  c.hline(0, 0, 32, "P"); c.vline(0, 0, 32, "P")
-  c.hline(0, 31, 32, "d"); c.vline(31, 0, 32, "d")
-  c.hline(0, 15, 32, "d"); c.vline(16, 0, 15, "d"); c.vline(8, 16, 16, "d")
-  c.px(3, 2, "l"); c.px(19, 18, "l")
+  // Juntas suaves de laje sem contorno quadrado nas bordas do tile
+  c.hline(2, 14, 16, "d"); c.hline(18, 15, 11, "d")
+  c.vline(16, 2, 12, "d"); c.vline(9, 16, 13, "d")
+  c.hline(3, 13, 11, "P"); c.hline(19, 16, 9, "P")
+  c.px(5, 6, "P"); c.px(22, 9, "d"); c.px(24, 23, "P"); c.px(19, 18, "l")
 })
 
-// Tile 2: Pedra roxa profundamente rachada
+// Tile 2: Pedra roxa com rachadura orgânica (sem costura)
 sprite("tile_stone_cracked", { w: 32, h: 32 }, (c) => {
   c.rect(0, 0, 32, 32, "p")
-  c.hline(0, 0, 32, "P"); c.hline(0, 31, 32, "d")
+  c.hline(3, 12, 10, "d"); c.hline(20, 22, 9, "P")
   // Rachadura diagonal ramificada
-  c.line(4, 4, 15, 16, "k"); c.line(15, 16, 27, 26, "k")
-  c.line(15, 16, 8, 25, "d"); c.line(18, 19, 25, 11, "d")
-  c.px(15, 15, "l"); c.px(16, 17, "l")
+  c.line(5, 5, 15, 16, "k"); c.line(15, 16, 26, 25, "k")
+  c.line(15, 16, 9, 24, "d"); c.line(18, 18, 24, 11, "d")
+  c.px(14, 15, "P"); c.px(17, 17, "l"); c.px(7, 9, "d")
 })
 
-// Tile 3: Pedra invadida por vegetação morta e raízes
+// Tile 3: Pedra invadida por raízes e vegetação morta orgânica (sem costura)
 sprite("tile_dead_roots", { w: 32, h: 32 }, (c) => {
-  c.rect(0, 0, 32, 32, "d")
-  c.rect(2, 2, 28, 28, "p")
-  // Emaranhado de raízes mortas e folhas murchas nas bordas
-  c.ellipse(8, 8, 6, 5, "m"); c.ellipse(7, 7, 4, 3, "v"); c.px(6, 6, "V")
-  c.ellipse(24, 23, 7, 5, "m"); c.ellipse(23, 22, 5, 3, "v"); c.px(22, 21, "V")
-  c.line(8, 12, 16, 20, "m"); c.line(16, 20, 22, 22, "v")
+  c.rect(0, 0, 32, 32, "p")
+  // Raízes secas serpenteando pelo piso de pedra
+  c.line(3, 6, 13, 14, "m"); c.line(13, 14, 24, 18, "v"); c.line(24, 18, 29, 25, "m")
+  c.line(13, 14, 9, 24, "m"); c.line(9, 24, 5, 28, "v")
+  c.line(16, 5, 20, 12, "m"); c.line(20, 12, 26, 11, "v")
+  // Tufos esparsos de folhas murchas (roxo-acinzentado e sálvia escuro)
+  c.ellipse(7, 8, 3, 2, "m"); c.px(7, 7, "V"); c.px(9, 8, "f")
+  c.ellipse(23, 22, 4, 2, "v"); c.px(22, 21, "V"); c.px(24, 22, "f")
+  c.px(12, 24, "f"); c.px(13, 23, "V"); c.px(20, 11, "P")
 })
 
 // Tile 4: Aglomerado de Cogumelos Roxos Brilhantes (Fonte de Luz)
@@ -106,17 +110,36 @@ sheet("esquecido_fase3_tileset", [
 
 // ==================== PROGRESSÃO DAS 9 PRANCHAS DE AMBIENTE ====================
 
-// Fase 1-2: Tábuas de madeira quentes com bordas invadidas pelo roxo do Esquecido
+// Fase 1-2: Tábuas de madeira gastas e contínuas (sem linhas de tijolo escuro)
+sprite("tile_wood_planks", { w: 32, h: 32 }, (c) => {
+  c.rect(0, 0, 32, 32, "w")
+  for (let y = 0; y < 32; y += 8) {
+    c.hline(0, y, 32, "W")
+    c.hline(0, y + 7, 32, "D")
+  }
+  // Emendas escalonadas de assoalho
+  c.vline(10, 1, 6, "D"); c.vline(23, 9, 6, "D")
+  c.vline(14, 17, 6, "D"); c.vline(27, 25, 6, "D")
+  // Veios orgânicos de desgaste
+  c.hline(4, 3, 5, "W"); c.hline(17, 4, 6, "D")
+  c.hline(6, 12, 9, "W"); c.hline(20, 20, 7, "D")
+  c.px(9, 27, "D"); c.hline(15, 28, 8, "W")
+})
+
+// Fase 1-2: Tábuas de madeira gastas invadidas organicamente pela pedra roxa do Esquecido
 sprite("tile_wood_blend_a", { w: 32, h: 32 }, (c) => {
   c.rect(0, 0, 32, 32, "w")
   for (let y = 0; y < 32; y += 8) {
     c.hline(0, y, 32, "W")
     c.hline(0, y + 7, 32, "D")
   }
-  c.vline(10, 0, 8, "D"); c.vline(22, 8, 8, "D"); c.vline(15, 16, 8, "D"); c.vline(25, 24, 8, "D")
-  // Laje roxa invadindo canto inferior direito
-  c.rect(20, 20, 12, 12, "p"); c.rect(24, 16, 8, 6, "d"); c.hline(20, 20, 12, "l")
-  c.px(5, 3, "W"); c.px(18, 11, "D"); c.px(25, 26, "P")
+  c.vline(9, 1, 6, "D"); c.vline(22, 9, 6, "D")
+  // Transição orgânica de tábuas quebradas para pedra roxa ("p")
+  c.poly([18, 12, 32, 9, 32, 32, 11, 32, 14, 21], "d")
+  c.poly([20, 13, 32, 11, 32, 32, 13, 32, 16, 22], "p")
+  c.line(18, 12, 14, 21, "P"); c.line(14, 21, 11, 32, "D")
+  // Fissuras e lascas próximas à borda roxa
+  c.px(16, 18, "P"); c.px(24, 24, "P"); c.px(21, 27, "d"); c.px(6, 19, "W")
 })
 
 // Fase 1-2: Retalho de tapete rosa estrelado/desgastado sobre tábuas/pedra

@@ -27,10 +27,27 @@ var is_activated: bool = false
 var _col_shape: CollisionShape2D
 var _hurtbox: Hurtbox
 var _interactable: Interactable
+var _obj_texture: Texture2D = null
 
 func _ready() -> void:
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	_setup_by_type()
+	_load_visual_texture()
 	queue_redraw()
+
+func _load_visual_texture() -> void:
+	var path: String = ""
+	match object_type:
+		ObjectType.BREAKABLE_CRATE:
+			path = "res://assets/environments/esquecido_fase3/tile_clutter_toys.png"
+		ObjectType.SONIC_CRYSTAL:
+			path = "res://assets/environments/esquecido_fase3/prop_neon_crystals.png"
+		ObjectType.LEVEL_PORTAL:
+			path = "res://assets/environments/esquecido_fase3/prop_ruin_arch_chains.png"
+		ObjectType.LORE_PLINTH:
+			path = "res://assets/environments/esquecido_fase3/prop_warm_lamp.png"
+	if not path.is_empty() and ResourceLoader.exists(path):
+		_obj_texture = load(path) as Texture2D
 
 func _setup_by_type() -> void:
 	match object_type:
@@ -147,28 +164,30 @@ func _draw() -> void:
 	var rect := Rect2(-half, size_vec)
 	match object_type:
 		ObjectType.BREAKABLE_CRATE:
-			draw_rect(rect, Color(0.65, 0.42, 0.22, 1.0), true)
-			draw_rect(rect, Color(0.95, 0.75, 0.45, 1.0), false, 2.0)
-			draw_line(-half, half, Color(0.95, 0.75, 0.45, 0.8), 1.5)
-			draw_line(Vector2(-half.x, half.y), Vector2(half.x, -half.y), Color(0.95, 0.75, 0.45, 0.8), 1.5)
+			if _obj_texture:
+				draw_circle(Vector2(0, half.y * 0.4), half.x * 0.8, Color(0.06, 0.04, 0.1, 0.36))
+				draw_texture_rect(_obj_texture, Rect2(Vector2(-15, -18), Vector2(30, 30)), false, Color.WHITE)
+			else:
+				draw_rect(rect, Color(0.65, 0.42, 0.22, 1.0), true)
 
 		ObjectType.SONIC_CRYSTAL:
-			var col: Color = Color(0.2, 0.95, 0.55, 1.0) if is_activated else Color(0.2, 0.65, 0.95, 1.0)
-			var pts := PackedVector2Array([
-				Vector2(0, -14),
-				Vector2(12, 0),
-				Vector2(0, 14),
-				Vector2(-12, 0)
-			])
-			draw_colored_polygon(pts, col)
-			draw_arc(Vector2.ZERO, 16.0, 0.0, TAU, 18, col.lightened(0.3), 1.8)
+			var glow_col: Color = Color(0.25, 0.98, 0.65, 0.34) if is_activated else Color(0.45, 0.58, 1.0, 0.26)
+			draw_circle(Vector2(0, -6), 17.0, glow_col)
+			if _obj_texture:
+				var crystal_tint: Color = Color(0.68, 1.0, 0.85, 1.0) if is_activated else Color(0.88, 0.82, 1.0, 1.0)
+				draw_texture_rect(_obj_texture, Rect2(Vector2(-16, -24), Vector2(32, 32)), false, crystal_tint)
+			draw_arc(Vector2(0, -6), 15.5, 0.0, TAU, 18, glow_col.lightened(0.45), 1.4)
 
 		ObjectType.LEVEL_PORTAL:
-			var p_col: Color = Color(0.55, 0.25, 0.35, 0.85) if is_locked else Color(0.3, 0.95, 0.55, 0.9)
-			draw_rect(Rect2(Vector2(-18, -24), Vector2(36, 48)), p_col, true)
-			draw_rect(Rect2(Vector2(-18, -24), Vector2(36, 48)), Color.WHITE, false, 2.2)
-			draw_circle(Vector2.ZERO, 6.0, Color.WHITE if not is_locked else Color(0.9, 0.3, 0.3))
+			var aura_col: Color = Color(0.65, 0.22, 0.36, 0.28) if is_locked else Color(0.48, 0.92, 0.72, 0.38)
+			draw_circle(Vector2(0, -10), 22.0, aura_col)
+			if _obj_texture:
+				var arch_tint: Color = Color(0.62, 0.42, 0.56, 0.92) if is_locked else Color.WHITE
+				draw_texture_rect(_obj_texture, Rect2(Vector2(-24, -38), Vector2(48, 48)), false, arch_tint)
+			draw_circle(Vector2(0, -10), 5.5, Color(0.95, 0.35, 0.42, 0.9) if is_locked else Color(0.55, 1.0, 0.78, 0.95))
 
 		ObjectType.LORE_PLINTH:
-			draw_rect(Rect2(Vector2(-10, -10), Vector2(20, 20)), Color(0.55, 0.5, 0.75, 1.0), true)
-			draw_rect(Rect2(Vector2(-10, -10), Vector2(20, 20)), Color(0.9, 0.85, 1.0, 1.0), false, 1.5)
+			if _obj_texture:
+				draw_texture_rect(_obj_texture, Rect2(Vector2(-14, -22), Vector2(28, 28)), false, Color.WHITE)
+			else:
+				draw_rect(Rect2(Vector2(-10, -10), Vector2(20, 20)), Color(0.55, 0.5, 0.75, 1.0), true)

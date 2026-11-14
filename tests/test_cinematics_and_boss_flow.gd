@@ -88,8 +88,14 @@ func _run_all_tests() -> void:
 	assert(not (opening_preview.hud.get_node("RootControl") as Control).visible, "2.0a.1: HUD deve ficar oculto durante o despertar")
 	assert(opening_preview._esquecido_occlusion != null and opening_preview._esquecido_occlusion.visible, "2.0b: O Esquecido deve começar coberto")
 	assert(is_equal_approx(opening_preview._esquecido_occlusion.color.a, 1.0), "2.0c: A máscara do Esquecido deve começar totalmente opaca")
-	assert((opening_preview.get_node("BedroomArtDark") as Sprite2D).visible, "2.0d: A arte escura do quarto deve estar visível")
-	assert(is_equal_approx((opening_preview.get_node("BedroomArtLit") as Sprite2D).modulate.a, 0.0), "2.0e: A arte iluminada deve começar invisível")
+	assert(opening_preview.get_node_or_null("BedroomArtDark") == null, "2.0d: Sprite chapado BedroomArtDark deve ser removido")
+	assert(opening_preview.get_node_or_null("BedroomArtLit") == null, "2.0e: Sprite chapado BedroomArtLit deve ser removido")
+	assert(opening_preview.get_node_or_null("BedroomFloorLayer") is TileMapLayer, "2.0f: O quarto deve usar TileMapLayer para o chão")
+	assert(opening_preview.get_node_or_null("EsquecidoFloorLayer") is TileMapLayer, "2.0g: O Esquecido deve usar TileMapLayer com ruído Perlin")
+	assert(opening_preview.get_node_or_null("BedroomBed") is StaticBody2D, "2.0h: A cama deve ter StaticBody2D com colisão real")
+	assert(opening_preview.get_node_or_null("BedroomWardrobe") is StaticBody2D, "2.0i: O guarda-roupa deve ter StaticBody2D com colisão real")
+	assert(opening_preview._bedroom_darkness_overlay != null and opening_preview._bedroom_darkness_overlay.visible, "2.0j: O overlay escuro do quarto deve estar visível no despertar")
+	assert(opening_preview.y_sort_enabled == true and opening_preview.pablita.y_sort_enabled == true, "2.0k: Y-sort deve estar ativo no nível e na Pablita")
 	opening_preview.queue_free()
 	await process_frame
 

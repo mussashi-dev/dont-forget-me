@@ -55,6 +55,7 @@ var _active_camera_tween: Tween = null
 @onready var camera: Camera2D = $Camera2D
 
 func _ready() -> void:
+	y_sort_enabled = true
 	add_to_group("player")
 	# Ativar sprite pixel-art e sombra na base
 	if sprite:
@@ -495,9 +496,5 @@ func _draw() -> void:
 		draw_arc(fist_pos, 6.5, 0.0, TAU, 14, Color(1.0, 0.88, 0.45, 0.95), 1.5)
 	elif current_state == State.ATTACK_SONIC:
 		draw_arc(Vector2(0, -12), 11.0, 0.0, TAU, 20, Color(0.55, 0.88, 1.0, 0.65), 1.5)
-
-	# Indicador sutil de orientação na base para leitura tática precisa em mobile/PC
-	var dir_tip: Vector2 = Vector2(0, -3) + facing_direction.normalized() * 10.0
-	draw_circle(dir_tip, 1.8, Color(1.0, 0.92, 0.45, 0.75))
 
 
