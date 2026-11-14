@@ -265,6 +265,10 @@ func _setup_phase_1_opening_visuals() -> void:
 	if lit_art:
 		lit_art.visible = true
 		lit_art.modulate = Color(1.0, 1.0, 1.0, 1.0 if _bedroom_wakeup_completed else 0.0)
+	if hud:
+		var hud_root := hud.get_node_or_null("RootControl") as Control
+		if hud_root:
+			hud_root.visible = _bedroom_wakeup_completed
 
 	if _bedroom_wakeup_completed:
 		if gm and not gm.has_story_flag("f1_bedroom_wakeup_done"):
@@ -350,6 +354,9 @@ func _play_phase_1_wakeup() -> void:
 	if is_instance_valid(pablita):
 		pablita.set_cinematic_locked(false)
 	if hud:
+		var hud_root := hud.get_node_or_null("RootControl") as Control
+		if hud_root:
+			hud_root.visible = true
 		hud.set_objective_text("Investigue o barulho atrás do guarda-roupa")
 
 func _reveal_esquecido() -> void:
