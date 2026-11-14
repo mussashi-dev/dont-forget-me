@@ -137,6 +137,7 @@ func _run_all_tests() -> void:
 	if lvl1.pablita._active_camera_tween and lvl1.pablita._active_camera_tween.is_valid():
 		await lvl1.pablita._active_camera_tween.finished
 	await process_frame
+	await create_timer(0.35).timeout # Aguarda a transição de revelação do Esquecido terminar.
 
 	assert(lvl1.pablita.current_state == Pablita.State.IDLE, "2.10: Controle de Pablita deve ser devolvido após retorno da câmera")
 	assert(lvl1._show_thief_visual == false, "2.11: Visual provisório da meia deve ser ocultado")
