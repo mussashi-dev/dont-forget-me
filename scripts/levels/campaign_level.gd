@@ -21,6 +21,10 @@ var _floor_zones: Array[Dictionary] = []
 var _thief_visual_pos: Vector2 = Vector2.ZERO
 var _show_thief_visual: bool = false
 
+# Apresentação visual exclusiva da abertura da Fase 1.
+var _esquecido_occlusion: Polygon2D = null
+var _bedroom_wakeup_completed: bool = false
+
 func _ready() -> void:
 	# Desativa quaisquer camadas de arte herdadas (caso a cena seja level_01_intro.tscn)
 	for art_node_name: String in ["GroundLayer", "Decorations", "AmbientLight", "Walls"]:
@@ -48,10 +52,15 @@ func _ready() -> void:
 	_configure_level_content(level_number)
 	_build_boundary_and_internal_walls()
 	pablita.set_camera_limits(arena_rect)
+	if level_number == 1:
+		_setup_phase_1_opening_visuals()
 	_refresh_portal_lock()
 	var am := AudioManagerService.get_am()
 	if am:
-		am.set_music_for_level(level_number)
+		if level_number == 1 and not _bedroom_wakeup_completed:
+			am.stop_music_for_dramatic_silence()
+		else:
+			am.set_music_for_level(level_number)
 	queue_redraw()
 
 func _ensure_player_and_hud() -> void:
@@ -226,6 +235,134 @@ func _refresh_portal_lock() -> void:
 	var flags_pending: bool = not _are_required_flags_met()
 	exit_portal.set_locked(active_enemies_count > 0 or crystals_pending or flags_pending)
 
+
+# ---------- Abertura do Quarto de Pablita ----------
+
+func _setup_phase_1_opening_visuals() -> void:
+	var gm := GameManagerService.get_gm()
+	var wardrobe_already_opened: bool = gm != null and gm.has_story_flag("f1_wardrobe_checked")
+	_bedroom_wakeup_completed = wardrobe_already_opened or (gm != null and gm.has_story_flag("f1_bedroom_wakeup_done"))
+
+	# A máscara é um elemento de cena com prioridade de desenho alta:
+	# ela cobre também NPCs, pickups e portais do Esquecido, não só o chão.
+	_esquecido_occlusion = Polygon2D.new()
+	_esquecido_occlusion.name = "EsquecidoOcclusion"
+	_esquecido_occlusion.polygon = PackedVector2Array([
+		Vector2(254, 24),
+		Vector2(760, 24),
+		Vector2(760, 396),
+		Vector2(254, 396)
+	])
+	_esquecido_occlusion.color = Color(0.0, 0.0, 0.0, 1.0)
+	_esquecido_occlusion.z_index = 100
+	_esquecido_occlusion.visible = not wardrobe_already_opened
+	add_child(_esquecido_occlusion)
+
+	var dark_art := get_node_or_null("BedroomArtDark") as Sprite2D
+	var lit_art := get_node_or_null("BedroomArtLit") as Sprite2D
+	if dark_art:
+		dark_art.visible = not _bedroom_wakeup_completed
+	if lit_art:
+		lit_art.visible = true
+		lit_art.modulate = Color(1.0, 1.0, 1.0, 1.0 if _bedroom_wakeup_completed else 0.0)
+
+	if _bedroom_wakeup_completed:
+		if gm and not gm.has_story_flag("f1_bedroom_wakeup_done"):
+			gm.set_story_flag("f1_bedroom_wakeup_done", true)
+		return
+
+	# A posição corresponde ao colchão no cenário de referência.
+	pablita.global_position = Vector2(84, 229)
+	pablita.facing_direction = Vector2.RIGHT
+	pablita.set_cinematic_locked(true)
+	if pablita.sprite:
+		pablita.sprite.centered = true
+		pablita.sprite.offset = Vector2.ZERO
+		pablita.sprite.rotation = PI * 0.5
+		pablita.sprite.scale = Vector2(1.18, 0.84)
+		pablita.sprite.play("idle_east")
+
+	call_deferred("_play_phase_1_wakeup")
+
+func _play_phase_1_wakeup() -> void:
+	if level_number != 1 or not is_instance_valid(pablita):
+		return
+
+	# Um breve silêncio permite que a imagem escura seja lida antes do ruído.
+	await get_tree().create_timer(0.85).timeout
+	if not is_inside_tree() or not is_instance_valid(pablita):
+		return
+
+	var am := AudioManagerService.get_am()
+	if am:
+		am.play_sfx("wardrobe_slide")
+
+	# O primeiro enquadramento aponta para a origem do barulho, ainda sem revelar
+	# o outro mundo: a máscara continua opaca durante todo esse movimento.
+	var focus_tween: Tween = pablita.focus_camera_on(Vector2(232, 210), 0.72, 2.35)
+	if focus_tween:
+		await focus_tween.finished
+	if not is_inside_tree() or not is_instance_valid(pablita):
+		return
+
+	await get_tree().create_timer(0.22).timeout
+	var lit_art := get_node_or_null("BedroomArtLit") as Sprite2D
+	if lit_art:
+		var light_tween := create_tween()
+		light_tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		light_tween.tween_property(lit_art, "modulate:a", 1.0, 0.82)
+		await light_tween.finished
+
+	if am:
+		am.play_sfx("ui_confirm")
+		am.set_music_state("BEDROOM_CALM")
+
+	var camera_return: Tween = pablita.return_camera_to_player(0.72)
+	if camera_return:
+		await camera_return.finished
+	if not is_inside_tree() or not is_instance_valid(pablita):
+		return
+
+	# Pablita desperta e se senta/levanta; só então o jogador recebe o controle.
+	pablita.facing_direction = Vector2.DOWN
+	if pablita.sprite:
+		pablita.sprite.play("idle_south")
+	var wake_tween := create_tween().set_parallel(true)
+	wake_tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	wake_tween.tween_property(pablita.sprite, "rotation", 0.0, 0.46)
+	wake_tween.tween_property(pablita.sprite, "scale", Vector2.ONE, 0.46)
+	wake_tween.tween_property(pablita, "global_position", Vector2(90, 220), 0.58)
+	await wake_tween.finished
+
+	if pablita.sprite:
+		pablita.sprite.centered = false
+		pablita.sprite.offset = Vector2(-16, -30)
+		pablita.sprite.rotation = 0.0
+		pablita.sprite.scale = Vector2.ONE
+	var dark_art := get_node_or_null("BedroomArtDark") as Sprite2D
+	if dark_art:
+		dark_art.visible = false
+
+	var gm := GameManagerService.get_gm()
+	if gm:
+		gm.set_story_flag("f1_bedroom_wakeup_done", true)
+	await get_tree().create_timer(0.12).timeout
+	if is_instance_valid(pablita):
+		pablita.set_cinematic_locked(false)
+	if hud:
+		hud.set_objective_text("Investigue o barulho atrás do guarda-roupa")
+
+func _reveal_esquecido() -> void:
+	if not is_instance_valid(_esquecido_occlusion) or not _esquecido_occlusion.visible:
+		return
+	var reveal_tween := create_tween()
+	reveal_tween.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	reveal_tween.tween_property(_esquecido_occlusion, "color:a", 0.0, 1.15)
+	reveal_tween.finished.connect(func() -> void:
+		if is_instance_valid(_esquecido_occlusion):
+			_esquecido_occlusion.visible = false
+	, CONNECT_ONE_SHOT)
+
 # ---------- Foco Cinematográfico e Apresentações Narrativas ----------
 
 func _play_phase_1_intro_cinematic(wardrobe_gate: WorldObject) -> void:
@@ -239,6 +376,7 @@ func _play_phase_1_intro_cinematic(wardrobe_gate: WorldObject) -> void:
 	_thief_visual_pos = Vector2(310, 210)
 	if is_instance_valid(wardrobe_gate):
 		wardrobe_gate.queue_free()
+	_reveal_esquecido()
 	queue_redraw()
 
 	if pablita:
