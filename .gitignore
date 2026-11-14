@@ -1,0 +1,46 @@
+# Godot 4.x .gitignore
+
+# Godot editor and project cache
+.godot/
+*.translation
+
+# Exported builds
+builds/
+export/
+bin/
+*.apk
+*.aab
+*.exe
+*.tpk
+*.zip
+*.tar.gz
+
+# Mono / C# (if used in future)
+.mono/
+[Gg]odot[Ss]harp/
+
+# Crash logs and editor temps
+crash.*
+*.log
+*.tmp
+*.bak
+
+# OS generated files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE and Editor configurations
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment & Sensitive configs
+.env
+.env.*
+*.secret
+*.token
+*.pem
+*.key

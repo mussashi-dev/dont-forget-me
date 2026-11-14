@@ -1,0 +1,44 @@
+[gd_scene format=3 uid="uid://df58y671kp2la"]
+
+[ext_resource type="Script" path="res://scripts/characters/chopp_npc.gd" id="1_chopp"]
+[ext_resource type="Texture2D" path="res://assets/characters/chopp/chopp_idle_0.png" id="2_texture"]
+[ext_resource type="Script" path="res://scripts/systems/interactable.gd" id="3_interactable"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_body"]
+radius = 8.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_interact"]
+radius = 32.0
+
+[sub_resource type="LabelSettings" id="LabelSettings_prompt"]
+font_size = 11
+outline_size = 2
+outline_color = Color(0.1, 0.1, 0.12, 1)
+
+[node name="ChoppNPC" type="StaticBody2D"]
+collision_layer = 2
+script = ExtResource("1_chopp")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_texture")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_body")
+
+[node name="Interactable" type="Area2D" parent="."]
+collision_layer = 8
+collision_mask = 0
+script = ExtResource("3_interactable")
+prompt_message = "Falar com Chopp"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Interactable"]
+shape = SubResource("CircleShape2D_interact")
+
+[node name="PromptLabel" type="Label" parent="."]
+offset_left = -32.0
+offset_top = -26.0
+offset_right = 32.0
+offset_bottom = -10.0
+text = "[E] Falar"
+label_settings = SubResource("LabelSettings_prompt")
+horizontal_alignment = 1

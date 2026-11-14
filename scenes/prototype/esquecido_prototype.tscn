@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://c3esq0proto01"]
+
+[ext_resource type="Script" path="res://scripts/prototype/esquecido_prototype.gd" id="1_proto"]
+
+[node name="EsquecidoPrototype" type="Node2D"]
+script = ExtResource("1_proto")

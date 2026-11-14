@@ -1,0 +1,34 @@
+[gd_scene format=3 uid="uid://b1i421f5x0npl"]
+
+[ext_resource type="Texture2D" path="res://assets/objects/candleA_01.png" id="1_c1"]
+[ext_resource type="Texture2D" path="res://assets/objects/candleA_02.png" id="2_c2"]
+[ext_resource type="Texture2D" path="res://assets/objects/candleA_03.png" id="3_c3"]
+[ext_resource type="Texture2D" path="res://assets/objects/candleA_04.png" id="4_c4"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_candle"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_c1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_c2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_c3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_c4")
+}],
+"loop": true,
+"name": &"flicker",
+"speed": 7.0
+}]
+
+[node name="Candle" type="Node2D"]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_candle")
+animation = &"flicker"
+autoplay = "flicker"
+frame_progress = 0.5

@@ -1,0 +1,58 @@
+[gd_scene format=3 uid="uid://bvk72lq51p6m2"]
+
+[ext_resource type="Script" path="res://scripts/enemies/sock_enemy.gd" id="1_sock"]
+[ext_resource type="Texture2D" path="res://assets/characters/enemies/sock_enemy_0.png" id="2_texture"]
+[ext_resource type="Script" path="res://scripts/systems/health_component.gd" id="3_health"]
+[ext_resource type="Script" path="res://scripts/systems/hurtbox.gd" id="4_hurtbox"]
+[ext_resource type="Script" path="res://scripts/systems/hitbox.gd" id="5_hitbox"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_body"]
+radius = 8.0
+height = 20.0
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_hurt"]
+radius = 12.0
+height = 26.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_hit"]
+radius = 14.0
+
+[node name="SockEnemy" type="CharacterBody2D"]
+collision_layer = 4
+collision_mask = 15
+script = ExtResource("1_sock")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_texture")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, 6)
+shape = SubResource("CapsuleShape2D_body")
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("3_health")
+max_health = 60
+
+[node name="Hurtbox" type="Area2D" parent="." node_paths=PackedStringArray("health_component")]
+collision_layer = 4
+collision_mask = 0
+script = ExtResource("4_hurtbox")
+invulnerability_duration = 0.2
+health_component = NodePath("../HealthComponent")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
+position = Vector2(0, 4)
+shape = SubResource("CapsuleShape2D_hurt")
+
+[node name="Hitbox" type="Area2D" parent="." node_paths=PackedStringArray("source_owner")]
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("5_hitbox")
+damage = 15
+damage_type = 0
+knockback_force = 220.0
+source_owner = NodePath("..")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox"]
+position = Vector2(0, 4)
+shape = SubResource("CircleShape2D_hit")

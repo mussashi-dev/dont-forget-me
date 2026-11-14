@@ -1,0 +1,132 @@
+[gd_scene format=3 uid="uid://b7b9q28t7b22n"]
+
+[ext_resource type="Script" path="res://scripts/levels/level_01_intro.gd" id="1_level"]
+[ext_resource type="Texture2D" path="res://assets/environments/forgotten_realm/mainlevbuild.png" id="2_tileset"]
+[ext_resource type="Texture2D" path="res://assets/environments/forgotten_realm/decorative.png" id="3_decor"]
+[ext_resource type="PackedScene" path="res://scenes/characters/pablita.tscn" id="4_pablita"]
+[ext_resource type="PackedScene" path="res://scenes/characters/chopp_npc.tscn" id="5_chopp"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/sock_enemy.tscn" id="6_enemy"]
+[ext_resource type="PackedScene" path="res://scenes/environments/forgotten_cd_item.tscn" id="7_cd"]
+[ext_resource type="PackedScene" path="res://scenes/environments/candle.tscn" id="8_candle"]
+[ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="9_hud"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wall_h"]
+size = Vector2(720, 32)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wall_v"]
+size = Vector2(32, 520)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_pillar"]
+radius = 16.0
+
+[node name="Level01Intro" type="Node2D"]
+script = ExtResource("1_level")
+
+[node name="AmbientLight" type="CanvasModulate" parent="."]
+color = Color(0.72, 0.68, 0.85, 1)
+
+[node name="GroundLayer" type="Node2D" parent="."]
+
+[node name="Floor1" type="Sprite2D" parent="GroundLayer"]
+position = Vector2(160, 160)
+texture = ExtResource("2_tileset")
+region_enabled = true
+region_rect = Rect2(128, 48, 320, 224)
+
+[node name="Floor2" type="Sprite2D" parent="GroundLayer"]
+position = Vector2(460, 160)
+texture = ExtResource("2_tileset")
+region_enabled = true
+region_rect = Rect2(128, 48, 320, 224)
+
+[node name="Floor3" type="Sprite2D" parent="GroundLayer"]
+position = Vector2(160, 340)
+texture = ExtResource("2_tileset")
+region_enabled = true
+region_rect = Rect2(128, 48, 320, 192)
+
+[node name="Floor4" type="Sprite2D" parent="GroundLayer"]
+position = Vector2(460, 340)
+texture = ExtResource("2_tileset")
+region_enabled = true
+region_rect = Rect2(128, 48, 320, 192)
+
+[node name="Decorations" type="Node2D" parent="."]
+
+[node name="Cobweb1" type="Sprite2D" parent="Decorations"]
+position = Vector2(32, 40)
+texture = ExtResource("3_decor")
+region_enabled = true
+region_rect = Rect2(0, 0, 48, 48)
+
+[node name="Cobweb2" type="Sprite2D" parent="Decorations"]
+position = Vector2(590, 40)
+texture = ExtResource("3_decor")
+region_enabled = true
+region_rect = Rect2(0, 0, 48, 48)
+
+[node name="PillarLeft" type="Sprite2D" parent="Decorations"]
+position = Vector2(180, 200)
+texture = ExtResource("2_tileset")
+region_enabled = true
+region_rect = Rect2(32, 192, 32, 64)
+
+[node name="PillarRight" type="Sprite2D" parent="Decorations"]
+position = Vector2(440, 200)
+texture = ExtResource("2_tileset")
+region_enabled = true
+region_rect = Rect2(32, 192, 32, 64)
+
+[node name="Candle1" parent="Decorations" instance=ExtResource("8_candle")]
+position = Vector2(180, 170)
+
+[node name="Candle2" parent="Decorations" instance=ExtResource("8_candle")]
+position = Vector2(440, 170)
+
+[node name="Candle3" parent="Decorations" instance=ExtResource("8_candle")]
+position = Vector2(310, 80)
+
+[node name="Candle4" parent="Decorations" instance=ExtResource("8_candle")]
+position = Vector2(330, 80)
+
+[node name="Walls" type="StaticBody2D" parent="."]
+collision_layer = 2
+collision_mask = 5
+
+[node name="WallTop" type="CollisionShape2D" parent="Walls"]
+position = Vector2(310, 34)
+shape = SubResource("RectangleShape2D_wall_h")
+
+[node name="WallBottom" type="CollisionShape2D" parent="Walls"]
+position = Vector2(310, 440)
+shape = SubResource("RectangleShape2D_wall_h")
+
+[node name="WallLeft" type="CollisionShape2D" parent="Walls"]
+position = Vector2(0, 240)
+shape = SubResource("RectangleShape2D_wall_v")
+
+[node name="WallRight" type="CollisionShape2D" parent="Walls"]
+position = Vector2(620, 240)
+shape = SubResource("RectangleShape2D_wall_v")
+
+[node name="PillarLeftCollision" type="CollisionShape2D" parent="Walls"]
+position = Vector2(180, 214)
+shape = SubResource("CircleShape2D_pillar")
+
+[node name="PillarRightCollision" type="CollisionShape2D" parent="Walls"]
+position = Vector2(440, 214)
+shape = SubResource("CircleShape2D_pillar")
+
+[node name="ForgottenCDItem" parent="." instance=ExtResource("7_cd")]
+position = Vector2(320, 95)
+
+[node name="ChoppNPC" parent="." instance=ExtResource("5_chopp")]
+position = Vector2(120, 160)
+
+[node name="SockEnemy" parent="." instance=ExtResource("6_enemy")]
+position = Vector2(470, 260)
+
+[node name="Pablita" parent="." instance=ExtResource("4_pablita")]
+position = Vector2(90, 240)
+
+[node name="HUD" parent="." instance=ExtResource("9_hud")]
