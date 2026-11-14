@@ -14,6 +14,7 @@ var _timer: float = 0.0
 var _hitbox: Hitbox
 
 func _ready() -> void:
+	add_to_group("boss_hazards")
 	_timer = lifetime
 	collision_layer = 0
 	collision_mask = 2 # Paredes sólidas (2)

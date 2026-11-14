@@ -11,6 +11,8 @@ signal equipment_changed
 signal capacity_updated(used: int, maximum: int)
 signal level_changed(level_index: int)
 signal story_flag_changed(flag_name: String, value: Variant)
+signal input_device_changed(is_mobile: bool)
+signal accessibility_changed
 
 enum GameState {
 	MENU,
@@ -39,16 +41,16 @@ const LEVEL_PATHS: Dictionary = {
 }
 
 const LEVEL_TITLES: Dictionary = {
-	1: "Fase 1: Quarto de Pablita e Chegada ao Esquecido",
-	2: "Fase 2: Corredor das Lembranças — Fundamentos de Combate",
-	3: "Fase 3: Arena de Costura — CHEFE: A Meia Esquecida",
-	4: "Fase 4: Galeria Silenciosa — Nova Região e Habitantes",
-	5: "Fase 5: Passagens Trancadas — Desafios Ambientais e Combate",
-	6: "Fase 6: Antecâmara da Engrenagem — Preparação",
-	7: "Fase 7: Forja Rítmica — CHEFE: O Robô Esquecido",
-	8: "Fase 8: Profundezas Desbotadas — Região Perigosa",
-	9: "Fase 9: Salão Antes do Trono — Preparação Final",
-	10: "Fase 10: O Vitral Empoeirado — CHEFE: A Rainha Empoeirada"
+	1: "O Quarto de Pablita e a Passagem Secreta",
+	2: "Trilha das Lembranças — Primeiros Ecos",
+	3: "Covil de Costura — A Meia Esquecida",
+	4: "Vila dos Achados — Comunidade do Esquecido",
+	5: "Passagens Trancadas — Ruínas Sonoras",
+	6: "Antecâmara da Engrenagem",
+	7: "Forja Rítmica — O Robô Esquecido",
+	8: "Profundezas Desbotadas",
+	9: "Salão Antes do Trono",
+	10: "O Vitral Empoeirado — A Rainha Empoeirada"
 }
 
 var current_state: GameState = GameState.MENU
@@ -65,11 +67,48 @@ var catalog: Dictionary = {} # id -> EncarteData
 var collected_encartes: Array[String] = []
 var equipped_encartes: Array[String] = []
 var world_flags: Dictionary = {}
+var campaign_completed_once: bool = false
+var is_mobile_device: bool = false
+var screen_shake_enabled: bool = true
+var high_legibility_text: bool = false
 
 func _ready() -> void:
 	instance = self
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	is_mobile_device = OS.has_feature("mobile") or OS.get_name() in ["Android", "iOS"]
 	_build_encarte_catalog()
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed:
+		if is_mobile_device and not (OS.get_name() in ["Android", "iOS"]):
+			is_mobile_device = false
+			input_device_changed.emit(is_mobile_device)
+	elif event is InputEventScreenTouch and event.pressed:
+		if OS.get_name() in ["Android", "iOS"] or OS.has_feature("mobile"):
+			if not is_mobile_device:
+				is_mobile_device = true
+				input_device_changed.emit(is_mobile_device)
+
+func set_mobile_mode_override(mobile: bool) -> void:
+	if is_mobile_device != mobile:
+		is_mobile_device = mobile
+		input_device_changed.emit(is_mobile_device)
+
+func set_screen_shake_enabled(enabled: bool) -> void:
+	screen_shake_enabled = enabled
+	accessibility_changed.emit()
+	save_game()
+
+func set_high_legibility_text(enabled: bool) -> void:
+	high_legibility_text = enabled
+	accessibility_changed.emit()
+	save_game()
+
+func is_pipop_acquired() -> bool:
+	return has_story_flag("pipop_acquired")
+
+func unlock_pipop() -> void:
+	set_story_flag("pipop_acquired", true)
 
 static func get_gm() -> GameManagerService:
 	return instance
@@ -356,6 +395,9 @@ func continue_game() -> bool:
 func load_level(level_idx: int) -> void:
 	get_tree().paused = false
 	current_level_index = clampi(level_idx, 1, TOTAL_LEVELS)
+	if current_level_index >= 2 and not has_story_flag("pipop_acquired"):
+		world_flags["pipop_acquired"] = true
+		story_flag_changed.emit("pipop_acquired", true)
 	if current_level_index > max_unlocked_level:
 		max_unlocked_level = current_level_index
 	set_game_state(GameState.TRANSITION)
@@ -378,6 +420,8 @@ func advance_to_next_level() -> void:
 
 func complete_campaign() -> void:
 	get_tree().paused = false
+	campaign_completed_once = true
+	world_flags["campaign_completed_once"] = true
 	set_game_state(GameState.CAMPAIGN_COMPLETE)
 	save_game()
 
@@ -399,6 +443,9 @@ func save_game() -> void:
 	cfg.set_value("progress", "collected_encartes", collected_encartes)
 	cfg.set_value("progress", "equipped_encartes", equipped_encartes)
 	cfg.set_value("progress", "world_flags", world_flags)
+	cfg.set_value("progress", "campaign_completed_once", campaign_completed_once)
+	cfg.set_value("settings", "screen_shake_enabled", screen_shake_enabled)
+	cfg.set_value("settings", "high_legibility_text", high_legibility_text)
 	cfg.save(SAVE_PATH)
 
 func load_game() -> bool:
@@ -421,6 +468,10 @@ func load_game() -> bool:
 		if catalog.has(String(item)):
 			equipped_encartes.append(String(item))
 	world_flags = cfg.get_value("progress", "world_flags", {})
+	campaign_completed_once = bool(cfg.get_value("progress", "campaign_completed_once", bool(world_flags.get("campaign_completed_once", false))))
+	screen_shake_enabled = bool(cfg.get_value("settings", "screen_shake_enabled", true))
+	high_legibility_text = bool(cfg.get_value("settings", "high_legibility_text", false))
 	capacity_updated.emit(get_used_capacity(), max_capacity)
 	equipment_changed.emit()
+	accessibility_changed.emit()
 	return true

@@ -11,6 +11,7 @@ var _timer: float = 0.0
 var _affected_player: Pablita = null
 
 func _ready() -> void:
+	add_to_group("boss_hazards")
 	_timer = duration
 	collision_layer = 8
 	collision_mask = 1 # Jogador
@@ -28,7 +29,7 @@ func _physics_process(delta: float) -> void:
 func _on_body_entered(body: Node2D) -> void:
 	if body is Pablita:
 		_affected_player = body as Pablita
-		_affected_player.speed_modifier_zone = slow_factor
+		_affected_player.register_slow_zone(self, slow_factor)
 
 func _on_body_exited(body: Node2D) -> void:
 	if body == _affected_player:
@@ -43,7 +44,7 @@ func _on_area_entered(area: Area2D) -> void:
 
 func _restore_player() -> void:
 	if _affected_player != null and is_instance_valid(_affected_player):
-		_affected_player.speed_modifier_zone = 1.0
+		_affected_player.unregister_slow_zone(self)
 		_affected_player = null
 
 func _exit_tree() -> void:

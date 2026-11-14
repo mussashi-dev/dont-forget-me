@@ -32,13 +32,13 @@ var _start_offset: Vector2 = Vector2.ZERO
 var _current_local_offset: Vector2 = Vector2(0, 18)
 
 func _ready() -> void:
-	# Desativar sprites originais e usar placeholder geométrico
 	var spr: Node = get_node_or_null("Sprite")
-	if spr and spr is CanvasItem:
-		(spr as CanvasItem).visible = false
+	if spr and spr is AnimatedSprite2D:
+		(spr as AnimatedSprite2D).visible = true
+		(spr as AnimatedSprite2D).play("idle_south")
 	var shadow: Node = get_node_or_null("Shadow")
 	if shadow and shadow is CanvasItem:
-		(shadow as CanvasItem).visible = false
+		(shadow as CanvasItem).visible = true
 
 	collision_layer = 0
 	collision_mask = 0
@@ -106,6 +106,7 @@ func _physics_process(delta: float) -> void:
 			if state_timer <= 0.0:
 				_transition_to(State.FOLLOW)
 
+	_update_sprite_animation(pablita_dir)
 	queue_redraw()
 
 func can_start_action() -> bool:
@@ -144,22 +145,49 @@ func _transition_to(new_state: State) -> void:
 	state_changed.emit(current_state)
 	queue_redraw()
 
+func _update_sprite_animation(pablita_dir: Vector2) -> void:
+	var spr: AnimatedSprite2D = get_node_or_null("Sprite") as AnimatedSprite2D
+	var shadow: CanvasItem = get_node_or_null("Shadow") as CanvasItem
+	if spr == null:
+		return
+	if current_state == State.PHYSICAL:
+		# Na forma de manopla, o corpo acompanhante se acopla ao braço de Pablita
+		spr.visible = false
+		if shadow:
+			shadow.visible = false
+		return
+	spr.visible = true
+	if shadow:
+		shadow.visible = true
+	var look_dir: Vector2 = attack_direction if (current_state == State.SONIC_APPROACH or current_state == State.SONIC_ATTACK) else pablita_dir
+	var dir_str: String = Pablita.direction_name(look_dir)
+	var is_moving: bool = false
+	if target_follow and "velocity" in target_follow:
+		var v: Vector2 = target_follow.get("velocity")
+		is_moving = v.length() > 10.0
+	if current_state == State.SONIC_APPROACH or current_state == State.SONIC_RETURN:
+		is_moving = true
+	var anim_name: String = ("walk_" if is_moving else "idle_") + dir_str
+	if spr.sprite_frames and spr.sprite_frames.has_animation(anim_name):
+		if spr.animation != anim_name or not spr.is_playing():
+			spr.play(anim_name)
+
 func _draw() -> void:
 	match current_state:
 		State.FOLLOW, State.SONIC_RETURN:
-			# Círculo magenta/rosa representando Pipop acompanhante
-			draw_circle(Vector2.ZERO, 6.0, Color(0.95, 0.3, 0.65, 0.95))
-			draw_arc(Vector2.ZERO, 6.0, 0.0, TAU, 16, Color(1.0, 0.85, 0.95), 1.2)
+			# Halo sutil rosado de Pipop e coração costurado
+			draw_arc(Vector2(0, -8), 7.5, 0.0, TAU, 16, Color(1.0, 0.65, 0.88, 0.35), 1.2)
 		State.PHYSICAL:
-			# Manopla envolvendo a mão de Pablita (retângulo/polígono laranja-avermelhado)
+			# Manopla felpuda de Pipop envolvendo o braço de Pablita
 			var rect := Rect2(Vector2(-7, -7), Vector2(14, 14))
-			draw_rect(rect, Color(1.0, 0.45, 0.2, 0.95), true)
-			draw_rect(rect, Color(1.0, 0.9, 0.4, 1.0), false, 1.8)
+			draw_rect(rect, Color(0.96, 0.38, 0.68, 0.95), true)
+			draw_rect(rect, Color(1.0, 0.88, 0.45, 1.0), false, 1.8)
+			draw_circle(Vector2.ZERO, 3.0, Color(0.95, 0.18, 0.35, 0.95))
 		State.SONIC_APPROACH:
-			# Pipop em deslocamento rápido (ciano/rosa brilhante)
-			draw_circle(Vector2.ZERO, 6.5, Color(0.5, 0.9, 1.0, 0.95))
+			draw_arc(Vector2(0, -8), 9.0, 0.0, TAU, 18, Color(0.65, 0.9, 1.0, 0.75), 1.8)
 		State.SONIC_ATTACK:
-			# Pipop à frente emitindo pulso sônico
-			draw_circle(Vector2.ZERO, 7.5, Color(0.2, 0.95, 1.0, 1.0))
-			draw_arc(Vector2.ZERO, 11.0, 0.0, TAU, 20, Color(0.6, 1.0, 1.0, 0.85), 2.0)
+			# Anéis concêntricos de rosnado sônico (roxo/ciano conforme prancha conceitual)
+			draw_arc(Vector2(0, -8), 10.0, 0.0, TAU, 20, Color(0.75, 0.45, 1.0, 0.95), 2.2)
+			draw_arc(Vector2(0, -8), 14.5, 0.0, TAU, 22, Color(0.45, 0.95, 1.0, 0.80), 1.6)
+
 

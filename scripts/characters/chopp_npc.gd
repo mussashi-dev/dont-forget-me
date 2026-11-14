@@ -25,7 +25,7 @@ var current_dialogue_index: int = 0
 
 func _ready() -> void:
 	if sprite:
-		sprite.visible = false
+		sprite.visible = (speaker_name == "Chopp")
 	interactable.prompt_message = "Falar com %s" % speaker_name
 	interactable.interaction_priority = 5
 	interactable.interacted.connect(_on_interacted)
@@ -41,11 +41,24 @@ func start_following(target: Node2D) -> void:
 	follow_target = target
 	_update_collision_for_follow()
 
+func stop_following_and_enable_dialogue(new_lines: Array[String] = []) -> void:
+	follow_target = null
+	if not new_lines.is_empty():
+		dialogue_lines = new_lines
+	_update_collision_for_follow()
+
 func _update_collision_for_follow() -> void:
-	# Se estiver acompanhando Pablita, desativa colisão física para nunca bloquear o movimento da protagonista
+	# Se estiver acompanhando Pablita, desativa colisão física e interação contínua para nunca bloquear o movimento nem poluir a tela
+	var is_following: bool = follow_target != null
 	if body_collision:
-		body_collision.set_deferred("disabled", follow_target != null)
-	collision_layer = 0 if follow_target != null else 2
+		body_collision.set_deferred("disabled", is_following)
+	collision_layer = 0 if is_following else 2
+	if interactable:
+		interactable.is_active = not is_following and not dialogue_lines.is_empty()
+		if not interactable.is_active:
+			interactable.lose_focus()
+	if prompt_label and is_following:
+		prompt_label.visible = false
 
 func _physics_process(delta: float) -> void:
 	if follow_target != null and is_instance_valid(follow_target):
@@ -67,14 +80,24 @@ func _on_unfocused() -> void:
 		prompt_label.visible = false
 
 func _draw() -> void:
-	var pts := PackedVector2Array([
-		Vector2(0, -14),
-		Vector2(10, -4),
-		Vector2(0, 6),
-		Vector2(-10, -4)
-	])
-	draw_colored_polygon(pts, npc_color)
-	draw_polyline(PackedVector2Array([pts[0], pts[1], pts[2], pts[3], pts[0]]), Color.WHITE, 1.5)
-	draw_circle(Vector2(0, -18), 2.5, Color(1.0, 0.95, 0.4, 1.0))
+	draw_circle(Vector2(0, 2), 8.0, Color(0.06, 0.04, 0.1, 0.45))
+	if sprite and sprite.visible and sprite.texture != null:
+		return
+	if speaker_name.begins_with("Luffy"):
+		# Cachorrinho caramelo/dourado deitado na almofada
+		draw_circle(Vector2(0, -4), 8.5, Color(0.88, 0.62, 0.28, 1.0))
+		draw_circle(Vector2(-6, -8), 3.5, Color(0.55, 0.34, 0.14, 1.0))
+		draw_circle(Vector2(6, -8), 3.5, Color(0.55, 0.34, 0.14, 1.0))
+		draw_circle(Vector2(-2.5, -5), 1.3, Color(0.12, 0.08, 0.06, 1.0))
+		draw_circle(Vector2(2.5, -5), 1.3, Color(0.12, 0.08, 0.06, 1.0))
+		draw_circle(Vector2(0, -2.5), 1.8, Color(0.2, 0.12, 0.1, 1.0))
+		return
+	# Silhueta estilizada de habitante da Vila dos Achados (despertador, xícara, soldadinho)
+	draw_circle(Vector2(0, -8), 8.5, npc_color)
+	draw_arc(Vector2(0, -8), 8.5, 0.0, TAU, 18, Color(1.0, 0.96, 0.88, 0.9), 1.5)
+	draw_circle(Vector2(-3, -9), 1.4, Color(0.15, 0.1, 0.2, 1.0))
+	draw_circle(Vector2(3, -9), 1.4, Color(0.15, 0.1, 0.2, 1.0))
+	draw_circle(Vector2(0, -19), 2.5, Color(1.0, 0.92, 0.45, 0.95))
+
 
 

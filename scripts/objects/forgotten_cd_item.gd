@@ -9,6 +9,7 @@ signal cd_inspected(item_id: String)
 @export var grant_encarte_id: String = "agulha_veloz"
 @export var grant_capacity_bonus: int = 0
 @export var heal_amount: int = 25
+@export var unique_world_flag: String = ""
 @export_multiline var inspection_text: String = "Você encontrou um fragmento preservado no Esquecido."
 
 @onready var interactable: Interactable = $Interactable
@@ -21,9 +22,16 @@ func _ready() -> void:
 	if sprite:
 		sprite.visible = false
 	var gm := GameManagerService.get_gm()
-	if gm and not grant_encarte_id.is_empty() and gm.has_encarte(grant_encarte_id):
+	var already_taken: bool = false
+	if gm:
+		if not grant_encarte_id.is_empty() and gm.has_encarte(grant_encarte_id):
+			already_taken = true
+		elif not unique_world_flag.is_empty() and gm.has_story_flag(unique_world_flag):
+			already_taken = true
+	if already_taken:
 		is_collected = true
-		interactable.is_active = false
+		if interactable:
+			interactable.is_active = false
 		visible = false
 		return
 
@@ -62,11 +70,17 @@ func _on_interacted(by_who: Node2D) -> void:
 
 	var gm := GameManagerService.get_gm()
 	if gm:
-		if grant_capacity_bonus > 0:
+		var flag_already_set: bool = (not unique_world_flag.is_empty() and gm.has_story_flag(unique_world_flag))
+		if grant_capacity_bonus > 0 and not flag_already_set:
 			gm.add_max_capacity(grant_capacity_bonus)
+		if not unique_world_flag.is_empty() and not flag_already_set:
+			gm.set_story_flag(unique_world_flag, true)
 		if not grant_encarte_id.is_empty():
 			gm.collect_encarte(grant_encarte_id)
 
+	var am := AudioManagerService.get_am()
+	if am:
+		am.play_sfx("pickup_encarte")
 	cd_inspected.emit(grant_encarte_id)
 	queue_free()
 
@@ -81,11 +95,15 @@ func _on_unfocused() -> void:
 func _draw() -> void:
 	if is_collected:
 		return
-	var col: Color = Color(0.95, 0.35, 0.85, 1.0) if not grant_encarte_id.is_empty() else Color(0.35, 0.95, 0.55, 1.0)
+	draw_circle(Vector2(0, 3), 8.0, Color(0.05, 0.03, 0.09, 0.45))
+	var col: Color = Color(0.95, 0.42, 0.88, 1.0) if not grant_encarte_id.is_empty() else Color(0.35, 0.95, 0.65, 1.0)
 	if grant_capacity_bonus > 0:
-		col = Color(1.0, 0.85, 0.2, 1.0)
-	var rect := Rect2(Vector2(-7, -7), Vector2(14, 14))
-	draw_rect(rect, col, true)
-	draw_rect(rect, Color.WHITE, false, 1.5)
-	draw_circle(Vector2.ZERO, 3.0, Color.WHITE)
+		col = Color(1.0, 0.85, 0.25, 1.0)
+	# Disco / Encarte iridescente com furo central
+	draw_circle(Vector2.ZERO, 8.5, col)
+	draw_arc(Vector2.ZERO, 8.5, 0.0, TAU, 20, Color(1.0, 0.98, 0.95, 0.95), 1.5)
+	draw_arc(Vector2.ZERO, 5.5, 0.4, 2.2, 10, Color(0.65, 0.95, 1.0, 0.85), 1.4)
+	draw_circle(Vector2.ZERO, 2.5, Color(0.12, 0.09, 0.18, 1.0))
+	draw_arc(Vector2.ZERO, 2.5, 0.0, TAU, 12, Color.WHITE, 1.0)
+
 

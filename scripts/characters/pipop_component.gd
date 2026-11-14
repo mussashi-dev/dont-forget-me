@@ -197,6 +197,10 @@ func _on_game_manager_capacity_updated(used: int, maximum: int) -> void:
 
 func perform_physical_attack(facing_dir: Vector2) -> bool:
 	last_command_received = "attack_physical"
+	var gm := GameManagerService.get_gm()
+	if gm != null and not gm.is_pipop_acquired():
+		_emit_debug_info()
+		return false
 	if not can_physical:
 		_emit_debug_info()
 		return false
@@ -251,6 +255,10 @@ func _deactivate_physical_hitbox() -> void:
 
 func perform_sonic_attack(facing_dir: Vector2, spawn_origin: Vector2) -> bool:
 	last_command_received = "attack_sonic"
+	var gm := GameManagerService.get_gm()
+	if gm != null and not gm.is_pipop_acquired():
+		_emit_debug_info()
+		return false
 	if not can_sonic or sonic_wave_scene == null:
 		_emit_debug_info()
 		return false

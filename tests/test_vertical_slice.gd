@@ -19,6 +19,7 @@ func _run_all_tests() -> void:
 	var gm: GameManagerService = GameManagerService.get_gm()
 	assert(gm != null, "GameManagerService deve estar ativo")
 	gm.reset_campaign()
+	gm.unlock_pipop() # Habilita Pipop para os testes diretos de combate (A, B, C, D)
 
 	# Carregar Fase 1 para os Testes A, B, C, D e início do E
 	var lvl1_packed: PackedScene = load("res://scenes/levels/level_01_intro.tscn")
@@ -208,6 +209,17 @@ func _run_all_tests() -> void:
 	# =========================================================================
 	# TESTE E — NARRATIVA E PROGRESSÃO CAUSAL PELAS 10 FASES
 	# =========================================================================
+	# Testar que antes de adquirir Pipop (pipop_acquired = false), habilidades estão bloqueadas
+	gm.set_story_flag("pipop_acquired", false)
+	assert(pablita.is_pipop_available() == false, "Teste E (Fase 1): Pipop deve estar indisponível no início antes da aquisição")
+	assert(pablita.pipop_companion.visible == false, "Teste E (Fase 1): PipopCompanion deve estar oculto antes da aquisição")
+	assert(hud.pipop_icon.visible == false, "Teste E (Fase 1): Ícone de Pipop na HUD deve estar oculto antes da aquisição")
+	pablita.current_state = Pablita.State.IDLE
+	Input.action_press("attack_physical")
+	pablita._physics_process(0.016)
+	Input.action_release("attack_physical")
+	assert(pablita.current_state == Pablita.State.IDLE, "Teste E (Fase 1): Ataque físico deve ser bloqueado antes de adquirir Pipop")
+
 	# Na Fase 1, o portal deve estar TRANCADO até que Pablita investigue o Guarda-Roupa (roubo do CD),
 	# fale com Chopp e ative o Cristal Sônico!
 	lvl1._refresh_portal_lock()
@@ -235,6 +247,11 @@ func _run_all_tests() -> void:
 	lvl1.chopp_actor._on_interacted(pablita)
 	assert(gm.has_story_flag("f1_chopp_met"), "Teste E (Fase 1): Flag f1_chopp_met deve ser registrada ao conhecer Chopp")
 	assert(lvl1.chopp_actor.follow_target == pablita, "Teste E (Fase 1): Chopp deve passar a acompanhar Pablita após o encontro")
+	assert(lvl1.chopp_actor.interactable.is_active == false, "Teste E (Fase 1): Interactable de Chopp deve desativar enquanto acompanha para não poluir prompt")
+	assert(gm.is_pipop_acquired() == true, "Teste E (Fase 1): Pipop deve estar adquirido para ativar o cristal sônico")
+	assert(pablita.pipop_companion.visible == true, "Teste E (Fase 1): PipopCompanion deve ficar visível após aquisição")
+	if hud._is_dialogue_open:
+		hud.hide_dialogue()
 
 	# 4. Ativar o Cristal Sônico da Fase 1 -> destranca o portal para a Fase 2
 	for c: WorldObject in lvl1.required_crystals:

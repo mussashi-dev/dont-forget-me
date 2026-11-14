@@ -262,6 +262,10 @@ func _on_died() -> void:
 	current_state = State.DEAD
 	_set_hitbox_active(false)
 	hurtbox.is_invulnerable = true
+	if get_tree():
+		for h in get_tree().get_nodes_in_group("boss_hazards"):
+			if is_instance_valid(h):
+				h.queue_free()
 	boss_health_changed.emit(get_phase_title(), 0, max_health)
 	boss_defeated.emit()
 	queue_free()

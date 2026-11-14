@@ -99,7 +99,11 @@ func set_locked(locked: bool) -> void:
 
 func _update_portal_prompt() -> void:
 	if object_type == ObjectType.LEVEL_PORTAL and _interactable:
-		_interactable.prompt_message = "Passagem Trancada (Resolva a sala)" if is_locked else "Avançar para a Próxima Fase"
+		if is_locked:
+			_interactable.prompt_message = "Passagem Trancada (Resolva a sala)"
+		else:
+			var default_txt: String = prompt_text if prompt_text != "" and prompt_text != "Interagir" else "Avançar para a Próxima Fase"
+			_interactable.prompt_message = default_txt
 
 func _on_hurtbox_hit(_damage: int, damage_type: int, _knockback: Vector2, _stun: float) -> void:
 	if object_type == ObjectType.BREAKABLE_CRATE:
@@ -111,6 +115,9 @@ func _on_hurtbox_hit(_damage: int, damage_type: int, _knockback: Vector2, _stun:
 	elif object_type == ObjectType.SONIC_CRYSTAL:
 		if damage_type == Hitbox.DamageType.SONIC and not is_activated:
 			is_activated = true
+			var am := AudioManagerService.get_am()
+			if am:
+				am.play_sfx("crystal_activate")
 			activated.emit(self)
 			queue_redraw()
 
@@ -119,7 +126,7 @@ func _on_interacted(_by_who: Node2D) -> void:
 		if is_locked:
 			var hud_node := get_tree().current_scene.get_node_or_null("HUD") as HUD
 			if hud_node:
-				hud_node.show_dialogue("Passagem Bloqueada", "Derrote as ameaças ou ative os mecanismos sônicos da sala antes de prosseguir.")
+				hud_node.show_dialogue("Passagem Bloqueada", "Esta passagem está trancada. Derrote a ameaça da sala antes de utilizá-la.")
 			return
 		activated.emit(self)
 		var gm := GameManagerService.get_gm()
@@ -130,9 +137,10 @@ func _on_interacted(_by_who: Node2D) -> void:
 				gm.advance_to_next_level()
 	elif object_type == ObjectType.LORE_PLINTH:
 		activated.emit(self)
-		var hud_node := get_tree().current_scene.get_node_or_null("HUD") as HUD
-		if hud_node:
-			hud_node.show_dialogue_sequence("Memória do Ambiente", lore_lines)
+		if not lore_lines.is_empty():
+			var hud_node := get_tree().current_scene.get_node_or_null("HUD") as HUD
+			if hud_node:
+				hud_node.show_dialogue_sequence("Memória do Ambiente", lore_lines)
 
 func _draw() -> void:
 	var half := size_vec * 0.5

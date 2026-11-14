@@ -1,0 +1,16 @@
+DON'T FORGET ME — PACOTE DE IMAGENS GERADAS
+
+Este ZIP reúne imagens visuais geradas durante a conversa para apoiar a direção de arte do projeto.
+
+ORGANIZAÇÃO
+- 01_personagens/Pablita: estudos e folhas visuais da protagonista.
+- 01_personagens/Pipop: estudos e folhas visuais do Fuggler Pipop, incluindo a versão com ataque sonoro.
+- 02_ambientes/Quarto: referência do mesmo quarto com iluminação ligada e apagada.
+- 02_ambientes/Esquecido_e_tilesets: estudos de progressão ambiental, mapas conceituais, tilesets, objetos, vegetação e elementos separados.
+
+NOTA TÉCNICA
+As imagens são pranchas de conceito e referências visuais. Elas NÃO são necessariamente tilesets técnicos ou spritesheets prontos para importação no Godot: várias pranchas contêm títulos, fundos, quadros de demonstração e elementos agrupados. Antes de integrar ao jogo, será necessário recortar/individualizar os assets, confirmar grade e tamanho dos tiles, alinhar pivôs, preparar transparência real e separar camadas.
+
+As variações de ambientes e nomes de regiões são estudos visuais provisórios. O GDD mantém em aberto os nomes definitivos das regiões e os mapas específicos das dez fases.
+
+

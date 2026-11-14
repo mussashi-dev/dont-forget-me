@@ -17,6 +17,16 @@ func _ready() -> void:
 	_reset_knob()
 
 func _input(event: InputEvent) -> void:
+	if not is_visible_in_tree():
+		if is_active:
+			_release_joystick()
+		return
+	var gm := GameManagerService.get_gm()
+	if gm != null and not gm.is_mobile_device:
+		if is_active:
+			_release_joystick()
+		return
+
 	if event is InputEventScreenTouch:
 		var touch := event as InputEventScreenTouch
 		if touch.pressed:
