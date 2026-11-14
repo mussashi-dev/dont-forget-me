@@ -39,11 +39,14 @@ var health_component: HealthComponent
 var hurtbox: Hurtbox
 var hitbox: Hitbox
 var body_collision: CollisionShape2D
+var boss_sprite: Sprite2D = null
+var _float_timer: float = 0.0
 
 func _ready() -> void:
 	add_to_group("enemies")
 	add_to_group("bosses")
 	_setup_components()
+	_setup_boss_sprite()
 	queue_redraw()
 
 func _setup_components() -> void:
@@ -146,6 +149,7 @@ func _physics_process(delta: float) -> void:
 				current_state = State.IDLE
 				state_timer = 0.85
 
+	_update_boss_visual(delta)
 	queue_redraw()
 
 func _choose_next_attack() -> void:
@@ -278,28 +282,68 @@ func _draw() -> void:
 	if current_state == State.DEAD:
 		return
 
-	var col := Color(0.85, 0.68, 0.95, 1.0)
-	if current_phase == 2:
-		col = Color(0.9, 0.35, 0.65, 1.0)
-	elif current_phase == 3:
-		col = Color(0.95, 0.2, 0.35, 1.0)
+	# Sombra projetada da Rainha Empoeirada flutuante (400%)
+	draw_circle(Vector2(0, 32), body_radius * 0.9, Color(0.06, 0.03, 0.1, 0.42))
 
-	if current_state == State.TELEGRAPH:
-		col = Color(1.0, 0.9, 0.25, 1.0)
-	elif current_state == State.VULNERABLE_WINDOW:
-		col = Color(0.35, 0.95, 0.55, 1.0)
+	if boss_sprite == null or boss_sprite.texture == null:
+		var col := Color(0.85, 0.68, 0.95, 1.0)
+		if current_phase == 2:
+			col = Color(0.9, 0.35, 0.65, 1.0)
+		elif current_phase == 3:
+			col = Color(0.95, 0.2, 0.35, 1.0)
 
-	# Forma poligonal real (octógono/coroa)
-	var pts := PackedVector2Array()
-	for i in range(8):
-		var a: float = i * TAU / 8.0
-		var r: float = body_radius if i % 2 == 0 else body_radius * 0.78
-		pts.append(Vector2(cos(a), sin(a)) * r)
-	draw_colored_polygon(pts, col)
-	draw_arc(Vector2.ZERO, body_radius, 0.0, TAU, 24, Color(1.0, 0.9, 0.4), 2.2)
+		if current_state == State.TELEGRAPH:
+			col = Color(1.0, 0.9, 0.25, 1.0)
+		elif current_state == State.VULNERABLE_WINDOW:
+			col = Color(0.35, 0.95, 0.55, 1.0)
+
+		var pts := PackedVector2Array()
+		for i in range(8):
+			var a: float = i * TAU / 8.0
+			var r: float = body_radius if i % 2 == 0 else body_radius * 0.78
+			pts.append(Vector2(cos(a), sin(a)) * r)
+		draw_colored_polygon(pts, col)
+		draw_arc(Vector2.ZERO, body_radius, 0.0, TAU, 24, Color(1.0, 0.9, 0.4), 2.2)
 
 	if has_vitrine_barrier:
-		draw_arc(Vector2.ZERO, body_radius + 7.0, 0.0, TAU, 28, Color(0.25, 0.95, 1.0, 0.95), 3.0)
+		draw_arc(Vector2.ZERO, body_radius + 10.0, 0.0, TAU, 28, Color(0.75, 0.35, 1.0, 0.95), 3.0)
+		draw_arc(Vector2.ZERO, body_radius + 15.0, 0.0, TAU, 28, Color(0.98, 0.45, 0.80, 0.65), 1.8)
 
-	if current_state == State.TELEGRAPH:
+	if current_state == State.VULNERABLE_WINDOW:
+		draw_arc(Vector2.ZERO, body_radius + 6.0, 0.0, TAU, 26, Color(0.35, 0.95, 0.55, 0.90), 2.4)
+	elif current_state == State.TELEGRAPH:
 		draw_line(Vector2.ZERO, target_dir * 52.0, Color(1.0, 0.2, 0.2, 0.95), 3.0)
+		draw_arc(Vector2.ZERO, body_radius + 5.0, 0.0, TAU, 24, Color(1.0, 0.85, 0.25, 0.85), 2.2)
+
+func _setup_boss_sprite() -> void:
+	var tex_path: String = "res://assets/characters/enemies/boss_queen.png"
+	if not ResourceLoader.exists(tex_path):
+		return
+	boss_sprite = Sprite2D.new()
+	boss_sprite.name = "BossSprite"
+	boss_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	boss_sprite.texture = load(tex_path) as Texture2D
+	boss_sprite.offset = Vector2(0, -18)
+	add_child(boss_sprite)
+
+func _update_boss_visual(delta: float) -> void:
+	if boss_sprite == null:
+		return
+	if current_state == State.DEAD:
+		boss_sprite.visible = false
+		return
+	boss_sprite.visible = true
+	_float_timer += delta
+	boss_sprite.offset = Vector2(0.0, -18.0 + sin(_float_timer * 2.4) * 5.0)
+	if absf(target_dir.x) > 0.12:
+		boss_sprite.flip_h = target_dir.x < 0.0
+	if current_state == State.TELEGRAPH:
+		boss_sprite.modulate = Color(1.30, 1.15, 0.55, 1.0)
+	elif current_state == State.VULNERABLE_WINDOW:
+		boss_sprite.modulate = Color(0.65, 1.35, 0.80, 1.0)
+	elif current_phase == 2:
+		boss_sprite.modulate = Color(1.12, 0.86, 1.0, 1.0)
+	elif current_phase == 3:
+		boss_sprite.modulate = Color(1.22, 0.72, 0.84, 1.0)
+	else:
+		boss_sprite.modulate = Color.WHITE

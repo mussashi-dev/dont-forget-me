@@ -17,6 +17,8 @@ signal dialogue_requested(speaker_name: String, lines: Array[String])
 @export var follow_lerp_speed: float = 4.5
 
 var current_dialogue_index: int = 0
+var _chopp_frames: Array[Texture2D] = []
+var _chopp_anim_timer: float = 0.0
 
 @onready var interactable: Interactable = $Interactable
 @onready var sprite: Sprite2D = $Sprite2D
@@ -24,8 +26,15 @@ var current_dialogue_index: int = 0
 @onready var body_collision: CollisionShape2D = $CollisionShape2D
 
 func _ready() -> void:
+	for i: int in 4:
+		var tex_path: String = "res://assets/characters/chopp/chopp_idle_%d.png" % i
+		if ResourceLoader.exists(tex_path):
+			_chopp_frames.append(load(tex_path) as Texture2D)
 	if sprite:
 		sprite.visible = (speaker_name == "Chopp")
+		sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		if sprite.visible and not _chopp_frames.is_empty():
+			sprite.texture = _chopp_frames[0]
 	interactable.prompt_message = "Falar com %s" % speaker_name
 	interactable.interaction_priority = 5
 	interactable.interacted.connect(_on_interacted)
@@ -63,8 +72,16 @@ func _update_collision_for_follow() -> void:
 func _physics_process(delta: float) -> void:
 	if follow_target != null and is_instance_valid(follow_target):
 		var desired_pos: Vector2 = follow_target.global_position + follow_offset
+		if sprite:
+			var dx: float = desired_pos.x - global_position.x
+			if absf(dx) > 2.0:
+				sprite.flip_h = dx < 0.0
 		if global_position.distance_to(desired_pos) > 8.0:
 			global_position = global_position.lerp(desired_pos, clampf(follow_lerp_speed * delta, 0.0, 1.0))
+	if sprite and sprite.visible and not _chopp_frames.is_empty():
+		_chopp_anim_timer += delta
+		var frame_idx: int = int(floor(_chopp_anim_timer * 6.0)) % _chopp_frames.size()
+		sprite.texture = _chopp_frames[frame_idx]
 
 func _on_interacted(_by_who: Node2D) -> void:
 	if dialogue_lines.is_empty():

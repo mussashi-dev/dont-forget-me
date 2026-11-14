@@ -319,6 +319,166 @@
     "w": 24,
     "h": 26
    }
+  },
+  "pip_sonic_0": {
+   "frame": {
+    "x": 0,
+    "y": 108,
+    "w": 24,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 26
+   }
+  },
+  "pip_sonic_1": {
+   "frame": {
+    "x": 25,
+    "y": 108,
+    "w": 24,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 26
+   }
+  },
+  "pip_sonic_2": {
+   "frame": {
+    "x": 50,
+    "y": 108,
+    "w": 24,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 26
+   }
+  },
+  "pip_defense": {
+   "frame": {
+    "x": 75,
+    "y": 108,
+    "w": 24,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 26
+   }
+  },
+  "pip_hurt": {
+   "frame": {
+    "x": 0,
+    "y": 135,
+    "w": 24,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 26
+   }
+  },
+  "pip_box": {
+   "frame": {
+    "x": 25,
+    "y": 135,
+    "w": 24,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 26
+   }
+  },
+  "pip_book": {
+   "frame": {
+    "x": 50,
+    "y": 135,
+    "w": 24,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 26
+   }
+  },
+  "pip_sleep": {
+   "frame": {
+    "x": 75,
+    "y": 135,
+    "w": 24,
+    "h": 26
+   },
+   "rotated": false,
+   "trimmed": false,
+   "spriteSourceSize": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 26
+   },
+   "sourceSize": {
+    "w": 24,
+    "h": 26
+   }
   }
  },
  "meta": {
@@ -327,7 +487,7 @@
   "format": "RGBA8888",
   "size": {
    "w": 99,
-   "h": 107
+   "h": 161
   },
   "scale": "1"
  }

@@ -41,11 +41,13 @@ var health_component: HealthComponent
 var hurtbox: Hurtbox
 var hitbox: Hitbox
 var body_collision: CollisionShape2D
+var boss_sprite: Sprite2D = null
 
 func _ready() -> void:
 	add_to_group("enemies")
 	add_to_group("bosses")
 	_setup_components()
+	_setup_boss_sprite()
 	queue_redraw()
 
 func _setup_components() -> void:
@@ -153,6 +155,7 @@ func _physics_process(delta: float) -> void:
 				current_state = State.IDLE
 				state_timer = 0.8
 
+	_update_boss_visual()
 	queue_redraw()
 
 func _select_next_attack() -> void:
@@ -247,26 +250,68 @@ func _draw() -> void:
 	if current_state == State.DEAD:
 		return
 
-	var half := body_size * 0.5
-	var rect := Rect2(-half, body_size)
-	var hull_col := Color(0.45, 0.52, 0.65, 1.0) if current_phase == 1 else Color(0.65, 0.42, 0.35, 1.0)
-	if current_state == State.EXPOSED_VULNERABLE:
-		hull_col = Color(0.3, 0.9, 0.45, 1.0)
-	elif current_state == State.TELEGRAPH:
-		hull_col = Color(1.0, 0.85, 0.2, 1.0)
+	# Sombra massiva do Robô Esquecido (350%)
+	draw_circle(Vector2(0, 28), body_size.x * 0.65, Color(0.06, 0.03, 0.1, 0.44))
 
-	draw_rect(rect, hull_col, true)
-	draw_rect(rect, Color.WHITE, false, 2.2)
+	if boss_sprite == null or boss_sprite.texture == null:
+		var half := body_size * 0.5
+		var rect := Rect2(-half, body_size)
+		var hull_col := Color(0.45, 0.52, 0.65, 1.0) if current_phase == 1 else Color(0.65, 0.42, 0.35, 1.0)
+		if current_state == State.EXPOSED_VULNERABLE:
+			hull_col = Color(0.3, 0.9, 0.45, 1.0)
+		elif current_state == State.TELEGRAPH:
+			hull_col = Color(1.0, 0.85, 0.2, 1.0)
+		draw_rect(rect, hull_col, true)
+		draw_rect(rect, Color.WHITE, false, 2.2)
 
-	# Núcleo central rítmico
-	var core_col := Color(0.2, 0.3, 0.4, 1.0)
-	var core_radius: float = 10.0
+	# Indicadores táticos ao redor do núcleo rítmico
 	if current_state == State.RESONANCE_WINDOW:
-		core_col = Color(0.15, 0.95, 1.0, 1.0) # Ciano brilhante indicando janela sônica!
-		core_radius = 15.0
-		draw_arc(Vector2.ZERO, 28.0, 0.0, TAU, 24, Color(0.2, 0.95, 1.0, 0.95), 3.0)
+		draw_arc(Vector2.ZERO, 28.0, 0.0, TAU, 24, Color(0.75, 0.32, 1.0, 0.92), 3.0)
+		draw_arc(Vector2.ZERO, 36.0, 0.0, TAU, 26, Color(0.98, 0.42, 0.78, 0.72), 2.0)
 	elif current_state == State.EXPOSED_VULNERABLE:
-		core_col = Color(1.0, 0.45, 0.15, 1.0) # Laranja indicando vulnerabilidade física!
-		core_radius = 14.0
+		draw_arc(Vector2.ZERO, 34.0, 0.0, TAU, 24, Color(1.0, 0.48, 0.18, 0.92), 3.0)
+	elif current_state == State.TELEGRAPH:
+		draw_line(Vector2.ZERO, target_dir * 48.0, Color(1.0, 0.25, 0.25, 0.95), 3.0)
+		draw_arc(Vector2.ZERO, 32.0, 0.0, TAU, 24, Color(1.0, 0.82, 0.25, 0.85), 2.4)
 
-	draw_circle(Vector2.ZERO, core_radius, core_col)
+	if boss_sprite == null or boss_sprite.texture == null:
+		var core_col := Color(0.2, 0.3, 0.4, 1.0)
+		var core_radius: float = 10.0
+		if current_state == State.RESONANCE_WINDOW:
+			core_col = Color(0.15, 0.95, 1.0, 1.0)
+			core_radius = 15.0
+		elif current_state == State.EXPOSED_VULNERABLE:
+			core_col = Color(1.0, 0.45, 0.15, 1.0)
+			core_radius = 14.0
+		draw_circle(Vector2.ZERO, core_radius, core_col)
+
+func _setup_boss_sprite() -> void:
+	var tex_path: String = "res://assets/characters/enemies/boss_robot.png"
+	if not ResourceLoader.exists(tex_path):
+		return
+	boss_sprite = Sprite2D.new()
+	boss_sprite.name = "BossSprite"
+	boss_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	boss_sprite.texture = load(tex_path) as Texture2D
+	boss_sprite.offset = Vector2(0, -14)
+	add_child(boss_sprite)
+
+func _update_boss_visual() -> void:
+	if boss_sprite == null:
+		return
+	if current_state == State.DEAD:
+		boss_sprite.visible = false
+		return
+	boss_sprite.visible = true
+	if absf(target_dir.x) > 0.12:
+		boss_sprite.flip_h = target_dir.x < 0.0
+	if current_state == State.EXPOSED_VULNERABLE:
+		boss_sprite.modulate = Color(1.15, 0.85, 0.65, 1.0)
+	elif current_state == State.RESONANCE_WINDOW:
+		boss_sprite.modulate = Color(0.95, 0.82, 1.30, 1.0)
+	elif current_state == State.TELEGRAPH:
+		boss_sprite.modulate = Color(1.30, 1.15, 0.55, 1.0)
+	elif current_phase == 2:
+		boss_sprite.modulate = Color(1.18, 0.84, 0.84, 1.0)
+	else:
+		boss_sprite.modulate = Color.WHITE

@@ -51,10 +51,11 @@ func _physics_process(delta: float) -> void:
 		queue_free()
 
 func _draw() -> void:
-	# Placeholder geométrico: arco/cone sônico ciano
-	var radius: float = 18.0
-	draw_circle(Vector2.ZERO, radius * 0.85, Color(0.2, 0.85, 1.0, 0.28))
-	draw_arc(Vector2.ZERO, radius, -PI * 0.4, PI * 0.4, 16, Color(0.3, 0.95, 1.0, 0.95), 2.5)
-	draw_arc(Vector2(-4, 0), radius * 0.6, -PI * 0.35, PI * 0.35, 12, Color(0.7, 0.98, 1.0, 0.8), 1.8)
-	draw_line(Vector2(-8, 0), Vector2(radius, 0), Color(0.85, 1.0, 1.0, 0.7), 1.5)
+	# Manifestação Sonora do Pipop: círculos concêntricos e arcos em roxo e rosa (Bíblia 3.2)
+	var radius: float = 19.0
+	draw_circle(Vector2.ZERO, radius * 0.85, Color(0.72, 0.28, 0.98, 0.26))
+	draw_arc(Vector2.ZERO, radius, 0.0, TAU, 24, Color(0.76, 0.32, 1.0, 0.55), 1.4)
+	draw_arc(Vector2.ZERO, radius, -PI * 0.42, PI * 0.42, 18, Color(0.98, 0.36, 0.74, 0.96), 2.8)
+	draw_arc(Vector2(-4, 0), radius * 0.65, -PI * 0.38, PI * 0.38, 14, Color(0.74, 0.30, 0.98, 0.92), 2.2)
+	draw_arc(Vector2(-7, 0), radius * 0.38, -PI * 0.32, PI * 0.32, 10, Color(1.0, 0.68, 0.88, 0.88), 1.6)
 

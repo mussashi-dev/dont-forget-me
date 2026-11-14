@@ -24,8 +24,11 @@ var _show_thief_visual: bool = false
 # Apresentação visual exclusiva da abertura da Fase 1.
 var _esquecido_occlusion: Polygon2D = null
 var _bedroom_wakeup_completed: bool = false
+var _env_textures: Dictionary = {}
 
 func _ready() -> void:
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_load_env_textures()
 	# Desativa quaisquer camadas de arte herdadas (caso a cena seja level_01_intro.tscn)
 	for art_node_name: String in ["GroundLayer", "Decorations", "AmbientLight", "Walls"]:
 		var n: Node = get_node_or_null(art_node_name)
@@ -938,7 +941,50 @@ func _draw() -> void:
 		draw_circle(cd_pos, 2.8, Color(0.10, 0.08, 0.14, 1.0))
 		draw_arc(cd_pos, 7.5, 0.0, TAU, 16, Color(1, 1, 1, 0.9), 1.2)
 
+func _load_env_textures() -> void:
+	_env_textures.clear()
+	var names: Array[String] = [
+		"tile_stone_a", "tile_stone_cracked", "tile_dead_roots", "tile_glow_mushrooms",
+		"tile_clutter_toys", "tile_ruin_wall", "tile_wood_blend_a", "tile_rug_patched",
+		"prop_warm_lamp", "prop_giant_teddy", "tile_cobble_vila", "prop_street_lantern",
+		"prop_rusty_gears", "tile_deep_void_stone", "prop_neon_crystals", "prop_ruin_arch_chains"
+	]
+	for n: String in names:
+		var path: String = "res://assets/environments/esquecido_fase3/%s.png" % n
+		if ResourceLoader.exists(path):
+			_env_textures[n] = load(path) as Texture2D
+
+func _draw_env_tex(key: String, pos: Vector2, size := Vector2(32, 32), tint := Color.WHITE) -> void:
+	if not _env_textures.has(key):
+		return
+	var tex: Texture2D = _env_textures[key] as Texture2D
+	if tex:
+		draw_texture_rect(tex, Rect2(pos, size), false, tint)
+
+func _draw_tiled_floor(start_pos: Vector2, end_pos: Vector2, keys: Array[String], seed_offset: int, tint := Color(1.0, 1.0, 1.0, 0.85)) -> void:
+	if keys.is_empty():
+		return
+	var x: float = start_pos.x
+	var col_idx: int = 0
+	while x < end_pos.x - 4.0:
+		var y: float = start_pos.y
+		var row_idx: int = 0
+		var tile_w: float = minf(32.0, end_pos.x - x)
+		while y < end_pos.y - 4.0:
+			var tile_h: float = minf(32.0, end_pos.y - y)
+			var h_val: int = absi((col_idx * 73 + row_idx * 139 + seed_offset * 31) % keys.size())
+			_draw_env_tex(keys[h_val], Vector2(x, y), Vector2(tile_w, tile_h), tint)
+			y += 32.0
+			row_idx += 1
+		x += 32.0
+		col_idx += 1
+
 func _draw_environment_art_details() -> void:
+	var floor_top: float = float(arena_rect.position.y + 24)
+	var floor_left: float = float(arena_rect.position.x + 24)
+	var floor_right: float = float(arena_rect.end.x - 24)
+	var floor_bottom: float = float(arena_rect.end.y - 24)
+
 	match level_number:
 		1:
 			# Quarto de Pablita (esquerda: madeira aconchegante, cama, tapete estrelado, escrivaninha, caminha do Luffy)
@@ -962,48 +1008,103 @@ func _draw_environment_art_details() -> void:
 			# Guarda-Roupa na divisória (x=230..246)
 			draw_rect(Rect2(226, 155, 20, 110), Color(0.38, 0.22, 0.15, 1.0), true)
 			draw_rect(Rect2(226, 155, 20, 110), Color(0.85, 0.68, 0.42, 0.9), false, 1.5)
-			# Lado direito (Chegada ao Esquecido integrado a tábuas soltas do quarto)
-			for i in range(6):
-				var px: float = 290.0 + float(i) * 68.0
-				var py: float = 80.0 + float((i * 97) % 240)
-				draw_rect(Rect2(px, py, 36, 12), Color(0.34, 0.24, 0.18, 0.55), true)
-				draw_circle(Vector2(px + 18.0, py + 24.0), 4.0, Color(0.68, 0.42, 0.95, 0.45))
-		2, 3:
-			# Fases 2 e 3: Esquecido integrado ao Quarto (tábuas flutuantes, carretéis de linha e luz âmbar/violeta)
-			for i in range(8):
-				var px: float = 80.0 + float(i) * 70.0
-				var py: float = 65.0 + float((i * 113) % 270)
-				draw_rect(Rect2(px, py, 42, 14), Color(0.32, 0.22, 0.18, 0.48), true)
-			if level_number == 3:
-				# Fios de costura no Covil da Meia Esquecida
-				draw_line(Vector2(60, 60), Vector2(580, 360), Color(0.85, 0.55, 0.85, 0.18), 1.5)
-				draw_line(Vector2(60, 360), Vector2(580, 60), Color(0.85, 0.55, 0.85, 0.18), 1.5)
-				draw_arc(Vector2(410, 210), 85.0, 0.0, TAU, 32, Color(0.92, 0.45, 0.78, 0.22), 2.0)
+			# Lado direito (x >= 260): Chegada ao Esquecido integrado a tábuas, tapete e pedra roxa
+			_draw_tiled_floor(
+				Vector2(260.0, floor_top),
+				Vector2(floor_right, floor_bottom),
+				["tile_wood_blend_a", "tile_rug_patched", "tile_stone_cracked", "tile_dead_roots", "tile_wood_blend_a"],
+				1,
+				Color(1.0, 1.0, 1.0, 0.82)
+			)
+			_draw_env_tex("prop_warm_lamp", Vector2(292, 68), Vector2(32, 32), Color.WHITE)
+			_draw_env_tex("tile_clutter_toys", Vector2(396, 300), Vector2(32, 32), Color.WHITE)
+			_draw_env_tex("prop_giant_teddy", Vector2(548, 60), Vector2(48, 48), Color.WHITE)
+		2:
+			# Fase 2: Esquecido integrado ao Quarto (tábuas quentes cedendo às pedras roxas)
+			_draw_tiled_floor(
+				Vector2(floor_left, floor_top),
+				Vector2(floor_right, floor_bottom),
+				["tile_wood_blend_a", "tile_rug_patched", "tile_stone_cracked", "tile_dead_roots"],
+				2,
+				Color(1.0, 1.0, 1.0, 0.84)
+			)
+			_draw_env_tex("prop_warm_lamp", Vector2(110, 84), Vector2(32, 32), Color.WHITE)
+			_draw_env_tex("prop_warm_lamp", Vector2(460, 276), Vector2(32, 32), Color.WHITE)
+			_draw_env_tex("prop_giant_teddy", Vector2(520, 68), Vector2(48, 48), Color.WHITE)
+			_draw_env_tex("tile_clutter_toys", Vector2(236, 148), Vector2(32, 32), Color.WHITE)
+			_draw_env_tex("tile_clutter_toys", Vector2(332, 296), Vector2(32, 32), Color.WHITE)
+		3:
+			# Fase 3: Transição — Covil da Meia Esquecida (pedra roxa rachada, raízes, cogumelos brilhantes e brinquedos)
+			_draw_tiled_floor(
+				Vector2(floor_left, floor_top),
+				Vector2(floor_right, floor_bottom),
+				["tile_stone_a", "tile_stone_cracked", "tile_dead_roots", "tile_stone_a", "tile_clutter_toys"],
+				3,
+				Color(1.0, 1.0, 1.0, 0.88)
+			)
+			for wx in range(int(floor_left), int(floor_right) - 24, 64):
+				_draw_env_tex("tile_ruin_wall", Vector2(float(wx), floor_top), Vector2(32, 32), Color(1.0, 1.0, 1.0, 0.85))
+			for m_pos: Vector2 in [Vector2(96, 92), Vector2(496, 96), Vector2(128, 312), Vector2(492, 308)]:
+				_draw_env_tex("tile_glow_mushrooms", m_pos, Vector2(32, 32), Color.WHITE)
+			# Fios de costura no Covil da Meia Esquecida
+			draw_line(Vector2(60, 60), Vector2(580, 360), Color(0.85, 0.55, 0.85, 0.22), 1.5)
+			draw_line(Vector2(60, 360), Vector2(580, 60), Color(0.85, 0.55, 0.85, 0.22), 1.5)
+			draw_arc(Vector2(410, 210), 85.0, 0.0, TAU, 32, Color(0.92, 0.45, 0.78, 0.26), 2.0)
 		4:
-			# Fase 4: Vila dos Achados (praça acolhedora de paralelepípedos, tapetes de retalhos e lanternas quentes)
-			draw_circle(Vector2(360, 210), 95.0, Color(0.32, 0.25, 0.36, 0.55))
-			draw_arc(Vector2(360, 210), 95.0, 0.0, TAU, 36, Color(0.95, 0.78, 0.45, 0.45), 2.0)
-			for lamp_pos: Vector2 in [Vector2(230, 120), Vector2(360, 260), Vector2(450, 140)]:
-				draw_circle(lamp_pos, 38.0, Color(1.0, 0.82, 0.42, 0.14))
-				draw_circle(lamp_pos, 4.0, Color(1.0, 0.90, 0.55, 0.85))
+			# Fase 4: Vila dos Achados (paralelepípedos arroxeados, retalhos e lampiões quentes)
+			_draw_tiled_floor(
+				Vector2(floor_left, floor_top),
+				Vector2(floor_right, floor_bottom),
+				["tile_cobble_vila", "tile_cobble_vila", "tile_rug_patched", "tile_clutter_toys"],
+				4,
+				Color(1.0, 1.0, 1.0, 0.86)
+			)
+			draw_circle(Vector2(360, 210), 95.0, Color(0.32, 0.25, 0.36, 0.38))
+			draw_arc(Vector2(360, 210), 95.0, 0.0, TAU, 36, Color(0.95, 0.78, 0.45, 0.48), 2.0)
+			for lamp_pos: Vector2 in [Vector2(214, 96), Vector2(344, 240), Vector2(448, 116)]:
+				draw_circle(lamp_pos + Vector2(16, 20), 42.0, Color(1.0, 0.82, 0.42, 0.16))
+				_draw_env_tex("prop_street_lantern", lamp_pos, Vector2(32, 48), Color.WHITE)
+			_draw_env_tex("prop_warm_lamp", Vector2(128, 284), Vector2(32, 32), Color.WHITE)
 		5, 6, 7:
-			# Fases 5 a 7: Transição e Forja Rítmica (lajes de ardósia, trilhos e engrenagens de bronze)
+			# Fases 5 a 7: Transição e Forja Rítmica (paralelepípedos, pedra rachada, engrenagens enferrujadas e lampiões)
+			_draw_tiled_floor(
+				Vector2(floor_left, floor_top),
+				Vector2(floor_right, floor_bottom),
+				["tile_cobble_vila", "tile_stone_cracked", "tile_cobble_vila", "prop_rusty_gears"],
+				level_number,
+				Color(1.0, 1.0, 1.0, 0.85)
+			)
+			for wx in range(int(floor_left), int(floor_right) - 24, 64):
+				_draw_env_tex("tile_ruin_wall", Vector2(float(wx), floor_top), Vector2(32, 32), Color(1.0, 1.0, 1.0, 0.82))
 			for i in range(5):
-				var gx: float = 140.0 + float(i) * 115.0
-				var gy: float = 210.0 + (55.0 if i % 2 == 0 else -55.0)
-				draw_arc(Vector2(gx, gy), 22.0, 0.0, TAU, 16, Color(0.72, 0.55, 0.32, 0.28), 2.2)
-				draw_circle(Vector2(gx, gy), 6.0, Color(0.45, 0.78, 0.95, 0.25))
+				var gx: float = 124.0 + float(i) * 115.0
+				var gy: float = 194.0 + (55.0 if i % 2 == 0 else -55.0)
+				_draw_env_tex("prop_rusty_gears", Vector2(gx, gy), Vector2(32, 32), Color.WHITE)
+				draw_arc(Vector2(gx + 16.0, gy + 16.0), 22.0, 0.0, TAU, 16, Color(0.72, 0.55, 0.32, 0.25), 2.0)
+			_draw_env_tex("prop_street_lantern", Vector2(88, 92), Vector2(32, 48), Color(0.9, 0.85, 1.0, 0.95))
+			_draw_env_tex("prop_street_lantern", Vector2(512, 260), Vector2(32, 48), Color(0.9, 0.85, 1.0, 0.95))
 		8, 9, 10:
-			# Fases 8 a 10: Esquecido Profundo e O Vitral Empoeirado (pedra violeta escura, cristais bioluminescentes e vitral)
-			for i in range(7):
-				var cx: float = 95.0 + float(i) * 85.0
-				var cy: float = 70.0 + float((i * 137) % 290)
-				draw_circle(Vector2(cx, cy), 16.0, Color(0.65, 0.32, 0.95, 0.14))
-				draw_circle(Vector2(cx, cy), 3.5, Color(0.82, 0.58, 1.0, 0.65))
+			# Fases 8 a 10: Esquecido Profundo e O Vitral Empoeirado (lajes abissais, arcos com correntes, cristais neon e cogumelos)
+			_draw_tiled_floor(
+				Vector2(floor_left, floor_top),
+				Vector2(floor_right, floor_bottom),
+				["tile_deep_void_stone", "tile_deep_void_stone", "tile_stone_cracked", "tile_glow_mushrooms"],
+				level_number,
+				Color(1.0, 1.0, 1.0, 0.88)
+			)
+			_draw_env_tex("prop_ruin_arch_chains", Vector2(floor_left + 16.0, floor_top), Vector2(48, 48), Color.WHITE)
+			_draw_env_tex("prop_ruin_arch_chains", Vector2(floor_right - 64.0, floor_top), Vector2(48, 48), Color.WHITE)
+			for wx in range(int(floor_left) + 96, int(floor_right) - 96, 64):
+				_draw_env_tex("tile_ruin_wall", Vector2(float(wx), floor_top), Vector2(32, 32), Color(0.85, 0.78, 1.0, 0.85))
+			for i in range(6):
+				var cx: float = 84.0 + float(i) * 92.0
+				var cy: float = 84.0 + float((i * 137) % 240)
+				_draw_env_tex("prop_neon_crystals", Vector2(cx, cy), Vector2(32, 32), Color.WHITE)
+				draw_circle(Vector2(cx + 16.0, cy + 16.0), 22.0, Color(0.72, 0.30, 0.98, 0.16))
 			if level_number == 10:
 				# Rosácea do Vitral Empoeirado no chão do trono
 				var center := Vector2(420, 220)
-				draw_circle(center, 110.0, Color(0.42, 0.22, 0.58, 0.22))
-				draw_arc(center, 110.0, 0.0, TAU, 36, Color(0.95, 0.78, 0.42, 0.45), 2.2)
-				draw_arc(center, 68.0, 0.0, TAU, 28, Color(0.55, 0.88, 1.0, 0.35), 1.8)
+				draw_circle(center, 110.0, Color(0.42, 0.22, 0.58, 0.24))
+				draw_arc(center, 110.0, 0.0, TAU, 36, Color(0.95, 0.78, 0.42, 0.52), 2.4)
+				draw_arc(center, 68.0, 0.0, TAU, 28, Color(0.82, 0.45, 1.0, 0.42), 2.0)
 

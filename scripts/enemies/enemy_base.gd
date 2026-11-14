@@ -53,6 +53,9 @@ var health_component: HealthComponent
 var hurtbox: Hurtbox
 var hitbox: Hitbox
 var body_collision: CollisionShape2D
+var enemy_sprite: Sprite2D = null
+var _mob_frames: Array[Texture2D] = []
+var _mob_anim_timer: float = 0.0
 
 func _ready() -> void:
 	add_to_group("enemies")
@@ -62,6 +65,7 @@ func _ready() -> void:
 
 	_ensure_components()
 	_configure_archetype()
+	_setup_mob_sprite()
 	queue_redraw()
 
 func _ensure_components() -> void:
@@ -227,6 +231,7 @@ func _physics_process(delta: float) -> void:
 				_change_state(State.APPROACH if target_player != null else State.IDLE)
 
 	move_and_slide()
+	_update_mob_sprite(delta)
 	queue_redraw()
 
 func _locate_player() -> void:
@@ -345,40 +350,44 @@ func _draw() -> void:
 	if current_state == State.DEAD:
 		return
 
-	var col: Color = placeholder_color
-	if current_state == State.HURT:
-		col = Color(1.0, 1.0, 1.0, 1.0)
-	elif current_state == State.TELEGRAPH:
-		col = Color(1.0, 0.9, 0.2, 1.0) # Amarelo forte avisando antecipação de ataque
-	elif current_state == State.RECOVERY:
-		col = placeholder_color.darkened(0.35)
+	# Sombra suave sob o mob
+	draw_circle(Vector2(0, body_radius * 0.55), body_radius * 0.85, Color(0.06, 0.03, 0.1, 0.42))
 
-	# Forma geométrica distinta por arquétipo
-	match archetype:
-		Archetype.MELEE_RUSHER:
-			draw_circle(Vector2.ZERO, body_radius, col)
-		Archetype.SONIC_SHIELDED:
-			draw_rect(Rect2(Vector2(-body_radius, -body_radius), Vector2(body_radius * 2, body_radius * 2)), col, true)
-		Archetype.THREAD_TRAPPER:
-			var pts := PackedVector2Array([
-				Vector2(0, -body_radius * 1.2),
-				Vector2(body_radius * 1.1, body_radius * 0.9),
-				Vector2(-body_radius * 1.1, body_radius * 0.9)
-			])
-			draw_colored_polygon(pts, col)
-		Archetype.RHYTHM_BRUTE:
-			draw_circle(Vector2.ZERO, body_radius, col)
-			draw_arc(Vector2.ZERO, body_radius - 3.0, 0.0, TAU, 16, Color.BLACK, 2.0)
-		Archetype.HYBRID_WEAVER:
-			var hex := PackedVector2Array()
-			for i in range(6):
-				var a: float = i * TAU / 6.0
-				hex.append(Vector2(cos(a), sin(a)) * body_radius)
-			draw_colored_polygon(hex, col)
+	if _mob_frames.is_empty():
+		var col: Color = placeholder_color
+		if current_state == State.HURT:
+			col = Color(1.0, 1.0, 1.0, 1.0)
+		elif current_state == State.TELEGRAPH:
+			col = Color(1.0, 0.9, 0.2, 1.0) # Amarelo forte avisando antecipação de ataque
+		elif current_state == State.RECOVERY:
+			col = placeholder_color.darkened(0.35)
+
+		# Forma geométrica de fallback por arquétipo
+		match archetype:
+			Archetype.MELEE_RUSHER:
+				draw_circle(Vector2.ZERO, body_radius, col)
+			Archetype.SONIC_SHIELDED:
+				draw_rect(Rect2(Vector2(-body_radius, -body_radius), Vector2(body_radius * 2, body_radius * 2)), col, true)
+			Archetype.THREAD_TRAPPER:
+				var pts := PackedVector2Array([
+					Vector2(0, -body_radius * 1.2),
+					Vector2(body_radius * 1.1, body_radius * 0.9),
+					Vector2(-body_radius * 1.1, body_radius * 0.9)
+				])
+				draw_colored_polygon(pts, col)
+			Archetype.RHYTHM_BRUTE:
+				draw_circle(Vector2.ZERO, body_radius, col)
+				draw_arc(Vector2.ZERO, body_radius - 3.0, 0.0, TAU, 16, Color.BLACK, 2.0)
+			Archetype.HYBRID_WEAVER:
+				var hex := PackedVector2Array()
+				for i in range(6):
+					var a: float = i * TAU / 6.0
+					hex.append(Vector2(cos(a), sin(a)) * body_radius)
+				draw_colored_polygon(hex, col)
 
 	# Indicador de escudo sônico ativo
 	if has_sonic_shield:
-		draw_arc(Vector2.ZERO, body_radius + 4.5, 0.0, TAU, 20, Color(0.25, 0.95, 1.0, 0.95), 2.5)
+		draw_arc(Vector2.ZERO, body_radius + 4.5, 0.0, TAU, 20, Color(0.75, 0.35, 1.0, 0.92), 2.5)
 
 	# Indicador visual de TELEGRAPH (linha/cone de antecipação do ataque)
 	if current_state == State.TELEGRAPH:
@@ -389,5 +398,57 @@ func _draw() -> void:
 	if health_component and health_component.current_health < health_component.max_health:
 		var ratio: float = clampf(float(health_component.current_health) / float(health_component.max_health), 0.0, 1.0)
 		var bar_w: float = 22.0
-		draw_rect(Rect2(Vector2(-bar_w * 0.5, -body_radius - 9.0), Vector2(bar_w, 3.5)), Color(0.1, 0.1, 0.1, 0.85), true)
-		draw_rect(Rect2(Vector2(-bar_w * 0.5, -body_radius - 9.0), Vector2(bar_w * ratio, 3.5)), Color(0.95, 0.25, 0.3, 1.0), true)
+		draw_rect(Rect2(Vector2(-bar_w * 0.5, -body_radius - 13.0), Vector2(bar_w, 3.5)), Color(0.1, 0.1, 0.1, 0.85), true)
+		draw_rect(Rect2(Vector2(-bar_w * 0.5, -body_radius - 13.0), Vector2(bar_w * ratio, 3.5)), Color(0.95, 0.25, 0.3, 1.0), true)
+
+func _setup_mob_sprite() -> void:
+	var prefix: String = "mob_tufo_meias"
+	match archetype:
+		Archetype.MELEE_RUSHER:
+			prefix = "mob_tufo_meias"
+		Archetype.SONIC_SHIELDED:
+			prefix = "mob_brinquedo_corda"
+		Archetype.THREAD_TRAPPER:
+			prefix = "mob_flor_poeira"
+		Archetype.RHYTHM_BRUTE, Archetype.HYBRID_WEAVER:
+			prefix = "mob_boneco_desfiado"
+
+	_mob_frames.clear()
+	for i: int in 4:
+		var path: String = "res://assets/characters/enemies/%s_%d.png" % [prefix, i]
+		if ResourceLoader.exists(path):
+			_mob_frames.append(load(path) as Texture2D)
+
+	if _mob_frames.is_empty():
+		return
+	enemy_sprite = Sprite2D.new()
+	enemy_sprite.name = "EnemyVisualSprite"
+	enemy_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	enemy_sprite.texture = _mob_frames[0]
+	enemy_sprite.offset = Vector2(0, -4)
+	add_child(enemy_sprite)
+
+func _update_mob_sprite(delta: float) -> void:
+	if enemy_sprite == null or _mob_frames.is_empty():
+		return
+	if current_state == State.DEAD:
+		enemy_sprite.visible = false
+		return
+	enemy_sprite.visible = true
+	var anim_fps: float = 8.0 if (current_state == State.APPROACH or current_state == State.ATTACK) else 4.5
+	_mob_anim_timer += delta * anim_fps
+	var idx: int = int(floor(_mob_anim_timer)) % _mob_frames.size()
+	enemy_sprite.texture = _mob_frames[idx]
+	if absf(attack_dir.x) > 0.12:
+		enemy_sprite.flip_h = attack_dir.x < 0.0
+
+	var base_tint: Color = Color(0.90, 0.78, 1.0, 1.0) if archetype == Archetype.HYBRID_WEAVER else Color.WHITE
+	match current_state:
+		State.HURT:
+			enemy_sprite.modulate = Color(1.7, 1.7, 1.7, 1.0)
+		State.TELEGRAPH:
+			enemy_sprite.modulate = Color(1.35, 1.15, 0.55, 1.0)
+		State.RECOVERY:
+			enemy_sprite.modulate = base_tint.darkened(0.25)
+		_:
+			enemy_sprite.modulate = base_tint
