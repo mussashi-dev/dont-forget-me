@@ -1289,7 +1289,7 @@ func _build_bedroom_furniture() -> void:
 	var gm := GameManagerService.get_gm()
 	var wardrobe_open: bool = gm != null and gm.has_story_flag("f1_wardrobe_checked")
 	var wardrobe_pos: Vector2 = Vector2(230, 168) if wardrobe_open else Vector2(230, 236)
-	_bedroom_wardrobe_body = _spawn_furniture_piece("BedroomWardrobe", "furn_wardrobe", wardrobe_pos, Vector2(24, 68), Vector2(0, -34))
+	_bedroom_wardrobe_body = _spawn_furniture_piece("BedroomWardrobe", "furn_wardrobe", wardrobe_pos, Vector2(52, 52), Vector2(0, -26))
 
 	_spawn_furniture_piece("BedroomBookshelf", "furn_bookshelf", Vector2(48, 384), Vector2(30, 18), Vector2(0, -10))
 

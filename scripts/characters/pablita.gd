@@ -483,6 +483,11 @@ func _update_sprite_visuals() -> void:
 	var dir_str: String = direction_name(facing_direction)
 	var is_moving: bool = (current_state == State.WALK or current_state == State.DASH) and velocity.length() > 8.0
 	var anim_name: String = ("walk_" if is_moving else "idle_") + dir_str
+	if current_state == State.DASH and sprite.sprite_frames and sprite.sprite_frames.has_animation("dash_" + dir_str):
+		anim_name = "dash_" + dir_str
+	elif current_state == State.ATTACK_PHYSICAL and sprite.sprite_frames and sprite.sprite_frames.has_animation("attack_phys"):
+		anim_name = "attack_phys"
+	sprite.flip_h = current_state == State.ATTACK_PHYSICAL and facing_direction.x < -0.1
 	if sprite.sprite_frames and sprite.sprite_frames.has_animation(anim_name):
 		if sprite.animation != anim_name or not sprite.is_playing():
 			sprite.play(anim_name)

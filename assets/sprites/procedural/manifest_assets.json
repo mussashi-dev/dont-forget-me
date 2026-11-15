@@ -1,0 +1,227 @@
+{
+  "source": "procedural Pillow drawing; 32x32 frames; transparent RGBA",
+  "sheet": "pablita_4dir_3action.png",
+  "frame_size": {
+    "width": 32,
+    "height": 32
+  },
+  "palette_rgba": {
+    "outline": [
+      31,
+      18,
+      22,
+      255
+    ],
+    "outline_light": [
+      55,
+      34,
+      38,
+      255
+    ],
+    "hair_shadow": [
+      82,
+      31,
+      31,
+      255
+    ],
+    "hair": [
+      121,
+      47,
+      41,
+      255
+    ],
+    "hair_light": [
+      151,
+      65,
+      54,
+      255
+    ],
+    "hair_glint": [
+      176,
+      81,
+      62,
+      255
+    ],
+    "skin_shadow": [
+      145,
+      79,
+      68,
+      255
+    ],
+    "skin": [
+      199,
+      126,
+      103,
+      255
+    ],
+    "skin_light": [
+      222,
+      152,
+      126,
+      255
+    ],
+    "shirt_shadow": [
+      112,
+      91,
+      89,
+      255
+    ],
+    "shirt": [
+      181,
+      151,
+      145,
+      255
+    ],
+    "shirt_light": [
+      212,
+      185,
+      178,
+      255
+    ],
+    "shirt_seam": [
+      144,
+      119,
+      119,
+      255
+    ],
+    "shorts": [
+      69,
+      52,
+      53,
+      255
+    ],
+    "shorts_light": [
+      94,
+      70,
+      68,
+      255
+    ],
+    "leg": [
+      190,
+      119,
+      98,
+      255
+    ],
+    "shoe": [
+      184,
+      156,
+      148,
+      255
+    ],
+    "shoe_light": [
+      220,
+      194,
+      183,
+      255
+    ]
+  },
+  "columns": [
+    "south",
+    "west",
+    "north",
+    "east"
+  ],
+  "rows": [
+    "idle",
+    "walk",
+    "run"
+  ],
+  "frames": {
+    "idle_south": {
+      "x": 0,
+      "y": 0,
+      "width": 32,
+      "height": 32,
+      "column": 0,
+      "row": 0
+    },
+    "idle_west": {
+      "x": 32,
+      "y": 0,
+      "width": 32,
+      "height": 32,
+      "column": 1,
+      "row": 0
+    },
+    "idle_north": {
+      "x": 64,
+      "y": 0,
+      "width": 32,
+      "height": 32,
+      "column": 2,
+      "row": 0
+    },
+    "idle_east": {
+      "x": 96,
+      "y": 0,
+      "width": 32,
+      "height": 32,
+      "column": 3,
+      "row": 0
+    },
+    "walk_south": {
+      "x": 0,
+      "y": 32,
+      "width": 32,
+      "height": 32,
+      "column": 0,
+      "row": 1
+    },
+    "walk_west": {
+      "x": 32,
+      "y": 32,
+      "width": 32,
+      "height": 32,
+      "column": 1,
+      "row": 1
+    },
+    "walk_north": {
+      "x": 64,
+      "y": 32,
+      "width": 32,
+      "height": 32,
+      "column": 2,
+      "row": 1
+    },
+    "walk_east": {
+      "x": 96,
+      "y": 32,
+      "width": 32,
+      "height": 32,
+      "column": 3,
+      "row": 1
+    },
+    "run_south": {
+      "x": 0,
+      "y": 64,
+      "width": 32,
+      "height": 32,
+      "column": 0,
+      "row": 2
+    },
+    "run_west": {
+      "x": 32,
+      "y": 64,
+      "width": 32,
+      "height": 32,
+      "column": 1,
+      "row": 2
+    },
+    "run_north": {
+      "x": 64,
+      "y": 64,
+      "width": 32,
+      "height": 32,
+      "column": 2,
+      "row": 2
+    },
+    "run_east": {
+      "x": 96,
+      "y": 64,
+      "width": 32,
+      "height": 32,
+      "column": 3,
+      "row": 2
+    }
+  }
+}
