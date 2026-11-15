@@ -409,6 +409,22 @@ func _on_died() -> void:
 	queue_redraw()
 	died.emit()
 
+func revive_with_half_health(spawn_pos: Vector2 = Vector2.INF) -> void:
+	current_state = State.IDLE
+	velocity = Vector2.ZERO
+	_state_timer = 0.0
+	_hurt_flash_timer = 0.0
+	if spawn_pos != Vector2.INF:
+		global_position = spawn_pos
+	if health_component != null:
+		var half_hp: int = maxi(1, int(ceil(float(health_component.max_health) * 0.5)))
+		health_component.current_health = half_hp
+		health_updated.emit(health_component.current_health, health_component.max_health)
+	if hurtbox != null:
+		hurtbox.is_invulnerable = true
+		hurtbox.invulnerable_timer = 1.2
+	queue_redraw()
+
 # ---------- Interação com Prioridade e Proximidade ----------
 func _on_interaction_area_entered(area: Area2D) -> void:
 	if area is Interactable:

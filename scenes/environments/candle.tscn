@@ -26,9 +26,12 @@ animations = [{
 }]
 
 [node name="Candle" type="Node2D"]
+y_sort_enabled = true
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+texture_filter = 1
 sprite_frames = SubResource("SpriteFrames_candle")
 animation = &"flicker"
 autoplay = "flicker"
 frame_progress = 0.5
+offset = Vector2(0, -16)

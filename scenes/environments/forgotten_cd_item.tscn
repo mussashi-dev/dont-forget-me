@@ -13,9 +13,11 @@ outline_size = 2
 outline_color = Color(0.1, 0.1, 0.12, 1)
 
 [node name="ForgottenCDItem" type="Node2D"]
+y_sort_enabled = true
 script = ExtResource("1_cd")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
+texture_filter = 1
 texture = ExtResource("2_texture")
 
 [node name="Interactable" type="Area2D" parent="."]

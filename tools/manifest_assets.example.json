@@ -1,0 +1,28 @@
+{
+  "cell_size": 32,
+  "characters": {
+    "pablita": {
+      "spritesheet": "res://assets/characters/pablita/pablita_sheet_32x32.png",
+      "output_tres": "res://resources/pablita_topdown_frames.tres",
+      "animations": {
+        "idle_south": { "fps": 1.0, "loop": true, "frames": [{ "col": 0, "row": 0 }] },
+        "walk_south": { "fps": 9.0, "loop": true, "frames": [{ "col": 0, "row": 0 }, { "col": 1, "row": 0 }, { "col": 2, "row": 0 }, { "col": 3, "row": 0 }] },
+        "idle_north": { "fps": 1.0, "loop": true, "frames": [{ "col": 0, "row": 1 }] },
+        "walk_north": { "fps": 9.0, "loop": true, "frames": [{ "col": 0, "row": 1 }, { "col": 1, "row": 1 }, { "col": 2, "row": 1 }, { "col": 3, "row": 1 }] },
+        "idle_east": { "fps": 1.0, "loop": true, "frames": [{ "col": 0, "row": 2 }] },
+        "walk_east": { "fps": 9.0, "loop": true, "frames": [{ "col": 0, "row": 2 }, { "col": 1, "row": 2 }, { "col": 2, "row": 2 }, { "col": 3, "row": 2 }] },
+        "idle_west": { "fps": 1.0, "loop": true, "frames": [{ "col": 0, "row": 3 }] },
+        "walk_west": { "fps": 9.0, "loop": true, "frames": [{ "col": 0, "row": 3 }, { "col": 1, "row": 3 }, { "col": 2, "row": 3 }, { "col": 3, "row": 3 }] }
+      }
+    },
+    "pipop": {
+      "spritesheet": "res://assets/characters/pipop/pipop_sheet_32x32.png",
+      "output_tres": "res://resources/pipop_topdown_frames.tres",
+      "animations": {
+        "idle_south": { "fps": 1.0, "loop": true, "frames": [{ "col": 0, "row": 0 }] },
+        "walk_south": { "fps": 8.0, "loop": true, "frames": [{ "col": 0, "row": 0 }, { "col": 1, "row": 0 }, { "col": 2, "row": 0 }, { "col": 3, "row": 0 }] },
+        "sonic_roar": { "fps": 10.0, "loop": true, "frames": [{ "col": 0, "row": 4 }, { "col": 1, "row": 4 }, { "col": 2, "row": 4 }] }
+      }
+    }
+  }
+}

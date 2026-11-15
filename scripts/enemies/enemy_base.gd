@@ -59,6 +59,7 @@ var _mob_anim_timer: float = 0.0
 
 func _ready() -> void:
 	add_to_group("enemies")
+	y_sort_enabled = true
 	var spr: Node = get_node_or_null("Sprite2D")
 	if spr and spr is CanvasItem:
 		(spr as CanvasItem).visible = false
@@ -425,7 +426,7 @@ func _setup_mob_sprite() -> void:
 	enemy_sprite.name = "EnemyVisualSprite"
 	enemy_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	enemy_sprite.texture = _mob_frames[0]
-	enemy_sprite.offset = Vector2(0, -12)
+	enemy_sprite.offset = Vector2(0, -16)
 	add_child(enemy_sprite)
 
 func _update_mob_sprite(delta: float) -> void:

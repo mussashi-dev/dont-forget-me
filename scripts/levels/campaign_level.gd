@@ -4,6 +4,24 @@ extends Node2D
 ## Implementa a narrativa como progressão jogável com estados, gatilhos causais,
 ## apresentação de chefes, participação ativa de Chopp, Luffy (na abertura) e habitantes do Esquecido.
 
+signal player_defeated
+signal boss_arena_reset_completed
+
+class GameState:
+	static var flags: Dictionary = {}
+
+static func set_flag(flag_name: String, value: bool = true) -> void:
+	GameState.flags[flag_name] = value
+	var gm := GameManagerService.get_gm()
+	if gm != null:
+		gm.set_story_flag(flag_name, value)
+
+static func get_flag(flag_name: String) -> bool:
+	if bool(GameState.flags.get(flag_name, false)):
+		return true
+	var gm := GameManagerService.get_gm()
+	return gm != null and gm.has_story_flag(flag_name)
+
 @export var level_number: int = 1
 @export var arena_rect: Rect2i = Rect2i(0, 0, 640, 420)
 
@@ -15,6 +33,10 @@ var return_portal: WorldObject = null
 var required_crystals: Array[WorldObject] = []
 var active_enemies_count: int = 0
 var required_story_flags: Array[String] = []
+var active_boss: Node2D = null
+var _boss_initial_pos: Vector2 = Vector2.ZERO
+var _player_initial_pos: Vector2 = Vector2.ZERO
+var _boss_reset_in_progress: bool = false
 
 var _wall_rects: Array[Rect2] = []
 var _floor_zones: Array[Dictionary] = []
@@ -50,6 +72,12 @@ func _ready() -> void:
 	var gm := GameManagerService.get_gm()
 	if gm:
 		gm.current_level_index = level_number
+		for key: Variant in GameState.flags.keys():
+			if bool(GameState.flags[key]):
+				gm.world_flags[key] = true
+		for gm_key: Variant in gm.world_flags.keys():
+			if bool(gm.world_flags[gm_key]):
+				GameState.flags[gm_key] = true
 		if level_number >= 2 and not gm.is_pipop_acquired():
 			gm.unlock_pipop()
 		gm.set_game_state(GameManagerService.GameState.PLAYING)
@@ -502,7 +530,104 @@ func _play_boss_intro_cinematic(boss_node: CharacterBody2D, speaker: String, lin
 	else:
 		cleanup.call()
 
-# ---------- Acontecimentos Narrativos e Progressão das 10 Fases ----------
+# ---------- Narrativa Reativa, Arena de Chefe e Progressão das 10 Fases ----------
+
+func _spawn_teddy_bear_prop(pos: Vector2) -> Node2D:
+	var teddy := Node2D.new()
+	teddy.name = "UrsinhoEsquecido"
+	teddy.y_sort_enabled = true
+	teddy.position = pos
+
+	var spr := Sprite2D.new()
+	spr.name = "Sprite2D"
+	spr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	var tex_path: String = "res://assets/environments/props/prop_giant_teddy.png"
+	if ResourceLoader.exists(tex_path):
+		spr.texture = load(tex_path) as Texture2D
+		spr.offset = Vector2(0, -16)
+	teddy.add_child(spr)
+
+	var inter := Interactable.new()
+	inter.name = "Interactable"
+	inter.collision_layer = 8
+	inter.collision_mask = 0
+	inter.prompt_message = "Examinar Ursinho Esquecido"
+	var cs := CollisionShape2D.new()
+	var shape := CircleShape2D.new()
+	shape.radius = 28.0
+	cs.shape = shape
+	inter.add_child(cs)
+	inter.interacted.connect(func(_actor: Node2D):
+		set_flag("interagiu_com_ursinho", true)
+		if hud:
+			hud.show_dialogue_sequence("Pablita", [
+				"(Você ajeita a orelha costurada do ursinho gigante abandonado no canto do Esquecido.)",
+				"(Um som suave de caixinha de música vibra dentro da pelúcia... ele parece ter guardado essa lembrança.)"
+			])
+	)
+	teddy.add_child(inter)
+	add_child(teddy)
+	return teddy
+
+func get_fase2_chopp_lines() -> Array[String]:
+	if get_flag("interagiu_com_ursinho"):
+		return [
+			"Ei, Pablita! Eu percebi como você parou para ajeitar aquele ursinho gigante remendado na entrada do Esquecido!",
+			"Quase ninguém que cai aqui se importa com os brinquedos antigos... obrigado por fazer o pequeno urso se sentir lembrado!",
+			"Agora olhos abertos: os fiapos da meia ladra levam direto para a velha oficina de costura!"
+		]
+	return [
+		"Olhe os fiapos no chão... A meia ladra correu direto para a velha oficina de costura!",
+		"Alguns objetos abandonados aqui perderam a paciência com visitantes. O Pipop pode envolver seu braço como uma manopla ou projetar a voz dele contra carapaças de vidro!",
+		"Assim que abrirmos passagem, entramos no covil onde ela se escondeu."
+	]
+
+func _register_boss_arena(boss_node: Node2D, boss_pos: Vector2, player_pos: Vector2) -> void:
+	active_boss = boss_node
+	_boss_initial_pos = boss_pos
+	_player_initial_pos = player_pos
+	if hud:
+		hud.suppress_game_over = true
+	if pablita != null and not pablita.died.is_connected(_on_boss_arena_player_died):
+		pablita.died.connect(_on_boss_arena_player_died)
+
+func _on_boss_arena_player_died() -> void:
+	if _boss_reset_in_progress:
+		return
+	_boss_reset_in_progress = true
+	player_defeated.emit()
+
+	if is_instance_valid(active_boss):
+		active_boss.set_physics_process(false)
+	if is_instance_valid(pablita):
+		pablita.set_physics_process(false)
+
+	if hud:
+		await hud.fade_camera_out(0.25)
+
+	if get_tree():
+		for h: Node in get_tree().get_nodes_in_group("boss_hazards"):
+			if is_instance_valid(h):
+				h.queue_free()
+
+	if is_instance_valid(pablita):
+		pablita.revive_with_half_health(_player_initial_pos)
+		pablita.set_physics_process(true)
+
+	if is_instance_valid(active_boss) and active_boss.has_method("reset_boss"):
+		active_boss.call("reset_boss", _boss_initial_pos)
+		active_boss.set_physics_process(true)
+
+	var gm := GameManagerService.get_gm()
+	if gm != null:
+		gm.set_game_state(GameManagerService.GameState.PLAYING)
+
+	if hud:
+		await hud.fade_camera_in(0.25)
+		hud.show_dialogue("Chopp", "Ei, aguenta firme, Pablita! Nós não vamos perder você — respire fundo e vamos tentar de novo!")
+
+	_boss_reset_in_progress = false
+	boss_arena_reset_completed.emit()
 
 func _configure_level_content(lvl: int) -> void:
 	var gm := GameManagerService.get_gm()
@@ -573,6 +698,7 @@ func _configure_level_content(lvl: int) -> void:
 			)
 
 			_spawn_encarte_pickup(Vector2(490, 120), "agulha_veloz", "Recolher Encarte: Agulha Veloz")
+			_spawn_teddy_bear_prop(Vector2(572, 92))
 			var c1 := _spawn_sonic_crystal(Vector2(560, 140), true)
 			if gm != null and gm.has_story_flag("f1_crystal_1"):
 				c1.is_activated = true
@@ -590,11 +716,7 @@ func _configure_level_content(lvl: int) -> void:
 			pablita.global_position = Vector2(90, 210)
 			_spawn_return_portal(Vector2(45, 210), 1, "Voltar ao Quarto / Entrada (Fase 1)")
 
-			chopp_actor = _spawn_npc("Chopp", Vector2(125, 165), [
-				"Olhe os fiapos no chão... A meia ladra correu direto para a velha oficina de costura!",
-				"Alguns objetos abandonados aqui perderam a paciência com visitantes. O Pipop pode envolver seu braço como uma manopla ou projetar a voz dele contra carapaças de vidro!",
-				"Assim que abrirmos passagem, entramos no covil onde ela se escondeu."
-			])
+			chopp_actor = _spawn_npc("Chopp", Vector2(125, 165), get_fase2_chopp_lines())
 			chopp_actor.start_following(pablita)
 			if hud:
 				hud.set_objective_text("Abra caminho pela Trilha das Lembranças junto com Pipop e Chopp")
@@ -602,6 +724,34 @@ func _configure_level_content(lvl: int) -> void:
 			_spawn_enemy(Vector2(370, 150), EnemyBase.Archetype.MELEE_RUSHER)
 			_spawn_enemy(Vector2(430, 280), EnemyBase.Archetype.SONIC_SHIELDED)
 			_spawn_encarte_pickup(Vector2(540, 105), "eco_distante", "Recolher Encarte: Eco Distante")
+
+			# Puzzle ambiental de ressonância (Fase 2)
+			var f2_door := StaticBody2D.new()
+			f2_door.name = "BlockedDoor"
+			f2_door.position = Vector2(610, 150)
+			f2_door.collision_layer = 2
+			f2_door.collision_mask = 0
+			var f2_door_cs := CollisionShape2D.new()
+			var f2_door_rect := RectangleShape2D.new()
+			f2_door_rect.size = Vector2(20, 56)
+			f2_door_cs.shape = f2_door_rect
+			f2_door.add_child(f2_door_cs)
+			add_child(f2_door)
+
+			var f2_secret := Node2D.new()
+			f2_secret.name = "SecretRelic"
+			f2_secret.position = Vector2(490, 88)
+			f2_secret.visible = false
+			add_child(f2_secret)
+
+			var f2_crystal := ResonanceCrystal.new()
+			f2_crystal.name = "ResonanceCrystal"
+			f2_crystal.crystal_id = "campaign_fase2_crystal"
+			f2_crystal.position = Vector2(340, 220)
+			add_child(f2_crystal)
+			f2_crystal.target_door_path = f2_crystal.get_path_to(f2_door)
+			f2_crystal.target_reveal_path = f2_crystal.get_path_to(f2_secret)
+
 			_spawn_exit_portal(Vector2(695, 210), 3, "Entrar no Covil de Costura")
 
 		3:
@@ -652,6 +802,7 @@ func _configure_level_content(lvl: int) -> void:
 					_refresh_portal_lock()
 				)
 				add_child(boss)
+				_register_boss_arena(boss, Vector2(400, 210), pablita.global_position)
 				if hud:
 					hud.show_boss_health(boss.boss_title, boss.max_health, boss.max_health)
 				_spawn_exit_portal(Vector2(615, 210), 4, "Seguir para a Vila dos Achados")
@@ -797,6 +948,7 @@ func _configure_level_content(lvl: int) -> void:
 					_refresh_portal_lock()
 				)
 				add_child(robot)
+				_register_boss_arena(robot, Vector2(400, 210), pablita.global_position)
 				if hud:
 					hud.show_boss_health(robot.boss_title, robot.max_health, robot.max_health)
 				_spawn_exit_portal(Vector2(615, 210), 8, "Avançar para as Profundezas Desbotadas")
@@ -916,6 +1068,7 @@ func _configure_level_content(lvl: int) -> void:
 						gm2.complete_campaign()
 			)
 			add_child(queen)
+			_register_boss_arena(queen, Vector2(420, 220), pablita.global_position)
 			if hud:
 				hud.show_boss_health(queen.get_phase_title(), queen.max_health, queen.max_health)
 

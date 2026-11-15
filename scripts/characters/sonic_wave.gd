@@ -26,6 +26,7 @@ func _ready() -> void:
 	hitbox.damage_type = Hitbox.DamageType.SONIC
 	hitbox.knockback_force = knockback
 	hitbox.stun_time = 0.42
+	hitbox.collision_layer = 16
 	hitbox.monitoring = true
 	hitbox.monitorable = true
 	if not hitbox.target_hit.is_connected(_on_hitbox_target_hit):

@@ -53,6 +53,8 @@ var state_btn_primary: Button
 var state_btn_secondary: Button
 
 var dialogue_next_btn: Button
+var suppress_game_over: bool = false
+var fade_overlay_rect: ColorRect = null
 
 var virtual_joystick_node: Control
 var touch_controls_node: Control
@@ -132,7 +134,7 @@ func _on_input_device_changed(_is_mobile: bool) -> void:
 	_refresh_pipop_and_device_ui()
 
 func _is_mobile_platform() -> bool:
-	if OS.has_feature("mobile") or DisplayServer.is_touchscreen_available():
+	if OS.has_feature("mobile"):
 		return true
 	var gm := GameManagerService.get_gm()
 	return gm != null and gm.is_mobile_device
@@ -161,6 +163,7 @@ func _refresh_pipop_and_device_ui() -> void:
 	if dash_btn_node:
 		dash_btn_node.visible = is_mobile
 	if interact_button:
+		interact_button.visible = is_mobile and (prompt_container.visible or _is_dialogue_open)
 		if pipop_unlocked:
 			interact_button.offset_left = -192.0
 			interact_button.offset_top = -192.0
@@ -206,9 +209,11 @@ func _build_dynamic_ui() -> void:
 	# Ajustar tamanho mínimo dos botões touch (mínimo 80x80, espaçamento 16px, fixos no canto inferior direito)
 	var touch_ctrl: Control = touch_controls_node
 	if touch_ctrl:
+		touch_ctrl.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
 		var phys_btn: Control = touch_ctrl.get_node_or_null("PhysicalAttackBtn")
 		physical_attack_btn = phys_btn
 		if phys_btn:
+			phys_btn.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
 			phys_btn.custom_minimum_size = Vector2(80, 80)
 			phys_btn.offset_left = -96.0
 			phys_btn.offset_top = -96.0
@@ -218,6 +223,7 @@ func _build_dynamic_ui() -> void:
 		var sonic_btn: Control = touch_ctrl.get_node_or_null("SonicAttackBtn")
 		sonic_attack_btn = sonic_btn
 		if sonic_btn:
+			sonic_btn.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
 			sonic_btn.custom_minimum_size = Vector2(80, 80)
 			sonic_btn.offset_left = -192.0
 			sonic_btn.offset_top = -96.0
@@ -227,6 +233,7 @@ func _build_dynamic_ui() -> void:
 		var dash_btn: Control = touch_ctrl.get_node_or_null("DashBtn")
 		dash_btn_node = dash_btn
 		if dash_btn:
+			dash_btn.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
 			dash_btn.custom_minimum_size = Vector2(80, 80)
 			dash_btn.offset_left = -96.0
 			dash_btn.offset_top = -192.0
@@ -234,6 +241,7 @@ func _build_dynamic_ui() -> void:
 			dash_btn.offset_bottom = -112.0
 		var act_btn: Control = touch_ctrl.get_node_or_null("InteractButton")
 		if act_btn:
+			act_btn.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
 			act_btn.custom_minimum_size = Vector2(80, 80)
 			act_btn.offset_left = -192.0
 			act_btn.offset_top = -192.0
@@ -709,7 +717,7 @@ func update_interaction_prompt(prompt_text: String, is_visible: bool) -> void:
 	prompt_label.text = prompt_text
 	prompt_container.visible = is_visible and _is_mobile_platform()
 	if interact_button:
-		interact_button.visible = is_visible or _is_dialogue_open
+		interact_button.visible = _is_mobile_platform() and (is_visible or _is_dialogue_open)
 	_refresh_pipop_and_device_ui()
 
 # ---------- Diálogos ----------
@@ -724,7 +732,7 @@ func show_dialogue_sequence(speaker: String, lines: Array[String]) -> void:
 	_dialogue_queue = lines.duplicate()
 	_is_dialogue_open = true
 	if interact_button:
-		interact_button.visible = true
+		interact_button.visible = _is_mobile_platform()
 	_refresh_pipop_and_device_ui()
 	_display_next_dialogue_line()
 
@@ -762,7 +770,7 @@ func hide_dialogue() -> void:
 	_dialogue_queue.clear()
 	dialogue_box.visible = false
 	if interact_button:
-		interact_button.visible = prompt_container.visible
+		interact_button.visible = _is_mobile_platform() and prompt_container.visible
 	_refresh_pipop_and_device_ui()
 	if was_open:
 		dialogue_closed.emit()
@@ -932,6 +940,8 @@ func _on_pause_button_pressed() -> void:
 		GameManagerService.get_gm().resume_game()
 
 func _on_player_died() -> void:
+	if suppress_game_over:
+		return
 	if GameManagerService.get_gm():
 		GameManagerService.get_gm().set_game_state(GameManagerService.get_gm().GameState.DEAD)
 	_show_death_overlay()
@@ -943,9 +953,37 @@ func _on_game_state_changed(new_state: int) -> void:
 		pause_panel.visible = false
 		state_overlay_panel.visible = false
 	elif new_state == GameManagerService.get_gm().GameState.DEAD:
-		_show_death_overlay()
+		if not suppress_game_over:
+			_show_death_overlay()
 	elif new_state == GameManagerService.get_gm().GameState.CAMPAIGN_COMPLETE:
 		_show_campaign_complete_overlay()
+
+func _ensure_fade_overlay() -> ColorRect:
+	if fade_overlay_rect != null and is_instance_valid(fade_overlay_rect):
+		return fade_overlay_rect
+	fade_overlay_rect = ColorRect.new()
+	fade_overlay_rect.name = "CameraFadeOverlay"
+	fade_overlay_rect.color = Color(0.03, 0.02, 0.06, 0.0)
+	fade_overlay_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	fade_overlay_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	var root_ctrl: Control = get_node_or_null("RootControl") as Control
+	if root_ctrl != null:
+		root_ctrl.add_child(fade_overlay_rect)
+	else:
+		add_child(fade_overlay_rect)
+	return fade_overlay_rect
+
+func fade_camera_out(duration: float = 0.25) -> void:
+	var overlay: ColorRect = _ensure_fade_overlay()
+	var tw: Tween = create_tween()
+	tw.tween_property(overlay, "color:a", 1.0, maxf(0.01, duration))
+	await tw.finished
+
+func fade_camera_in(duration: float = 0.25) -> void:
+	var overlay: ColorRect = _ensure_fade_overlay()
+	var tw: Tween = create_tween()
+	tw.tween_property(overlay, "color:a", 0.0, maxf(0.01, duration))
+	await tw.finished
 
 func _show_death_overlay() -> void:
 	pause_panel.visible = false

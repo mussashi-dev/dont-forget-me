@@ -1,0 +1,35 @@
+[gd_resource type="TileSet" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/environments/bedroom/tile_bedroom_wood_0.png" id="1_xxwva"]
+[ext_resource type="Texture2D" path="res://assets/environments/bedroom/tile_bedroom_wood_1.png" id="2_i6kpw"]
+[ext_resource type="Texture2D" path="res://assets/environments/esquecido_fase3/tile_deep_void_stone.png" id="3_u41b8"]
+[ext_resource type="Texture2D" path="res://assets/environments/esquecido_fase3/tile_stone_a.png" id="4_25ho3"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_a47u5"]
+texture = ExtResource("1_xxwva")
+texture_region_size = Vector2i(32, 32)
+0:0/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_n0nr3"]
+texture = ExtResource("2_i6kpw")
+texture_region_size = Vector2i(32, 32)
+0:0/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ekvy7"]
+texture = ExtResource("3_u41b8")
+texture_region_size = Vector2i(32, 32)
+0:0/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_0x6gs"]
+texture = ExtResource("4_25ho3")
+texture_region_size = Vector2i(32, 32)
+0:0/0 = 0
+
+[resource]
+tile_size = Vector2i(32, 32)
+physics_layer_0/collision_layer = 2
+physics_layer_0/collision_mask = 0
+sources/0 = SubResource("TileSetAtlasSource_a47u5")
+sources/1 = SubResource("TileSetAtlasSource_n0nr3")
+sources/2 = SubResource("TileSetAtlasSource_ekvy7")
+sources/3 = SubResource("TileSetAtlasSource_0x6gs")

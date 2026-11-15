@@ -45,9 +45,33 @@ var boss_sprite: Sprite2D = null
 func _ready() -> void:
 	add_to_group("enemies")
 	add_to_group("bosses")
+	y_sort_enabled = true
 	_setup_components()
 	_setup_boss_sprite()
 	call_deferred("_spawn_arena_anchors")
+	_update_boss_visual()
+	queue_redraw()
+
+func reset_boss(initial_pos: Vector2 = Vector2.INF) -> void:
+	if initial_pos != Vector2.INF:
+		global_position = initial_pos
+	velocity = Vector2.ZERO
+	current_phase = 1
+	current_state = State.IDLE
+	state_timer = 0.9
+	attack_cycle_index = 0
+	queued_attack = State.CREEPING_STITCH
+	_set_hitbox_active(false)
+	if hurtbox != null:
+		hurtbox.is_invulnerable = false
+	if get_tree():
+		for h in get_tree().get_nodes_in_group("boss_hazards"):
+			if is_instance_valid(h):
+				h.queue_free()
+	if health_component != null:
+		health_component.current_health = max_health
+		boss_health_changed.emit(boss_title, max_health, max_health)
+	_spawn_arena_anchors()
 	_update_boss_visual()
 	queue_redraw()
 
