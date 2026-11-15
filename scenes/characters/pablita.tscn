@@ -37,7 +37,7 @@ polygon = PackedVector2Array(-9, -2, -7, -4, -3, -5, 3, -5, 7, -4, 9, -2, 7, 0, 
 sprite_frames = ExtResource("2_frames")
 animation = &"idle_south"
 centered = false
-offset = Vector2(-16, -30)
+offset = Vector2(-16, -31)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, -3)
