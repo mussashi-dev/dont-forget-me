@@ -541,10 +541,14 @@ func _spawn_teddy_bear_prop(pos: Vector2) -> Node2D:
 	var spr := Sprite2D.new()
 	spr.name = "Sprite2D"
 	spr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	var tex_path: String = "res://assets/environments/props/prop_giant_teddy.png"
+	var tex_path: String = "res://assets/tilesets/final_reference/grid_32x32/prop_teddy_bear.png"
 	if ResourceLoader.exists(tex_path):
-		spr.texture = load(tex_path) as Texture2D
-		spr.offset = Vector2(0, -16)
+		var tex := load(tex_path) as Texture2D
+		spr.texture = tex
+		if tex != null and tex.get_height() > 0:
+			var s: float = 42.0 / float(tex.get_height())
+			spr.scale = Vector2(s, s)
+			spr.offset = Vector2(0, -float(tex.get_height()) * 0.45)
 	teddy.add_child(spr)
 
 	var inter := Interactable.new()
@@ -1108,26 +1112,49 @@ func _draw() -> void:
 
 func _load_env_textures() -> void:
 	_env_textures.clear()
-	var esquecido_names: Array[String] = [
-		"tile_stone_a", "tile_stone_cracked", "tile_dead_roots", "tile_glow_mushrooms",
-		"tile_clutter_toys", "tile_ruin_wall", "tile_wood_planks", "tile_wood_blend_a",
-		"tile_rug_patched", "prop_warm_lamp", "prop_giant_teddy", "tile_cobble_vila",
-		"prop_street_lantern", "prop_rusty_gears", "tile_deep_void_stone",
+	var final_map: Dictionary = {
+		"tile_bedroom_wood_0": "res://assets/tilesets/final_reference/grid_32x32/floor_wood_a.png",
+		"tile_bedroom_wood_1": "res://assets/tilesets/final_reference/grid_32x32/floor_wood_b.png",
+		"tile_wood_planks": "res://assets/tilesets/final_reference/grid_32x32/floor_wood_broken.png",
+		"tile_wood_blend_a": "res://assets/tilesets/final_reference/grid_32x32/floor_wood_overgrown.png",
+		"tile_stone_a": "res://assets/tilesets/final_reference/grid_32x32/floor_forgotten_a.png",
+		"tile_stone_cracked": "res://assets/tilesets/final_reference/grid_32x32/floor_forgotten_cracked.png",
+		"tile_dead_roots": "res://assets/tilesets/final_reference/grid_32x32/floor_wood_overgrown.png",
+		"tile_cobble_vila": "res://assets/tilesets/final_reference/grid_32x32/floor_forgotten_b.png",
+		"tile_deep_void_stone": "res://assets/tilesets/final_reference/grid_32x32/floor_forgotten_b.png",
+		"tile_glow_mushrooms": "res://assets/tilesets/final_reference/grid_32x32/floor_forgotten_a.png",
+		"tile_ruin_wall": "res://assets/tilesets/final_reference/grid_32x32/wall_corridor.png",
+		"prop_warm_lamp": "res://assets/tilesets/final_reference/grid_32x32/prop_warm_lamp.png",
+		"prop_giant_teddy": "res://assets/tilesets/final_reference/grid_32x32/prop_teddy_bear.png",
+		"prop_street_lantern": "res://assets/tilesets/final_reference/grid_32x32/prop_street_lantern.png",
+		"furn_rug": "res://assets/tilesets/final_reference/rug_warm.png",
+		"furn_forgotten_rug": "res://assets/tilesets/final_reference/rug_forgotten.png",
+		"furn_bed": "res://assets/tilesets/final_reference/bed_clean.png",
+		"furn_nightstand": "res://assets/tilesets/final_reference/nightstand.png",
+		"furn_desk": "res://assets/tilesets/final_reference/dresser.png",
+		"furn_wardrobe": "res://assets/tilesets/final_reference/wardrobe.png",
+		"furn_bookshelf": "res://assets/tilesets/final_reference/bookcase.png",
+	}
+	for k: String in final_map.keys():
+		var fp: String = String(final_map[k])
+		if ResourceLoader.exists(fp):
+			_env_textures[k] = load(fp) as Texture2D
+
+	var legacy_esquecido: Array[String] = [
+		"tile_clutter_toys", "tile_rug_patched", "prop_rusty_gears",
 		"prop_neon_crystals", "prop_ruin_arch_chains"
 	]
-	for n: String in esquecido_names:
+	for n: String in legacy_esquecido:
+		if _env_textures.has(n):
+			continue
 		var path: String = "res://assets/environments/esquecido_fase3/%s.png" % n
 		if ResourceLoader.exists(path):
 			_env_textures[n] = load(path) as Texture2D
 
-	var bedroom_names: Array[String] = [
-		"tile_bedroom_wood_0", "tile_bedroom_wood_1", "furn_rug", "furn_bed",
-		"furn_nightstand", "furn_desk", "furn_wardrobe", "furn_bookshelf", "furn_dog_bed"
-	]
-	for n: String in bedroom_names:
-		var path: String = "res://assets/environments/bedroom/%s.png" % n
-		if ResourceLoader.exists(path):
-			_env_textures[n] = load(path) as Texture2D
+	if not _env_textures.has("furn_dog_bed"):
+		var dog_p: String = "res://assets/environments/bedroom/furn_dog_bed.png"
+		if ResourceLoader.exists(dog_p):
+			_env_textures["furn_dog_bed"] = load(dog_p) as Texture2D
 
 func _add_tile_source(ts: TileSet, tile_ids: Dictionary, key: String) -> void:
 	var tex: Texture2D = _env_textures.get(key, null) as Texture2D
@@ -1266,6 +1293,9 @@ func _build_bedroom_furniture() -> void:
 		var rug := Sprite2D.new()
 		rug.name = "BedroomRug"
 		rug.texture = rug_tex
+		if rug_tex.get_width() > 0:
+			var rs: float = 96.0 / float(rug_tex.get_width())
+			rug.scale = Vector2(rs, rs)
 		rug.position = Vector2(138, 224)
 		rug.z_index = -1
 		rug.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
@@ -1282,18 +1312,18 @@ func _build_bedroom_furniture() -> void:
 		add_child(dog_bed)
 
 	# Móveis sólidos com StaticBody2D separados e origem na base para Y-Sort correto
-	_spawn_furniture_piece("BedroomBed", "furn_bed", Vector2(64, 156), Vector2(52, 74), Vector2(0, -38))
-	_spawn_furniture_piece("BedroomNightstand", "furn_nightstand", Vector2(46, 62), Vector2(24, 18), Vector2(0, -10))
-	_spawn_furniture_piece("BedroomDesk", "furn_desk", Vector2(168, 72), Vector2(68, 24), Vector2(0, -14))
+	_spawn_furniture_piece("BedroomBed", "furn_bed", Vector2(64, 156), Vector2(52, 74), Vector2(0, -38), 52.0)
+	_spawn_furniture_piece("BedroomNightstand", "furn_nightstand", Vector2(46, 62), Vector2(24, 18), Vector2(0, -10), 28.0)
+	_spawn_furniture_piece("BedroomDesk", "furn_desk", Vector2(168, 72), Vector2(68, 24), Vector2(0, -14), 52.0)
 
 	var gm := GameManagerService.get_gm()
 	var wardrobe_open: bool = gm != null and gm.has_story_flag("f1_wardrobe_checked")
 	var wardrobe_pos: Vector2 = Vector2(230, 168) if wardrobe_open else Vector2(230, 236)
-	_bedroom_wardrobe_body = _spawn_furniture_piece("BedroomWardrobe", "furn_wardrobe", wardrobe_pos, Vector2(52, 52), Vector2(0, -26))
+	_bedroom_wardrobe_body = _spawn_furniture_piece("BedroomWardrobe", "furn_wardrobe", wardrobe_pos, Vector2(52, 52), Vector2(0, -26), 54.0)
 
-	_spawn_furniture_piece("BedroomBookshelf", "furn_bookshelf", Vector2(48, 384), Vector2(30, 18), Vector2(0, -10))
+	_spawn_furniture_piece("BedroomBookshelf", "furn_bookshelf", Vector2(48, 384), Vector2(30, 18), Vector2(0, -10), 42.0)
 
-func _spawn_furniture_piece(node_name: String, tex_key: String, base_pos: Vector2, col_size: Vector2, col_offset: Vector2) -> StaticBody2D:
+func _spawn_furniture_piece(node_name: String, tex_key: String, base_pos: Vector2, col_size: Vector2, col_offset: Vector2, target_width: float = 0.0) -> StaticBody2D:
 	var body := StaticBody2D.new()
 	body.name = node_name
 	body.position = base_pos
@@ -1307,6 +1337,9 @@ func _spawn_furniture_piece(node_name: String, tex_key: String, base_pos: Vector
 		spr.name = "Sprite2D"
 		spr.texture = tex
 		spr.centered = false
+		if target_width > 0.0 and tex.get_width() > 0:
+			var s: float = target_width / float(tex.get_width())
+			spr.scale = Vector2(s, s)
 		spr.offset = Vector2(-float(tex.get_width()) * 0.5, -float(tex.get_height()))
 		spr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 		body.add_child(spr)

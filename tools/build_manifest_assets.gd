@@ -230,6 +230,42 @@ func _build_fase2_32x32_tiles() -> bool:
 			"src": "res://assets/tilesets/final_reference/wall_wood_vines.png",
 			"dst": TILES_OUT_DIR + "/wall_corridor.png",
 			"mode": "wall_slice"
+		},
+		{
+			"src": "res://assets/tilesets/final_reference/floor_wood_overgrown_b.png",
+			"dst": TILES_OUT_DIR + "/floor_wood_overgrown.png",
+			"mode": "sample_square",
+			"sample_size": 64
+		},
+		{
+			"src": "res://assets/tilesets/final_reference/floor_wood_broken_a.png",
+			"dst": TILES_OUT_DIR + "/floor_wood_broken.png",
+			"mode": "sample_square",
+			"sample_size": 64
+		},
+		{
+			"src": "res://assets/tilesets/final_reference/floor_wood_broken_b.png",
+			"dst": TILES_OUT_DIR + "/floor_forgotten_cracked.png",
+			"mode": "sample_square",
+			"sample_size": 64
+		},
+		{
+			"src": "res://assets/tilesets/final_reference/decor_motes_crystals.png",
+			"dst": TILES_OUT_DIR + "/prop_teddy_bear.png",
+			"mode": "crop_norm",
+			"rect_norm": Rect2(0.03, 0.06, 0.14, 0.58)
+		},
+		{
+			"src": "res://assets/tilesets/final_reference/chest_clock_lamp.png",
+			"dst": TILES_OUT_DIR + "/prop_warm_lamp.png",
+			"mode": "crop_norm",
+			"rect_norm": Rect2(0.82, 0.22, 0.13, 0.68)
+		},
+		{
+			"src": "res://assets/tilesets/final_reference/lights_and_spirit_flames.png",
+			"dst": TILES_OUT_DIR + "/prop_street_lantern.png",
+			"mode": "crop_norm",
+			"rect_norm": Rect2(0.34, 0.03, 0.13, 0.90)
 		}
 	]
 
@@ -260,6 +296,13 @@ func _build_fase2_32x32_tiles() -> bool:
 			var slice_w: int = mini(h, img.get_width() - start_x)
 			out_img = img.get_region(Rect2i(start_x, 0, slice_w, h))
 			out_img.resize(32, 32, Image.INTERPOLATE_NEAREST)
+		elif mode == "crop_norm":
+			var rn: Rect2 = job["rect_norm"]
+			var rx: int = clampi(int(round(rn.position.x * float(img.get_width()))), 0, img.get_width() - 1)
+			var ry: int = clampi(int(round(rn.position.y * float(img.get_height()))), 0, img.get_height() - 1)
+			var rw: int = clampi(int(round(rn.size.x * float(img.get_width()))), 1, img.get_width() - rx)
+			var rh: int = clampi(int(round(rn.size.y * float(img.get_height()))), 1, img.get_height() - ry)
+			out_img = img.get_region(Rect2i(rx, ry, rw, rh))
 
 		var save_err: int = out_img.save_png(ProjectSettings.globalize_path(String(job["dst"])))
 		if save_err != OK:

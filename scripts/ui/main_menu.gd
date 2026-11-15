@@ -79,6 +79,7 @@ func _build_ui() -> void:
 	btn_new.name = "StartNewGameButton"
 	btn_new.text = "Novo Jogo"
 	btn_new.custom_minimum_size = Vector2(240, 32)
+	_apply_menu_button_theme(btn_new, true)
 	btn_new.pressed.connect(_on_start_new_pressed)
 	vbox.add_child(btn_new)
 
@@ -89,6 +90,7 @@ func _build_ui() -> void:
 	continue_btn.text = "Continuar — %s" % saved_title if has_save else "Continuar (Sem Jogo Salvo)"
 	continue_btn.disabled = not has_save
 	continue_btn.custom_minimum_size = Vector2(240, 30)
+	_apply_menu_button_theme(continue_btn, false)
 	continue_btn.pressed.connect(_on_continue_pressed)
 	vbox.add_child(continue_btn)
 
@@ -96,6 +98,7 @@ func _build_ui() -> void:
 	btn_controls.name = "ControlsGuideButton"
 	btn_controls.text = "Comandos / Controles"
 	btn_controls.custom_minimum_size = Vector2(240, 28)
+	_apply_menu_button_theme(btn_controls, false)
 	btn_controls.pressed.connect(func():
 		if controls_modal:
 			controls_modal.visible = true
@@ -308,3 +311,36 @@ func _on_continue_pressed() -> void:
 	var gm := GameManagerService.get_gm()
 	if gm:
 		gm.continue_game()
+
+func _apply_menu_button_theme(btn: Button, use_red: bool) -> void:
+	if btn == null:
+		return
+	var norm_p: String = "res://assets/ui/Button_Red_9Slides.png" if use_red else "res://assets/ui/Button_Blue_9Slides.png"
+	var pres_p: String = "res://assets/ui/Button_Red_9Slides_Pressed.png" if use_red else "res://assets/ui/Button_Blue_9Slides_Pressed.png"
+	var hov_p: String = "res://assets/ui/Button_Hover_9Slides.png"
+	var dis_p: String = "res://assets/ui/Button_Disable_9Slides.png"
+	if ResourceLoader.exists(norm_p):
+		btn.add_theme_stylebox_override("normal", _make_9slice(norm_p))
+	if ResourceLoader.exists(pres_p):
+		btn.add_theme_stylebox_override("pressed", _make_9slice(pres_p))
+	if ResourceLoader.exists(hov_p):
+		btn.add_theme_stylebox_override("hover", _make_9slice(hov_p))
+	if ResourceLoader.exists(dis_p):
+		btn.add_theme_stylebox_override("disabled", _make_9slice(dis_p))
+	btn.add_theme_color_override("font_color", Color(0.12, 0.1, 0.16, 1.0))
+	btn.add_theme_color_override("font_hover_color", Color(0.08, 0.06, 0.12, 1.0))
+	btn.add_theme_color_override("font_pressed_color", Color(0.08, 0.06, 0.12, 1.0))
+	btn.add_theme_color_override("font_disabled_color", Color(0.32, 0.30, 0.38, 0.9))
+
+func _make_9slice(tex_path: String) -> StyleBoxTexture:
+	var sb := StyleBoxTexture.new()
+	sb.texture = load(tex_path) as Texture2D
+	sb.texture_margin_left = 10.0
+	sb.texture_margin_right = 10.0
+	sb.texture_margin_top = 10.0
+	sb.texture_margin_bottom = 12.0
+	sb.content_margin_left = 10.0
+	sb.content_margin_right = 10.0
+	sb.content_margin_top = 4.0
+	sb.content_margin_bottom = 6.0
+	return sb

@@ -96,6 +96,22 @@ func _run_checks() -> void:
 				_check(tbtn != null and tbtn.texture_normal != null and tbtn.texture_pressed != null, "HUD button %s missing textured sprites" % btn_name)
 			_check(hud.btn_toggle_pause != null and hud.btn_toggle_pause.icon != null, "HUD Pause button missing icon")
 		f2.queue_free()
+		await process_frame
+
+	# 5. Verify actual Campaign Level 1 scene (`level_01_intro.tscn`) uses final_reference tiles & furniture
+	var lvl1_scene := ResourceLoader.load("res://scenes/levels/level_01_intro.tscn") as PackedScene
+	_check(lvl1_scene != null, "level_01_intro.tscn failed to load")
+	if lvl1_scene != null:
+		var lvl1 := lvl1_scene.instantiate() as CampaignLevel
+		root.add_child(lvl1)
+		await process_frame
+		_check(lvl1.bedroom_floor_layer != null and lvl1.bedroom_floor_layer.tile_set != null, "Level 1 BedroomFloorLayer missing")
+		var bed_spr := lvl1.get_node_or_null("BedroomBed/Sprite2D") as Sprite2D
+		_check(bed_spr != null and bed_spr.texture != null and bed_spr.texture.resource_path.contains("final_reference"), "Level 1 BedroomBed should use final_reference asset")
+		var teddy_spr := lvl1.get_node_or_null("UrsinhoEsquecido/Sprite2D") as Sprite2D
+		_check(teddy_spr != null and teddy_spr.texture != null and teddy_spr.texture.resource_path.contains("final_reference"), "Level 1 UrsinhoEsquecido should use final_reference asset")
+		lvl1.queue_free()
+		await process_frame
 
 	if _failures.is_empty():
 		print("[PASSOU] Integracao completa do asset_manifest.json (SpriteFrames, escala 3x/4x, pivo, tileset 32x32, UI) sem texturas nulas.")
