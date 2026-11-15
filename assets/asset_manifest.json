@@ -1,0 +1,1234 @@
+{
+  "schema_version": 1,
+  "provenance": {
+    "source": "User-supplied final JPEG sprite sheets and tileset",
+    "background_processing": "Edge-connected checkerboard colors reconstructed as alpha; source JPEGs were not modified.",
+    "animation_groups_are_visual_inferences": true,
+    "pablita_art_direction_update": "The supplied heroine art (brown dress, hat, dark hair) is preserved as provided and supersedes the earlier red-haired gray-hoodie brief for this asset set."
+  },
+  "source_dimensions": {
+    "boneca.jpeg": {
+      "width": 1600,
+      "height": 1194,
+      "format": "JPEG; checker pattern reconstructed as alpha"
+    },
+    "meia.jpeg": {
+      "width": 1600,
+      "height": 1194,
+      "format": "JPEG; checker pattern reconstructed as alpha"
+    },
+    "robo.jpeg": {
+      "width": 1600,
+      "height": 1194,
+      "format": "JPEG; checker pattern reconstructed as alpha"
+    },
+    "tileset.jpeg": {
+      "width": 1600,
+      "height": 1194,
+      "format": "JPEG; checker pattern reconstructed as alpha"
+    }
+  },
+  "pablita": {
+    "scale_relative_to_pablita": 1.0,
+    "coordinate_space": "source_sheet_pixels",
+    "frames": [
+      {
+        "file": "assets/sprites/pablita/locomotion_01.png",
+        "source_rect": {
+          "x": 65,
+          "y": 60,
+          "width": 213,
+          "height": 342
+        },
+        "size": {
+          "width": 213,
+          "height": 342
+        },
+        "transparent_background": true,
+        "name": "locomotion_01",
+        "visual_group": "locomotion",
+        "fps_suggested": 8,
+        "loop": true
+      },
+      {
+        "file": "assets/sprites/pablita/locomotion_02.png",
+        "source_rect": {
+          "x": 314,
+          "y": 60,
+          "width": 216,
+          "height": 342
+        },
+        "size": {
+          "width": 216,
+          "height": 342
+        },
+        "transparent_background": true,
+        "name": "locomotion_02",
+        "visual_group": "locomotion",
+        "fps_suggested": 8,
+        "loop": true
+      },
+      {
+        "file": "assets/sprites/pablita/locomotion_03.png",
+        "source_rect": {
+          "x": 565,
+          "y": 60,
+          "width": 215,
+          "height": 342
+        },
+        "size": {
+          "width": 215,
+          "height": 342
+        },
+        "transparent_background": true,
+        "name": "locomotion_03",
+        "visual_group": "locomotion",
+        "fps_suggested": 8,
+        "loop": true
+      },
+      {
+        "file": "assets/sprites/pablita/locomotion_04.png",
+        "source_rect": {
+          "x": 810,
+          "y": 60,
+          "width": 230,
+          "height": 342
+        },
+        "size": {
+          "width": 230,
+          "height": 342
+        },
+        "transparent_background": true,
+        "name": "locomotion_04",
+        "visual_group": "locomotion",
+        "fps_suggested": 8,
+        "loop": true
+      },
+      {
+        "file": "assets/sprites/pablita/locomotion_05.png",
+        "source_rect": {
+          "x": 1070,
+          "y": 60,
+          "width": 235,
+          "height": 342
+        },
+        "size": {
+          "width": 235,
+          "height": 342
+        },
+        "transparent_background": true,
+        "name": "locomotion_05",
+        "visual_group": "locomotion",
+        "fps_suggested": 8,
+        "loop": true
+      },
+      {
+        "file": "assets/sprites/pablita/locomotion_06.png",
+        "source_rect": {
+          "x": 1325,
+          "y": 60,
+          "width": 220,
+          "height": 342
+        },
+        "size": {
+          "width": 220,
+          "height": 342
+        },
+        "transparent_background": true,
+        "name": "locomotion_06",
+        "visual_group": "locomotion",
+        "fps_suggested": 8,
+        "loop": true
+      },
+      {
+        "file": "assets/sprites/pablita/attack_web_01.png",
+        "source_rect": {
+          "x": 90,
+          "y": 425,
+          "width": 300,
+          "height": 385
+        },
+        "size": {
+          "width": 300,
+          "height": 385
+        },
+        "transparent_background": true,
+        "name": "attack_web_01",
+        "visual_group": "attack_web",
+        "fps_suggested": 10,
+        "loop": false
+      },
+      {
+        "file": "assets/sprites/pablita/attack_web_02.png",
+        "source_rect": {
+          "x": 800,
+          "y": 425,
+          "width": 305,
+          "height": 385
+        },
+        "size": {
+          "width": 305,
+          "height": 385
+        },
+        "transparent_background": true,
+        "name": "attack_web_02",
+        "visual_group": "attack_web",
+        "fps_suggested": 10,
+        "loop": false
+      },
+      {
+        "file": "assets/sprites/pablita/hit_fall_01.png",
+        "source_rect": {
+          "x": 70,
+          "y": 825,
+          "width": 325,
+          "height": 360
+        },
+        "size": {
+          "width": 325,
+          "height": 360
+        },
+        "transparent_background": true,
+        "name": "hit_fall_01",
+        "visual_group": "hit_fall",
+        "fps_suggested": 10,
+        "loop": false
+      },
+      {
+        "file": "assets/sprites/pablita/hit_fall_02.png",
+        "source_rect": {
+          "x": 430,
+          "y": 825,
+          "width": 375,
+          "height": 360
+        },
+        "size": {
+          "width": 375,
+          "height": 360
+        },
+        "transparent_background": true,
+        "name": "hit_fall_02",
+        "visual_group": "hit_fall",
+        "fps_suggested": 10,
+        "loop": false
+      },
+      {
+        "file": "assets/sprites/pablita/hit_fall_03.png",
+        "source_rect": {
+          "x": 1040,
+          "y": 825,
+          "width": 495,
+          "height": 360
+        },
+        "size": {
+          "width": 495,
+          "height": 360
+        },
+        "transparent_background": true,
+        "name": "hit_fall_03",
+        "visual_group": "hit_fall",
+        "fps_suggested": 10,
+        "loop": false
+      }
+    ]
+  },
+  "meia": {
+    "scale_relative_to_pablita": 4.0,
+    "coordinate_space": "source_sheet_pixels",
+    "frames": [
+      {
+        "file": "assets/sprites/bosses/meia/locomotion_01.png",
+        "source_rect": {
+          "x": 30,
+          "y": 45,
+          "width": 315,
+          "height": 360
+        },
+        "size": {
+          "width": 315,
+          "height": 360
+        },
+        "transparent_background": true,
+        "name": "locomotion_01",
+        "visual_group": "locomotion",
+        "fps_suggested": 8,
+        "loop": true
+      },
+      {
+        "file": "assets/sprites/bosses/meia/locomotion_02.png",
+        "source_rect": {
+          "x": 355,
+          "y": 45,
+          "width": 310,
+          "height": 360
+        },
+        "size": {
+          "width": 310,
+          "height": 360
+        },
+        "transparent_background": true,
+        "name": "locomotion_02",
+        "visual_group": "locomotion",
+        "fps_suggested": 8,
+        "loop": true
+      },
+      {
+        "file": "assets/sprites/bosses/meia/locomotion_03.png",
+        "source_rect": {
+          "x": 675,
+          "y": 45,
+          "width": 295,
+          "height": 360
+        },
+        "size": {
+          "width": 295,
+          "height": 360
+        },
+        "transparent_background": true,
+        "name": "locomotion_03",
+        "visual_group": "locomotion",
+        "fps_suggested": 8,
+        "loop": true
+      },
+      {
+        "file": "assets/sprites/bosses/meia/locomotion_04.png",
+        "source_rect": {
+          "x": 975,
+          "y": 45,
+          "width": 305,
+          "height": 360
+        },
+        "size": {
+          "width": 305,
+          "height": 360
+        },
+        "transparent_background": true,
+        "name": "locomotion_04",
+        "visual_group": "locomotion",
+        "fps_suggested": 8,
+        "loop": true
+      },
+      {
+        "file": "assets/sprites/bosses/meia/locomotion_05.png",
+        "source_rect": {
+          "x": 1285,
+          "y": 45,
+          "width": 290,
+          "height": 360
+        },
+        "size": {
+          "width": 290,
+          "height": 360
+        },
+        "transparent_background": true,
+        "name": "locomotion_05",
+        "visual_group": "locomotion",
+        "fps_suggested": 8,
+        "loop": true
+      },
+      {
+        "file": "assets/sprites/bosses/meia/attack_web_01.png",
+        "source_rect": {
+          "x": 30,
+          "y": 430,
+          "width": 375,
+          "height": 375
+        },
+        "size": {
+          "width": 375,
+          "height": 375
+        },
+        "transparent_background": true,
+        "name": "attack_web_01",
+        "visual_group": "attack_web",
+        "fps_suggested": 10,
+        "loop": false
+      },
+      {
+        "file": "assets/sprites/bosses/meia/attack_web_02.png",
+        "source_rect": {
+          "x": 405,
+          "y": 430,
+          "width": 410,
+          "height": 375
+        },
+        "size": {
+          "width": 410,
+          "height": 375
+        },
+        "transparent_background": true,
+        "name": "attack_web_02",
+        "visual_group": "attack_web",
+        "fps_suggested": 10,
+        "loop": false
+      },
+      {
+        "file": "assets/sprites/bosses/meia/attack_web_03.png",
+        "source_rect": {
+          "x": 820,
+          "y": 430,
+          "width": 400,
+          "height": 375
+        },
+        "size": {
+          "width": 400,
+          "height": 375
+        },
+        "transparent_background": true,
+        "name": "attack_web_03",
+        "visual_group": "attack_web",
+        "fps_suggested": 10,
+        "loop": false
+      },
+      {
+        "file": "assets/sprites/bosses/meia/attack_web_04.png",
+        "source_rect": {
+          "x": 1215,
+          "y": 430,
+          "width": 370,
+          "height": 375
+        },
+        "size": {
+          "width": 370,
+          "height": 375
+        },
+        "transparent_background": true,
+        "name": "attack_web_04",
+        "visual_group": "attack_web",
+        "fps_suggested": 10,
+        "loop": false
+      },
+      {
+        "file": "assets/sprites/bosses/meia/impact_death_01.png",
+        "source_rect": {
+          "x": 25,
+          "y": 820,
+          "width": 385,
+          "height": 365
+        },
+        "size": {
+          "width": 385,
+          "height": 365
+        },
+        "transparent_background": true,
+        "name": "impact_death_01",
+        "visual_group": "impact_death",
+        "fps_suggested": 10,
+        "loop": false
+      },
+      {
+        "file": "assets/sprites/bosses/meia/impact_death_02.png",
+        "source_rect": {
+          "x": 410,
+          "y": 820,
+          "width": 410,
+          "height": 365
+        },
+        "size": {
+          "width": 410,
+          "height": 365
+        },
+        "transparent_background": true,
+        "name": "impact_death_02",
+        "visual_group": "impact_death",
+        "fps_suggested": 10,
+        "loop": false
+      },
+      {
+        "file": "assets/sprites/bosses/meia/impact_death_03.png",
+        "source_rect": {
+          "x": 820,
+          "y": 820,
+          "width": 395,
+          "height": 365
+        },
+        "size": {
+          "width": 395,
+          "height": 365
+        },
+        "transparent_background": true,
+        "name": "impact_death_03",
+        "visual_group": "impact_death",
+        "fps_suggested": 10,
+        "loop": false
+      },
+      {
+        "file": "assets/sprites/bosses/meia/impact_death_04.png",
+        "source_rect": {
+          "x": 1215,
+          "y": 820,
+          "width": 375,
+          "height": 365
+        },
+        "size": {
+          "width": 375,
+          "height": 365
+        },
+        "transparent_background": true,
+        "name": "impact_death_04",
+        "visual_group": "impact_death",
+        "fps_suggested": 10,
+        "loop": false
+      }
+    ]
+  },
+  "robot": {
+    "scale_relative_to_pablita": 4.0,
+    "coordinate_space": "source_sheet_pixels",
+    "frames": [
+      {
+        "file": "assets/sprites/bosses/robot/locomotion_01.png",
+        "source_rect": {
+          "x": 35,
+          "y": 35,
+          "width": 290,
+          "height": 370
+        },
+        "size": {
+          "width": 290,
+          "height": 370
+        },
+        "transparent_background": true,
+        "name": "locomotion_01",
+        "visual_group": "locomotion",
+        "fps_suggested": 8,
+        "loop": true
+      },
+      {
+        "file": "assets/sprites/bosses/robot/locomotion_02.png",
+        "source_rect": {
+          "x": 350,
+          "y": 35,
+          "width": 310,
+          "height": 370
+        },
+        "size": {
+          "width": 310,
+          "height": 370
+        },
+        "transparent_background": true,
+        "name": "locomotion_02",
+        "visual_group": "locomotion",
+        "fps_suggested": 8,
+        "loop": true
+      },
+      {
+        "file": "assets/sprites/bosses/robot/locomotion_03.png",
+        "source_rect": {
+          "x": 675,
+          "y": 35,
+          "width": 295,
+          "height": 370
+        },
+        "size": {
+          "width": 295,
+          "height": 370
+        },
+        "transparent_background": true,
+        "name": "locomotion_03",
+        "visual_group": "locomotion",
+        "fps_suggested": 8,
+        "loop": true
+      },
+      {
+        "file": "assets/sprites/bosses/robot/locomotion_04.png",
+        "source_rect": {
+          "x": 980,
+          "y": 35,
+          "width": 295,
+          "height": 370
+        },
+        "size": {
+          "width": 295,
+          "height": 370
+        },
+        "transparent_background": true,
+        "name": "locomotion_04",
+        "visual_group": "locomotion",
+        "fps_suggested": 8,
+        "loop": true
+      },
+      {
+        "file": "assets/sprites/bosses/robot/locomotion_05.png",
+        "source_rect": {
+          "x": 1290,
+          "y": 35,
+          "width": 295,
+          "height": 370
+        },
+        "size": {
+          "width": 295,
+          "height": 370
+        },
+        "transparent_background": true,
+        "name": "locomotion_05",
+        "visual_group": "locomotion",
+        "fps_suggested": 8,
+        "loop": true
+      },
+      {
+        "file": "assets/sprites/bosses/robot/attack_sonic_01.png",
+        "source_rect": {
+          "x": 35,
+          "y": 425,
+          "width": 370,
+          "height": 375
+        },
+        "size": {
+          "width": 370,
+          "height": 375
+        },
+        "transparent_background": true,
+        "name": "attack_sonic_01",
+        "visual_group": "attack_sonic",
+        "fps_suggested": 10,
+        "loop": false
+      },
+      {
+        "file": "assets/sprites/bosses/robot/attack_sonic_02.png",
+        "source_rect": {
+          "x": 405,
+          "y": 425,
+          "width": 795,
+          "height": 375
+        },
+        "size": {
+          "width": 795,
+          "height": 375
+        },
+        "transparent_background": true,
+        "name": "attack_sonic_02",
+        "visual_group": "attack_sonic",
+        "fps_suggested": 10,
+        "loop": false
+      },
+      {
+        "file": "assets/sprites/bosses/robot/attack_sonic_03.png",
+        "source_rect": {
+          "x": 1200,
+          "y": 425,
+          "width": 390,
+          "height": 375
+        },
+        "size": {
+          "width": 390,
+          "height": 375
+        },
+        "transparent_background": true,
+        "name": "attack_sonic_03",
+        "visual_group": "attack_sonic",
+        "fps_suggested": 10,
+        "loop": false
+      },
+      {
+        "file": "assets/sprites/bosses/robot/damage_death_01.png",
+        "source_rect": {
+          "x": 25,
+          "y": 810,
+          "width": 495,
+          "height": 380
+        },
+        "size": {
+          "width": 495,
+          "height": 380
+        },
+        "transparent_background": true,
+        "name": "damage_death_01",
+        "visual_group": "damage_death",
+        "fps_suggested": 10,
+        "loop": false
+      },
+      {
+        "file": "assets/sprites/bosses/robot/damage_death_02.png",
+        "source_rect": {
+          "x": 520,
+          "y": 810,
+          "width": 530,
+          "height": 380
+        },
+        "size": {
+          "width": 530,
+          "height": 380
+        },
+        "transparent_background": true,
+        "name": "damage_death_02",
+        "visual_group": "damage_death",
+        "fps_suggested": 10,
+        "loop": false
+      },
+      {
+        "file": "assets/sprites/bosses/robot/damage_death_03.png",
+        "source_rect": {
+          "x": 1050,
+          "y": 810,
+          "width": 540,
+          "height": 380
+        },
+        "size": {
+          "width": 540,
+          "height": 380
+        },
+        "transparent_background": true,
+        "name": "damage_death_03",
+        "visual_group": "damage_death",
+        "fps_suggested": 10,
+        "loop": false
+      }
+    ]
+  },
+  "tileset": {
+    "coordinate_space": "source_sheet_pixels",
+    "tile_size_reference": {
+      "width": 32,
+      "height": 32
+    },
+    "items": [
+      {
+        "file": "assets/tilesets/final_reference/floor_wood_clean_a.png",
+        "source_rect": {
+          "x": 20,
+          "y": 57,
+          "width": 155,
+          "height": 163
+        },
+        "size": {
+          "width": 155,
+          "height": 163
+        },
+        "transparent_background": true,
+        "name": "floor_wood_clean_a",
+        "category": "ground",
+        "godot_tile_size_hint": {
+          "width": 32,
+          "height": 32
+        },
+        "note": "Source crop preserves original showcase scale; subdivide or scale to the 32x32 Godot grid after in-engine review."
+      },
+      {
+        "file": "assets/tilesets/final_reference/floor_wood_clean_b.png",
+        "source_rect": {
+          "x": 20,
+          "y": 226,
+          "width": 155,
+          "height": 161
+        },
+        "size": {
+          "width": 155,
+          "height": 161
+        },
+        "transparent_background": true,
+        "name": "floor_wood_clean_b",
+        "category": "ground",
+        "godot_tile_size_hint": {
+          "width": 32,
+          "height": 32
+        },
+        "note": "Source crop preserves original showcase scale; subdivide or scale to the 32x32 Godot grid after in-engine review."
+      },
+      {
+        "file": "assets/tilesets/final_reference/floor_wood_overgrown_a.png",
+        "source_rect": {
+          "x": 192,
+          "y": 57,
+          "width": 157,
+          "height": 163
+        },
+        "size": {
+          "width": 157,
+          "height": 163
+        },
+        "transparent_background": true,
+        "name": "floor_wood_overgrown_a",
+        "category": "ground",
+        "godot_tile_size_hint": {
+          "width": 32,
+          "height": 32
+        },
+        "note": "Source crop preserves original showcase scale; subdivide or scale to the 32x32 Godot grid after in-engine review."
+      },
+      {
+        "file": "assets/tilesets/final_reference/floor_wood_overgrown_b.png",
+        "source_rect": {
+          "x": 192,
+          "y": 226,
+          "width": 157,
+          "height": 161
+        },
+        "size": {
+          "width": 157,
+          "height": 161
+        },
+        "transparent_background": true,
+        "name": "floor_wood_overgrown_b",
+        "category": "ground",
+        "godot_tile_size_hint": {
+          "width": 32,
+          "height": 32
+        },
+        "note": "Source crop preserves original showcase scale; subdivide or scale to the 32x32 Godot grid after in-engine review."
+      },
+      {
+        "file": "assets/tilesets/final_reference/floor_wood_broken_a.png",
+        "source_rect": {
+          "x": 367,
+          "y": 57,
+          "width": 158,
+          "height": 163
+        },
+        "size": {
+          "width": 158,
+          "height": 163
+        },
+        "transparent_background": true,
+        "name": "floor_wood_broken_a",
+        "category": "ground",
+        "godot_tile_size_hint": {
+          "width": 32,
+          "height": 32
+        },
+        "note": "Source crop preserves original showcase scale; subdivide or scale to the 32x32 Godot grid after in-engine review."
+      },
+      {
+        "file": "assets/tilesets/final_reference/floor_wood_broken_b.png",
+        "source_rect": {
+          "x": 367,
+          "y": 226,
+          "width": 158,
+          "height": 161
+        },
+        "size": {
+          "width": 158,
+          "height": 161
+        },
+        "transparent_background": true,
+        "name": "floor_wood_broken_b",
+        "category": "ground",
+        "godot_tile_size_hint": {
+          "width": 32,
+          "height": 32
+        },
+        "note": "Source crop preserves original showcase scale; subdivide or scale to the 32x32 Godot grid after in-engine review."
+      },
+      {
+        "file": "assets/tilesets/final_reference/forgotten_path.png",
+        "source_rect": {
+          "x": 556,
+          "y": 57,
+          "width": 424,
+          "height": 478
+        },
+        "size": {
+          "width": 424,
+          "height": 478
+        },
+        "transparent_background": true,
+        "name": "forgotten_path",
+        "category": "ground",
+        "godot_tile_size_hint": {
+          "width": 32,
+          "height": 32
+        },
+        "note": "Source crop preserves original showcase scale; subdivide or scale to the 32x32 Godot grid after in-engine review."
+      },
+      {
+        "file": "assets/tilesets/final_reference/wall_wood_vines.png",
+        "source_rect": {
+          "x": 998,
+          "y": 57,
+          "width": 582,
+          "height": 136
+        },
+        "size": {
+          "width": 582,
+          "height": 136
+        },
+        "transparent_background": true,
+        "name": "wall_wood_vines",
+        "category": "wall",
+        "godot_tile_size_hint": {
+          "width": 32,
+          "height": 32
+        },
+        "note": "Source crop preserves original showcase scale; subdivide or scale to the 32x32 Godot grid after in-engine review."
+      },
+      {
+        "file": "assets/tilesets/final_reference/doors_and_archways.png",
+        "source_rect": {
+          "x": 998,
+          "y": 230,
+          "width": 582,
+          "height": 154
+        },
+        "size": {
+          "width": 582,
+          "height": 154
+        },
+        "transparent_background": true,
+        "name": "doors_and_archways",
+        "category": "wall",
+        "godot_tile_size_hint": {
+          "width": 32,
+          "height": 32
+        },
+        "note": "Source crop preserves original showcase scale; subdivide or scale to the 32x32 Godot grid after in-engine review."
+      },
+      {
+        "file": "assets/tilesets/final_reference/rug_warm.png",
+        "source_rect": {
+          "x": 998,
+          "y": 399,
+          "width": 207,
+          "height": 130
+        },
+        "size": {
+          "width": 207,
+          "height": 130
+        },
+        "transparent_background": true,
+        "name": "rug_warm",
+        "category": "floor_detail",
+        "godot_tile_size_hint": {
+          "width": 32,
+          "height": 32
+        },
+        "note": "Source crop preserves original showcase scale; subdivide or scale to the 32x32 Godot grid after in-engine review."
+      },
+      {
+        "file": "assets/tilesets/final_reference/rug_forgotten.png",
+        "source_rect": {
+          "x": 1215,
+          "y": 399,
+          "width": 192,
+          "height": 130
+        },
+        "size": {
+          "width": 192,
+          "height": 130
+        },
+        "transparent_background": true,
+        "name": "rug_forgotten",
+        "category": "floor_detail",
+        "godot_tile_size_hint": {
+          "width": 32,
+          "height": 32
+        },
+        "note": "Source crop preserves original showcase scale; subdivide or scale to the 32x32 Godot grid after in-engine review."
+      },
+      {
+        "file": "assets/tilesets/final_reference/bed_clean.png",
+        "source_rect": {
+          "x": 48,
+          "y": 600,
+          "width": 123,
+          "height": 183
+        },
+        "size": {
+          "width": 123,
+          "height": 183
+        },
+        "transparent_background": true,
+        "name": "bed_clean",
+        "category": "furniture",
+        "godot_tile_size_hint": {
+          "width": 32,
+          "height": 32
+        },
+        "note": "Source crop preserves original showcase scale; subdivide or scale to the 32x32 Godot grid after in-engine review."
+      },
+      {
+        "file": "assets/tilesets/final_reference/nightstand.png",
+        "source_rect": {
+          "x": 171,
+          "y": 620,
+          "width": 66,
+          "height": 90
+        },
+        "size": {
+          "width": 66,
+          "height": 90
+        },
+        "transparent_background": true,
+        "name": "nightstand",
+        "category": "furniture",
+        "godot_tile_size_hint": {
+          "width": 32,
+          "height": 32
+        },
+        "note": "Source crop preserves original showcase scale; subdivide or scale to the 32x32 Godot grid after in-engine review."
+      },
+      {
+        "file": "assets/tilesets/final_reference/bed_torn.png",
+        "source_rect": {
+          "x": 238,
+          "y": 600,
+          "width": 106,
+          "height": 183
+        },
+        "size": {
+          "width": 106,
+          "height": 183
+        },
+        "transparent_background": true,
+        "name": "bed_torn",
+        "category": "furniture",
+        "godot_tile_size_hint": {
+          "width": 32,
+          "height": 32
+        },
+        "note": "Source crop preserves original showcase scale; subdivide or scale to the 32x32 Godot grid after in-engine review."
+      },
+      {
+        "file": "assets/tilesets/final_reference/wardrobe.png",
+        "source_rect": {
+          "x": 343,
+          "y": 600,
+          "width": 101,
+          "height": 154
+        },
+        "size": {
+          "width": 101,
+          "height": 154
+        },
+        "transparent_background": true,
+        "name": "wardrobe",
+        "category": "furniture",
+        "godot_tile_size_hint": {
+          "width": 32,
+          "height": 32
+        },
+        "note": "Source crop preserves original showcase scale; subdivide or scale to the 32x32 Godot grid after in-engine review."
+      },
+      {
+        "file": "assets/tilesets/final_reference/dresser.png",
+        "source_rect": {
+          "x": 452,
+          "y": 600,
+          "width": 98,
+          "height": 153
+        },
+        "size": {
+          "width": 98,
+          "height": 153
+        },
+        "transparent_background": true,
+        "name": "dresser",
+        "category": "furniture",
+        "godot_tile_size_hint": {
+          "width": 32,
+          "height": 32
+        },
+        "note": "Source crop preserves original showcase scale; subdivide or scale to the 32x32 Godot grid after in-engine review."
+      },
+      {
+        "file": "assets/tilesets/final_reference/bookcase.png",
+        "source_rect": {
+          "x": 558,
+          "y": 600,
+          "width": 115,
+          "height": 154
+        },
+        "size": {
+          "width": 115,
+          "height": 154
+        },
+        "transparent_background": true,
+        "name": "bookcase",
+        "category": "furniture",
+        "godot_tile_size_hint": {
+          "width": 32,
+          "height": 32
+        },
+        "note": "Source crop preserves original showcase scale; subdivide or scale to the 32x32 Godot grid after in-engine review."
+      },
+      {
+        "file": "assets/tilesets/final_reference/bookcase_broken.png",
+        "source_rect": {
+          "x": 674,
+          "y": 600,
+          "width": 119,
+          "height": 154
+        },
+        "size": {
+          "width": 119,
+          "height": 154
+        },
+        "transparent_background": true,
+        "name": "bookcase_broken",
+        "category": "furniture",
+        "godot_tile_size_hint": {
+          "width": 32,
+          "height": 32
+        },
+        "note": "Source crop preserves original showcase scale; subdivide or scale to the 32x32 Godot grid after in-engine review."
+      },
+      {
+        "file": "assets/tilesets/final_reference/chair_and_seating.png",
+        "source_rect": {
+          "x": 25,
+          "y": 853,
+          "width": 227,
+          "height": 109
+        },
+        "size": {
+          "width": 227,
+          "height": 109
+        },
+        "transparent_background": true,
+        "name": "chair_and_seating",
+        "category": "furniture",
+        "godot_tile_size_hint": {
+          "width": 32,
+          "height": 32
+        },
+        "note": "Source crop preserves original showcase scale; subdivide or scale to the 32x32 Godot grid after in-engine review."
+      },
+      {
+        "file": "assets/tilesets/final_reference/chest_clock_lamp.png",
+        "source_rect": {
+          "x": 256,
+          "y": 853,
+          "width": 414,
+          "height": 109
+        },
+        "size": {
+          "width": 414,
+          "height": 109
+        },
+        "transparent_background": true,
+        "name": "chest_clock_lamp",
+        "category": "furniture",
+        "godot_tile_size_hint": {
+          "width": 32,
+          "height": 32
+        },
+        "note": "Source crop preserves original showcase scale; subdivide or scale to the 32x32 Godot grid after in-engine review."
+      },
+      {
+        "file": "assets/tilesets/final_reference/potted_plants.png",
+        "source_rect": {
+          "x": 815,
+          "y": 600,
+          "width": 303,
+          "height": 183
+        },
+        "size": {
+          "width": 303,
+          "height": 183
+        },
+        "transparent_background": true,
+        "name": "potted_plants",
+        "category": "nature",
+        "godot_tile_size_hint": {
+          "width": 32,
+          "height": 32
+        },
+        "note": "Source crop preserves original showcase scale; subdivide or scale to the 32x32 Godot grid after in-engine review."
+      },
+      {
+        "file": "assets/tilesets/final_reference/purple_vines.png",
+        "source_rect": {
+          "x": 1127,
+          "y": 600,
+          "width": 243,
+          "height": 196
+        },
+        "size": {
+          "width": 243,
+          "height": 196
+        },
+        "transparent_background": true,
+        "name": "purple_vines",
+        "category": "nature",
+        "godot_tile_size_hint": {
+          "width": 32,
+          "height": 32
+        },
+        "note": "Source crop preserves original showcase scale; subdivide or scale to the 32x32 Godot grid after in-engine review."
+      },
+      {
+        "file": "assets/tilesets/final_reference/trees_and_shrubs.png",
+        "source_rect": {
+          "x": 1266,
+          "y": 796,
+          "width": 314,
+          "height": 172
+        },
+        "size": {
+          "width": 314,
+          "height": 172
+        },
+        "transparent_background": true,
+        "name": "trees_and_shrubs",
+        "category": "nature",
+        "godot_tile_size_hint": {
+          "width": 32,
+          "height": 32
+        },
+        "note": "Source crop preserves original showcase scale; subdivide or scale to the 32x32 Godot grid after in-engine review."
+      },
+      {
+        "file": "assets/tilesets/final_reference/decor_webs_toys.png",
+        "source_rect": {
+          "x": 22,
+          "y": 1016,
+          "width": 513,
+          "height": 174
+        },
+        "size": {
+          "width": 513,
+          "height": 174
+        },
+        "transparent_background": true,
+        "name": "decor_webs_toys",
+        "category": "detail",
+        "godot_tile_size_hint": {
+          "width": 32,
+          "height": 32
+        },
+        "note": "Source crop preserves original showcase scale; subdivide or scale to the 32x32 Godot grid after in-engine review."
+      },
+      {
+        "file": "assets/tilesets/final_reference/decor_motes_crystals.png",
+        "source_rect": {
+          "x": 534,
+          "y": 1016,
+          "width": 556,
+          "height": 174
+        },
+        "size": {
+          "width": 556,
+          "height": 174
+        },
+        "transparent_background": true,
+        "name": "decor_motes_crystals",
+        "category": "vfx",
+        "godot_tile_size_hint": {
+          "width": 32,
+          "height": 32
+        },
+        "note": "Source crop preserves original showcase scale; subdivide or scale to the 32x32 Godot grid after in-engine review."
+      },
+      {
+        "file": "assets/tilesets/final_reference/lights_and_spirit_flames.png",
+        "source_rect": {
+          "x": 1088,
+          "y": 1016,
+          "width": 497,
+          "height": 174
+        },
+        "size": {
+          "width": 497,
+          "height": 174
+        },
+        "transparent_background": true,
+        "name": "lights_and_spirit_flames",
+        "category": "light_vfx",
+        "godot_tile_size_hint": {
+          "width": 32,
+          "height": 32
+        },
+        "note": "Source crop preserves original showcase scale; subdivide or scale to the 32x32 Godot grid after in-engine review."
+      }
+    ]
+  }
+}

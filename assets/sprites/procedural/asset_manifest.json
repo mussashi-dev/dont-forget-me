@@ -1,0 +1,57 @@
+{
+  "robot_forgotten": {
+    "source_concept": "robot_concept_chatgpt.png",
+    "reference_palette_source": "codex-clipboard-b56dfce2-adc9-480f-bd7c-aae73a0885dd.png",
+    "file": "robot_forgotten_32x32.png",
+    "sheet_size": {
+      "width": 32,
+      "height": 32
+    },
+    "frame_size": {
+      "width": 32,
+      "height": 32
+    },
+    "frames": {
+      "idle_south": {
+        "x": 0,
+        "y": 0,
+        "width": 32,
+        "height": 32
+      }
+    },
+    "palette_limit": 32,
+    "palette_used": [
+      "#110B0F",
+      "#110D0C",
+      "#171418",
+      "#201D22",
+      "#232127",
+      "#262429",
+      "#2D2A32",
+      "#2E262E",
+      "#312E32",
+      "#3D2B36",
+      "#3D363D",
+      "#413B42",
+      "#444248",
+      "#484249",
+      "#4C494E",
+      "#4C4A48",
+      "#521D24",
+      "#555358",
+      "#594847",
+      "#5F5A5F",
+      "#675C63",
+      "#6B6669",
+      "#7F7D81",
+      "#864848",
+      "#885A4B",
+      "#921C26",
+      "#94908A",
+      "#E1554D",
+      "#E9AA62",
+      "#E9DFD8"
+    ],
+    "transparent_background": true
+  }
+}
