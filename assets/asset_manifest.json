@@ -4,7 +4,7 @@
     "source": "User-supplied final JPEG sprite sheets and tileset",
     "background_processing": "Edge-connected checkerboard colors reconstructed as alpha; source JPEGs were not modified.",
     "animation_groups_are_visual_inferences": true,
-    "pablita_art_direction_update": "The supplied heroine art (brown dress, hat, dark hair) is preserved as provided and supersedes the earlier red-haired gray-hoodie brief for this asset set."
+    "character_identification_correction": "boneca.jpeg depicts the Dusty Queen boss, not Pablita. Pablita remains the separate red-haired protagonist asset."
   },
   "source_dimensions": {
     "boneca.jpeg": {
@@ -28,12 +28,12 @@
       "format": "JPEG; checker pattern reconstructed as alpha"
     }
   },
-  "pablita": {
-    "scale_relative_to_pablita": 1.0,
+  "queen": {
+    "scale_relative_to_pablita": 4.0,
     "coordinate_space": "source_sheet_pixels",
     "frames": [
       {
-        "file": "assets/sprites/pablita/locomotion_01.png",
+        "file": "assets/sprites/bosses/queen/locomotion_01.png",
         "source_rect": {
           "x": 65,
           "y": 60,
@@ -51,7 +51,7 @@
         "loop": true
       },
       {
-        "file": "assets/sprites/pablita/locomotion_02.png",
+        "file": "assets/sprites/bosses/queen/locomotion_02.png",
         "source_rect": {
           "x": 314,
           "y": 60,
@@ -69,7 +69,7 @@
         "loop": true
       },
       {
-        "file": "assets/sprites/pablita/locomotion_03.png",
+        "file": "assets/sprites/bosses/queen/locomotion_03.png",
         "source_rect": {
           "x": 565,
           "y": 60,
@@ -87,7 +87,7 @@
         "loop": true
       },
       {
-        "file": "assets/sprites/pablita/locomotion_04.png",
+        "file": "assets/sprites/bosses/queen/locomotion_04.png",
         "source_rect": {
           "x": 810,
           "y": 60,
@@ -105,7 +105,7 @@
         "loop": true
       },
       {
-        "file": "assets/sprites/pablita/locomotion_05.png",
+        "file": "assets/sprites/bosses/queen/locomotion_05.png",
         "source_rect": {
           "x": 1070,
           "y": 60,
@@ -123,7 +123,7 @@
         "loop": true
       },
       {
-        "file": "assets/sprites/pablita/locomotion_06.png",
+        "file": "assets/sprites/bosses/queen/locomotion_06.png",
         "source_rect": {
           "x": 1325,
           "y": 60,
@@ -141,7 +141,7 @@
         "loop": true
       },
       {
-        "file": "assets/sprites/pablita/attack_web_01.png",
+        "file": "assets/sprites/bosses/queen/attack_web_01.png",
         "source_rect": {
           "x": 90,
           "y": 425,
@@ -159,7 +159,7 @@
         "loop": false
       },
       {
-        "file": "assets/sprites/pablita/attack_web_02.png",
+        "file": "assets/sprites/bosses/queen/attack_web_02.png",
         "source_rect": {
           "x": 800,
           "y": 425,
@@ -177,7 +177,7 @@
         "loop": false
       },
       {
-        "file": "assets/sprites/pablita/hit_fall_01.png",
+        "file": "assets/sprites/bosses/queen/hit_fall_01.png",
         "source_rect": {
           "x": 70,
           "y": 825,
@@ -195,7 +195,7 @@
         "loop": false
       },
       {
-        "file": "assets/sprites/pablita/hit_fall_02.png",
+        "file": "assets/sprites/bosses/queen/hit_fall_02.png",
         "source_rect": {
           "x": 430,
           "y": 825,
@@ -213,7 +213,7 @@
         "loop": false
       },
       {
-        "file": "assets/sprites/pablita/hit_fall_03.png",
+        "file": "assets/sprites/bosses/queen/hit_fall_03.png",
         "source_rect": {
           "x": 1040,
           "y": 825,
@@ -675,6 +675,113 @@
         "loop": false
       }
     ]
+  },
+  "pablita": {
+    "scale_relative_to_pablita": 1.0,
+    "sheet": "assets/sprites/procedural/pablita_4dir_3action.png",
+    "frame_size": {
+      "width": 32,
+      "height": 32
+    },
+    "frames": {
+      "idle_south": {
+        "x": 0,
+        "y": 0,
+        "width": 32,
+        "height": 32,
+        "column": 0,
+        "row": 0
+      },
+      "idle_west": {
+        "x": 32,
+        "y": 0,
+        "width": 32,
+        "height": 32,
+        "column": 1,
+        "row": 0
+      },
+      "idle_north": {
+        "x": 64,
+        "y": 0,
+        "width": 32,
+        "height": 32,
+        "column": 2,
+        "row": 0
+      },
+      "idle_east": {
+        "x": 96,
+        "y": 0,
+        "width": 32,
+        "height": 32,
+        "column": 3,
+        "row": 0
+      },
+      "walk_south": {
+        "x": 0,
+        "y": 32,
+        "width": 32,
+        "height": 32,
+        "column": 0,
+        "row": 1
+      },
+      "walk_west": {
+        "x": 32,
+        "y": 32,
+        "width": 32,
+        "height": 32,
+        "column": 1,
+        "row": 1
+      },
+      "walk_north": {
+        "x": 64,
+        "y": 32,
+        "width": 32,
+        "height": 32,
+        "column": 2,
+        "row": 1
+      },
+      "walk_east": {
+        "x": 96,
+        "y": 32,
+        "width": 32,
+        "height": 32,
+        "column": 3,
+        "row": 1
+      },
+      "run_south": {
+        "x": 0,
+        "y": 64,
+        "width": 32,
+        "height": 32,
+        "column": 0,
+        "row": 2
+      },
+      "run_west": {
+        "x": 32,
+        "y": 64,
+        "width": 32,
+        "height": 32,
+        "column": 1,
+        "row": 2
+      },
+      "run_north": {
+        "x": 64,
+        "y": 64,
+        "width": 32,
+        "height": 32,
+        "column": 2,
+        "row": 2
+      },
+      "run_east": {
+        "x": 96,
+        "y": 64,
+        "width": 32,
+        "height": 32,
+        "column": 3,
+        "row": 2
+      }
+    },
+    "source": "Separate procedural protagonist sheet; not boneca.jpeg."
   },
   "tileset": {
     "coordinate_space": "source_sheet_pixels",

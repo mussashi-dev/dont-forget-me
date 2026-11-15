@@ -17,7 +17,7 @@ from PIL import Image, ImageChops, ImageDraw
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCES = {
-    "pablita": Path(r"C:\Users\dann1\OneDrive\Documents\documentos pessoais\boneca.jpeg"),
+    "queen": Path(r"C:\Users\dann1\OneDrive\Documents\documentos pessoais\boneca.jpeg"),
     "meia": Path(r"C:\Users\dann1\OneDrive\Documents\documentos pessoais\meia.jpeg"),
     "robot": Path(r"C:\Users\dann1\OneDrive\Documents\documentos pessoais\robo.jpeg"),
     "tileset": Path(r"C:\Users\dann1\OneDrive\Documents\documentos pessoais\tileset.jpeg"),
@@ -31,9 +31,9 @@ def box(x: int, y: int, right: int, bottom: int) -> tuple[int, int, int, int]:
 # Each sequence follows the visible rows left-to-right. These are visual frame
 # crops, not claims that the source board defines exact engine animation timing.
 CHARACTERS = {
-    "pablita": {
-        "directory": "assets/sprites/pablita",
-        "scale": 1.0,
+    "queen": {
+        "directory": "assets/sprites/bosses/queen",
+        "scale": 4.0,
         "rows": [
             ("locomotion", 60, 405, [box(65, 60, 278, 402), box(314, 60, 530, 402), box(565, 60, 780, 402), box(810, 60, 1040, 402), box(1070, 60, 1305, 402), box(1325, 60, 1545, 402)]),
             ("attack_web", 425, 810, [box(90, 425, 390, 810), box(800, 425, 1105, 810)]),
@@ -147,7 +147,8 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--sources-dir", type=Path, help="Optional folder containing boneca.jpeg, meia.jpeg, robo.jpeg, tileset.jpeg")
     args = parser.parse_args()
-    sources = {key: (args.sources_dir / f"{key if key != 'robot' else 'robo'}.jpeg") if args.sources_dir else path for key, path in SOURCES.items()}
+    source_filenames = {"queen": "boneca.jpeg", "meia": "meia.jpeg", "robot": "robo.jpeg", "tileset": "tileset.jpeg"}
+    sources = {key: (args.sources_dir / source_filenames[key]) if args.sources_dir else path for key, path in SOURCES.items()}
 
     manifest: dict[str, object] = {
         "schema_version": 1,
@@ -155,7 +156,7 @@ def main() -> None:
             "source": "User-supplied final JPEG sprite sheets and tileset",
             "background_processing": "Edge-connected checkerboard colors reconstructed as alpha; source JPEGs were not modified.",
             "animation_groups_are_visual_inferences": True,
-            "pablita_art_direction_update": "The supplied heroine art (brown dress, hat, dark hair) is preserved as provided and supersedes the earlier red-haired gray-hoodie brief for this asset set.",
+            "character_identification_correction": "boneca.jpeg depicts the Dusty Queen boss, not Pablita. Pablita remains the separate red-haired protagonist asset.",
         },
         "source_dimensions": {},
     }
@@ -172,6 +173,18 @@ def main() -> None:
                 entry.update({"name": frame_name, "visual_group": row_name, "fps_suggested": 8 if row_name == "locomotion" else 10, "loop": row_name == "locomotion"})
                 output_frames.append(entry)
         manifest[character] = {"scale_relative_to_pablita": config["scale"], "coordinate_space": "source_sheet_pixels", "frames": output_frames}
+
+    # Keep Pablita mapped to her distinct, programmatically drawn 32x32 sheet.
+    pablita_manifest_path = ROOT / "assets/sprites/procedural/manifest_assets.json"
+    if pablita_manifest_path.exists():
+        pablita_sheet = json.loads(pablita_manifest_path.read_text(encoding="utf-8"))
+        manifest["pablita"] = {
+            "scale_relative_to_pablita": 1.0,
+            "sheet": "assets/sprites/procedural/" + pablita_sheet["sheet"],
+            "frame_size": pablita_sheet["frame_size"],
+            "frames": pablita_sheet["frames"],
+            "source": "Separate procedural protagonist sheet; not boneca.jpeg.",
+        }
 
     tile_source_path = sources["tileset"]
     tile_source = Image.open(tile_source_path).convert("RGB")
