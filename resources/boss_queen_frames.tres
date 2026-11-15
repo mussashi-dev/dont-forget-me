@@ -1,0 +1,64 @@
+[gd_resource type="SpriteFrames" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/bosses/queen/attack_web_01.png" id="1_nnif0"]
+[ext_resource type="Texture2D" path="res://assets/sprites/bosses/queen/attack_web_02.png" id="2_qc08l"]
+[ext_resource type="Texture2D" path="res://assets/sprites/bosses/queen/hit_fall_01.png" id="3_t21ap"]
+[ext_resource type="Texture2D" path="res://assets/sprites/bosses/queen/hit_fall_02.png" id="4_kkmvp"]
+[ext_resource type="Texture2D" path="res://assets/sprites/bosses/queen/hit_fall_03.png" id="5_65tlq"]
+[ext_resource type="Texture2D" path="res://assets/sprites/bosses/queen/locomotion_01.png" id="6_3k8x3"]
+[ext_resource type="Texture2D" path="res://assets/sprites/bosses/queen/locomotion_02.png" id="7_du4oi"]
+[ext_resource type="Texture2D" path="res://assets/sprites/bosses/queen/locomotion_03.png" id="8_kkvc5"]
+[ext_resource type="Texture2D" path="res://assets/sprites/bosses/queen/locomotion_04.png" id="9_xgulu"]
+[ext_resource type="Texture2D" path="res://assets/sprites/bosses/queen/locomotion_05.png" id="10_7omus"]
+[ext_resource type="Texture2D" path="res://assets/sprites/bosses/queen/locomotion_06.png" id="11_kq8ox"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_nnif0")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_qc08l")
+}],
+"loop": 0,
+"name": &"attack_web",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("3_t21ap")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_kkmvp")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_65tlq")
+}],
+"loop": 0,
+"name": &"hit_fall",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("6_3k8x3")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_du4oi")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_kkvc5")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_xgulu")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_7omus")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_kq8ox")
+}],
+"loop": 1,
+"name": &"locomotion",
+"speed": 8.0
+}]

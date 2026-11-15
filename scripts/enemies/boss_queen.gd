@@ -39,7 +39,11 @@ var health_component: HealthComponent
 var hurtbox: Hurtbox
 var hitbox: Hitbox
 var body_collision: CollisionShape2D
-var boss_sprite: Sprite2D = null
+const PABLITA_BASE_HEIGHT: float = 32.0
+@export var boss_scale_multiplier: Vector2 = Vector2(4.0, 4.0)
+
+var boss_sprite: AnimatedSprite2D = null
+var _base_offset_y: float = -170.0
 var _float_timer: float = 0.0
 
 func _ready() -> void:
@@ -309,7 +313,7 @@ func _draw() -> void:
 	# Sombra projetada da Rainha Empoeirada flutuante (400%)
 	draw_circle(Vector2(0, 32), body_radius * 0.9, Color(0.06, 0.03, 0.1, 0.42))
 
-	if boss_sprite == null or boss_sprite.texture == null:
+	if boss_sprite == null or boss_sprite.sprite_frames == null:
 		var col := Color(0.85, 0.68, 0.95, 1.0)
 		if current_phase == 2:
 			col = Color(0.9, 0.35, 0.65, 1.0)
@@ -340,25 +344,63 @@ func _draw() -> void:
 		draw_arc(Vector2.ZERO, body_radius + 5.0, 0.0, TAU, 24, Color(1.0, 0.85, 0.25, 0.85), 2.2)
 
 func _setup_boss_sprite() -> void:
-	var tex_path: String = "res://assets/characters/enemies/boss_queen.png"
-	if not ResourceLoader.exists(tex_path):
+	var frames_path: String = "res://resources/boss_queen_frames.tres"
+	if not ResourceLoader.exists(frames_path):
 		return
-	boss_sprite = Sprite2D.new()
+	var sf := ResourceLoader.load(frames_path) as SpriteFrames
+	if sf == null:
+		return
+	boss_sprite = AnimatedSprite2D.new()
 	boss_sprite.name = "BossSprite"
 	boss_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	boss_sprite.texture = load(tex_path) as Texture2D
-	boss_sprite.offset = Vector2(0, -18)
+	boss_sprite.sprite_frames = sf
+	boss_sprite.centered = true
+	boss_sprite.frame_changed.connect(_sync_boss_sprite_transform)
+	boss_sprite.animation_changed.connect(_sync_boss_sprite_transform)
 	add_child(boss_sprite)
+	if sf.has_animation(&"locomotion"):
+		boss_sprite.play(&"locomotion")
+	_sync_boss_sprite_transform()
+
+func _sync_boss_sprite_transform() -> void:
+	if boss_sprite == null or boss_sprite.sprite_frames == null:
+		return
+	var anim_name: StringName = boss_sprite.animation
+	if not boss_sprite.sprite_frames.has_animation(anim_name):
+		return
+	var fcount: int = boss_sprite.sprite_frames.get_frame_count(anim_name)
+	if fcount <= 0:
+		return
+	var tex: Texture2D = boss_sprite.sprite_frames.get_frame_texture(anim_name, clampi(boss_sprite.frame, 0, fcount - 1))
+	if tex == null or tex.get_height() <= 0:
+		return
+	var norm_s_x: float = (PABLITA_BASE_HEIGHT * boss_scale_multiplier.x) / float(tex.get_height())
+	var norm_s_y: float = (PABLITA_BASE_HEIGHT * boss_scale_multiplier.y) / float(tex.get_height())
+	boss_sprite.scale = Vector2(norm_s_x, norm_s_y)
+	_base_offset_y = -float(tex.get_height()) * 0.5
+	boss_sprite.offset = Vector2(0.0, _base_offset_y)
 
 func _update_boss_visual(delta: float) -> void:
 	if boss_sprite == null:
 		return
 	if current_state == State.DEAD:
+		if boss_sprite.sprite_frames and boss_sprite.sprite_frames.has_animation(&"hit_fall"):
+			if boss_sprite.animation != &"hit_fall":
+				boss_sprite.play(&"hit_fall")
 		boss_sprite.visible = false
 		return
 	boss_sprite.visible = true
+	var desired_anim: StringName = &"locomotion"
+	if current_state in [State.IMPERIAL_DRESS, State.PUPPET_STRINGS, State.MEMORY_FRAGMENTS, State.FORGOTTEN_TAPESTRY, State.THE_LAST_POSE]:
+		desired_anim = &"attack_web"
+	elif current_state == State.VULNERABLE_WINDOW:
+		desired_anim = &"hit_fall"
+	if boss_sprite.sprite_frames and boss_sprite.sprite_frames.has_animation(desired_anim):
+		if boss_sprite.animation != desired_anim or not boss_sprite.is_playing():
+			boss_sprite.play(desired_anim)
+			_sync_boss_sprite_transform()
 	_float_timer += delta
-	boss_sprite.offset = Vector2(0.0, -18.0 + sin(_float_timer * 2.4) * 5.0)
+	boss_sprite.offset = Vector2(0.0, _base_offset_y + sin(_float_timer * 2.4) * 6.0)
 	if absf(target_dir.x) > 0.12:
 		boss_sprite.flip_h = target_dir.x < 0.0
 	if current_state == State.TELEGRAPH:

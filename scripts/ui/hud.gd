@@ -286,7 +286,7 @@ func _build_dynamic_ui() -> void:
 	# Barra superior direita: Botões de ENCARTES e PAUSA (acessíveis por toque)
 	top_right_bar = HBoxContainer.new()
 	top_right_bar.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	top_right_bar.offset_left = -190.0
+	top_right_bar.offset_left = -204.0
 	top_right_bar.offset_top = 10.0
 	top_right_bar.offset_right = -12.0
 	top_right_bar.offset_bottom = 42.0
@@ -296,15 +296,20 @@ func _build_dynamic_ui() -> void:
 
 	btn_open_encartes = Button.new()
 	btn_open_encartes.text = "ENCARTES"
-	btn_open_encartes.custom_minimum_size = Vector2(88, 30)
+	btn_open_encartes.custom_minimum_size = Vector2(96, 32)
 	btn_open_encartes.add_theme_font_size_override("font_size", 10)
+	_apply_nine_slice_button_theme(btn_open_encartes, false)
 	btn_open_encartes.pressed.connect(_toggle_encartes_panel)
 	top_right_bar.add_child(btn_open_encartes)
 
 	btn_toggle_pause = Button.new()
 	btn_toggle_pause.text = "PAUSA"
-	btn_toggle_pause.custom_minimum_size = Vector2(72, 30)
+	btn_toggle_pause.custom_minimum_size = Vector2(84, 32)
 	btn_toggle_pause.add_theme_font_size_override("font_size", 10)
+	if ResourceLoader.exists("res://assets/ui/Regular_02.png"):
+		btn_toggle_pause.icon = load("res://assets/ui/Regular_02.png") as Texture2D
+		btn_toggle_pause.expand_icon = true
+	_apply_nine_slice_button_theme(btn_toggle_pause, true)
 	btn_toggle_pause.pressed.connect(_on_pause_button_pressed)
 	top_right_bar.add_child(btn_toggle_pause)
 
@@ -667,6 +672,35 @@ func _attach_action_button_icon(btn: Control, icon_path: String) -> void:
 	for child in btn.get_children():
 		if child is Label:
 			(child as Label).vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
+
+func _apply_nine_slice_button_theme(btn: Button, use_red: bool) -> void:
+	if btn == null:
+		return
+	var norm_p: String = "res://assets/ui/Button_Red_9Slides.png" if use_red else "res://assets/ui/Button_Blue_9Slides.png"
+	var pres_p: String = "res://assets/ui/Button_Red_9Slides_Pressed.png" if use_red else "res://assets/ui/Button_Blue_9Slides_Pressed.png"
+	var hov_p: String = "res://assets/ui/Button_Hover_9Slides.png"
+	if ResourceLoader.exists(norm_p):
+		btn.add_theme_stylebox_override("normal", _make_9slice_stylebox(norm_p))
+	if ResourceLoader.exists(pres_p):
+		btn.add_theme_stylebox_override("pressed", _make_9slice_stylebox(pres_p))
+	if ResourceLoader.exists(hov_p):
+		btn.add_theme_stylebox_override("hover", _make_9slice_stylebox(hov_p))
+	btn.add_theme_color_override("font_color", Color(0.12, 0.1, 0.16, 1.0))
+	btn.add_theme_color_override("font_hover_color", Color(0.08, 0.06, 0.12, 1.0))
+	btn.add_theme_color_override("font_pressed_color", Color(0.08, 0.06, 0.12, 1.0))
+
+func _make_9slice_stylebox(tex_path: String) -> StyleBoxTexture:
+	var sb := StyleBoxTexture.new()
+	sb.texture = load(tex_path) as Texture2D
+	sb.texture_margin_left = 10.0
+	sb.texture_margin_right = 10.0
+	sb.texture_margin_top = 10.0
+	sb.texture_margin_bottom = 12.0
+	sb.content_margin_left = 8.0
+	sb.content_margin_right = 8.0
+	sb.content_margin_top = 4.0
+	sb.content_margin_bottom = 6.0
+	return sb
 
 func update_pipop_capacity(used_slots: int, total_slots: int) -> void:
 	for child in capacity_slots_container.get_children():

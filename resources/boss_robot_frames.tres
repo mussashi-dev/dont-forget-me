@@ -1,0 +1,64 @@
+[gd_resource type="SpriteFrames" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/bosses/robot/attack_sonic_01.png" id="1_op1lm"]
+[ext_resource type="Texture2D" path="res://assets/sprites/bosses/robot/attack_sonic_02.png" id="2_ymyc2"]
+[ext_resource type="Texture2D" path="res://assets/sprites/bosses/robot/attack_sonic_03.png" id="3_qny5h"]
+[ext_resource type="Texture2D" path="res://assets/sprites/bosses/robot/damage_death_01.png" id="4_fbq23"]
+[ext_resource type="Texture2D" path="res://assets/sprites/bosses/robot/damage_death_02.png" id="5_lj7oi"]
+[ext_resource type="Texture2D" path="res://assets/sprites/bosses/robot/damage_death_03.png" id="6_d8swe"]
+[ext_resource type="Texture2D" path="res://assets/sprites/bosses/robot/locomotion_01.png" id="7_ev3af"]
+[ext_resource type="Texture2D" path="res://assets/sprites/bosses/robot/locomotion_02.png" id="8_q2k1l"]
+[ext_resource type="Texture2D" path="res://assets/sprites/bosses/robot/locomotion_03.png" id="9_swr5t"]
+[ext_resource type="Texture2D" path="res://assets/sprites/bosses/robot/locomotion_04.png" id="10_lyqnc"]
+[ext_resource type="Texture2D" path="res://assets/sprites/bosses/robot/locomotion_05.png" id="11_0msq2"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_op1lm")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_ymyc2")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_qny5h")
+}],
+"loop": 0,
+"name": &"attack_sonic",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("4_fbq23")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_lj7oi")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_d8swe")
+}],
+"loop": 0,
+"name": &"damage_death",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("7_ev3af")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_q2k1l")
+}, {
+"duration": 1.0,
+"texture": ExtResource("9_swr5t")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_lyqnc")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_0msq2")
+}],
+"loop": 1,
+"name": &"locomotion",
+"speed": 8.0
+}]

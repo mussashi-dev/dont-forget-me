@@ -1,0 +1,72 @@
+[gd_resource type="SpriteFrames" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/bosses/meia/attack_web_01.png" id="1_kuk3t"]
+[ext_resource type="Texture2D" path="res://assets/sprites/bosses/meia/attack_web_02.png" id="2_21mhh"]
+[ext_resource type="Texture2D" path="res://assets/sprites/bosses/meia/attack_web_03.png" id="3_1vsit"]
+[ext_resource type="Texture2D" path="res://assets/sprites/bosses/meia/attack_web_04.png" id="4_b0fg1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/bosses/meia/impact_death_01.png" id="5_56w3y"]
+[ext_resource type="Texture2D" path="res://assets/sprites/bosses/meia/impact_death_02.png" id="6_we3at"]
+[ext_resource type="Texture2D" path="res://assets/sprites/bosses/meia/impact_death_03.png" id="7_o67o1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/bosses/meia/impact_death_04.png" id="8_f810n"]
+[ext_resource type="Texture2D" path="res://assets/sprites/bosses/meia/locomotion_01.png" id="9_mmtel"]
+[ext_resource type="Texture2D" path="res://assets/sprites/bosses/meia/locomotion_02.png" id="10_des4w"]
+[ext_resource type="Texture2D" path="res://assets/sprites/bosses/meia/locomotion_03.png" id="11_oaug0"]
+[ext_resource type="Texture2D" path="res://assets/sprites/bosses/meia/locomotion_04.png" id="12_i7e6k"]
+[ext_resource type="Texture2D" path="res://assets/sprites/bosses/meia/locomotion_05.png" id="13_hnyvu"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_kuk3t")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_21mhh")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_1vsit")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_b0fg1")
+}],
+"loop": 0,
+"name": &"attack_web",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("5_56w3y")
+}, {
+"duration": 1.0,
+"texture": ExtResource("6_we3at")
+}, {
+"duration": 1.0,
+"texture": ExtResource("7_o67o1")
+}, {
+"duration": 1.0,
+"texture": ExtResource("8_f810n")
+}],
+"loop": 0,
+"name": &"impact_death",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("9_mmtel")
+}, {
+"duration": 1.0,
+"texture": ExtResource("10_des4w")
+}, {
+"duration": 1.0,
+"texture": ExtResource("11_oaug0")
+}, {
+"duration": 1.0,
+"texture": ExtResource("12_i7e6k")
+}, {
+"duration": 1.0,
+"texture": ExtResource("13_hnyvu")
+}],
+"loop": 1,
+"name": &"locomotion",
+"speed": 8.0
+}]

@@ -40,7 +40,10 @@ var health_component: HealthComponent
 var hurtbox: Hurtbox
 var hitbox: Hitbox
 var body_collision: CollisionShape2D
-var boss_sprite: Sprite2D = null
+const PABLITA_BASE_HEIGHT: float = 32.0
+@export var boss_scale_multiplier: Vector2 = Vector2(3.0, 3.0)
+
+var boss_sprite: AnimatedSprite2D = null
 
 func _ready() -> void:
 	add_to_group("enemies")
@@ -363,7 +366,7 @@ func _draw() -> void:
 	# Sombra suave na arena (escala 300%)
 	draw_circle(Vector2(0, 22), body_radius * 1.15, Color(0.06, 0.03, 0.1, 0.42))
 
-	if boss_sprite == null or boss_sprite.texture == null:
+	if boss_sprite == null or boss_sprite.sprite_frames == null:
 		var col := Color(0.72, 0.32, 0.88, 1.0) if current_phase == 1 else Color(0.92, 0.22, 0.68, 1.0)
 		if current_state == State.TELEGRAPH:
 			col = Color(1.0, 0.88, 0.25, 1.0)
@@ -381,23 +384,58 @@ func _draw() -> void:
 		draw_line(Vector2(-46, 0), Vector2(46, 0), Color(1.0, 0.9, 0.4, 0.95), 5.0)
 
 func _setup_boss_sprite() -> void:
-	var tex_path: String = "res://assets/characters/enemies/boss_sock.png"
-	if not ResourceLoader.exists(tex_path):
+	var frames_path: String = "res://resources/boss_sock_frames.tres"
+	if not ResourceLoader.exists(frames_path):
 		return
-	boss_sprite = Sprite2D.new()
+	var sf := ResourceLoader.load(frames_path) as SpriteFrames
+	if sf == null:
+		return
+	boss_sprite = AnimatedSprite2D.new()
 	boss_sprite.name = "BossSprite"
 	boss_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	boss_sprite.texture = load(tex_path) as Texture2D
-	boss_sprite.offset = Vector2(0, -10)
+	boss_sprite.sprite_frames = sf
+	boss_sprite.centered = true
+	boss_sprite.frame_changed.connect(_sync_boss_sprite_transform)
+	boss_sprite.animation_changed.connect(_sync_boss_sprite_transform)
 	add_child(boss_sprite)
+	if sf.has_animation(&"locomotion"):
+		boss_sprite.play(&"locomotion")
+	_sync_boss_sprite_transform()
+
+func _sync_boss_sprite_transform() -> void:
+	if boss_sprite == null or boss_sprite.sprite_frames == null:
+		return
+	var anim_name: StringName = boss_sprite.animation
+	if not boss_sprite.sprite_frames.has_animation(anim_name):
+		return
+	var fcount: int = boss_sprite.sprite_frames.get_frame_count(anim_name)
+	if fcount <= 0:
+		return
+	var tex: Texture2D = boss_sprite.sprite_frames.get_frame_texture(anim_name, clampi(boss_sprite.frame, 0, fcount - 1))
+	if tex == null or tex.get_height() <= 0:
+		return
+	var norm_s_x: float = (PABLITA_BASE_HEIGHT * boss_scale_multiplier.x) / float(tex.get_height())
+	var norm_s_y: float = (PABLITA_BASE_HEIGHT * boss_scale_multiplier.y) / float(tex.get_height())
+	boss_sprite.scale = Vector2(norm_s_x, norm_s_y)
+	boss_sprite.offset = Vector2(0.0, -float(tex.get_height()) * 0.5)
 
 func _update_boss_visual() -> void:
 	if boss_sprite == null:
 		return
 	if current_state == State.DEAD:
+		if boss_sprite.sprite_frames and boss_sprite.sprite_frames.has_animation(&"impact_death"):
+			if boss_sprite.animation != &"impact_death":
+				boss_sprite.play(&"impact_death")
 		boss_sprite.visible = false
 		return
 	boss_sprite.visible = true
+	var desired_anim: StringName = &"locomotion"
+	if current_state in [State.CREEPING_STITCH, State.CONTAINMENT_WEB, State.STITCH_LEAP, State.LINT_WHIP]:
+		desired_anim = &"attack_web"
+	if boss_sprite.sprite_frames and boss_sprite.sprite_frames.has_animation(desired_anim):
+		if boss_sprite.animation != desired_anim or not boss_sprite.is_playing():
+			boss_sprite.play(desired_anim)
+			_sync_boss_sprite_transform()
 	if absf(target_dir.x) > 0.12:
 		boss_sprite.flip_h = target_dir.x < 0.0
 	if current_state == State.TELEGRAPH:

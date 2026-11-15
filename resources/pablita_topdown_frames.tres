@@ -1,100 +1,239 @@
 [gd_resource type="SpriteFrames" format=3]
 
-[ext_resource type="Texture2D" path="res://assets/sprites/pablita/idle_north.png" id="tex1"]
-[ext_resource type="Texture2D" path="res://assets/sprites/pablita/walk_north.png" id="tex2"]
-[ext_resource type="Texture2D" path="res://assets/sprites/pablita/dash_north.png" id="tex3"]
-[ext_resource type="Texture2D" path="res://assets/sprites/pablita/idle_east.png" id="tex4"]
-[ext_resource type="Texture2D" path="res://assets/sprites/pablita/walk_east.png" id="tex5"]
-[ext_resource type="Texture2D" path="res://assets/sprites/pablita/dash_east.png" id="tex6"]
-[ext_resource type="Texture2D" path="res://assets/sprites/pablita/idle_south.png" id="tex7"]
-[ext_resource type="Texture2D" path="res://assets/sprites/pablita/walk_south.png" id="tex8"]
-[ext_resource type="Texture2D" path="res://assets/sprites/pablita/dash_south.png" id="tex9"]
-[ext_resource type="Texture2D" path="res://assets/sprites/pablita/idle_west.png" id="tex10"]
-[ext_resource type="Texture2D" path="res://assets/sprites/pablita/walk_west.png" id="tex11"]
-[ext_resource type="Texture2D" path="res://assets/sprites/pablita/dash_west.png" id="tex12"]
-[ext_resource type="Texture2D" path="res://assets/sprites/pablita/attack_phys_0.png" id="tex13"]
-[ext_resource type="Texture2D" path="res://assets/sprites/pablita/attack_phys_1.png" id="tex14"]
-[ext_resource type="Texture2D" path="res://assets/sprites/pablita/attack_phys_2.png" id="tex15"]
-[ext_resource type="Texture2D" path="res://assets/sprites/pablita/attack_phys_3.png" id="tex16"]
+[ext_resource type="Texture2D" path="res://assets/sprites/pablita/attack_phys_0.png" id="1_02ruq"]
+[ext_resource type="Texture2D" path="res://assets/sprites/pablita/attack_phys_1.png" id="2_senta"]
+[ext_resource type="Texture2D" path="res://assets/sprites/pablita/attack_phys_2.png" id="3_kjnqb"]
+[ext_resource type="Texture2D" path="res://assets/sprites/pablita/attack_phys_3.png" id="4_4423j"]
+[ext_resource type="Texture2D" path="res://assets/sprites/procedural/pablita_4dir_3action.png" id="5_pp2wi"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tlnhg"]
+atlas = ExtResource("5_pp2wi")
+region = Rect2(0, 64, 32, 32)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_r5xsn"]
+atlas = ExtResource("5_pp2wi")
+region = Rect2(0, 64, 32, 32)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jowbi"]
+atlas = ExtResource("5_pp2wi")
+region = Rect2(0, 64, 32, 32)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_iv2nj"]
+atlas = ExtResource("5_pp2wi")
+region = Rect2(0, 64, 32, 32)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_q0wj8"]
+atlas = ExtResource("5_pp2wi")
+region = Rect2(0, 0, 32, 32)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_upbom"]
+atlas = ExtResource("5_pp2wi")
+region = Rect2(0, 0, 32, 32)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_te1mx"]
+atlas = ExtResource("5_pp2wi")
+region = Rect2(0, 0, 32, 32)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pmx5i"]
+atlas = ExtResource("5_pp2wi")
+region = Rect2(0, 0, 32, 32)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ahq3w"]
+atlas = ExtResource("5_pp2wi")
+region = Rect2(0, 32, 32, 32)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vvnfb"]
+atlas = ExtResource("5_pp2wi")
+region = Rect2(0, 32, 32, 32)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wqyfs"]
+atlas = ExtResource("5_pp2wi")
+region = Rect2(0, 32, 32, 32)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_10e6r"]
+atlas = ExtResource("5_pp2wi")
+region = Rect2(0, 32, 32, 32)
+filter_clip = true
 
 [resource]
-animations = [
-{
-"frames": [{"duration": 1.0, "texture": ExtResource("tex1")}],
-"loop": 1,
-"name": &"idle_north",
-"speed": 1.0
-},
-{
-"frames": [{"duration": 1.0, "texture": ExtResource("tex2")}, {"duration": 1.0, "texture": ExtResource("tex1")}, {"duration": 1.0, "texture": ExtResource("tex2")}, {"duration": 1.0, "texture": ExtResource("tex1")}],
-"loop": 1,
-"name": &"walk_north",
-"speed": 8.0
-},
-{
-"frames": [{"duration": 1.0, "texture": ExtResource("tex3")}],
-"loop": 1,
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_02ruq")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_senta")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_kjnqb")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_4423j")
+}],
+"loop": 0,
+"name": &"attack_phys",
+"speed": 14.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_tlnhg")
+}],
+"loop": 0,
+"name": &"dash_east",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_r5xsn")
+}],
+"loop": 0,
 "name": &"dash_north",
-"speed": 1.0
-},
-{
-"frames": [{"duration": 1.0, "texture": ExtResource("tex4")}],
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jowbi")
+}],
+"loop": 0,
+"name": &"dash_south",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_iv2nj")
+}],
+"loop": 0,
+"name": &"dash_west",
+"speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_q0wj8")
+}],
 "loop": 1,
 "name": &"idle_east",
-"speed": 1.0
-},
-{
-"frames": [{"duration": 1.0, "texture": ExtResource("tex5")}, {"duration": 1.0, "texture": ExtResource("tex4")}, {"duration": 1.0, "texture": ExtResource("tex5")}, {"duration": 1.0, "texture": ExtResource("tex4")}],
+"speed": 4.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_upbom")
+}],
+"loop": 1,
+"name": &"idle_north",
+"speed": 4.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_te1mx")
+}],
+"loop": 1,
+"name": &"idle_south",
+"speed": 4.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pmx5i")
+}],
+"loop": 1,
+"name": &"idle_west",
+"speed": 4.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_tlnhg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ahq3w")
+}],
+"loop": 1,
+"name": &"run_east",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_r5xsn")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_vvnfb")
+}],
+"loop": 1,
+"name": &"run_north",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jowbi")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wqyfs")
+}],
+"loop": 1,
+"name": &"run_south",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_iv2nj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_10e6r")
+}],
+"loop": 1,
+"name": &"run_west",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ahq3w")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_q0wj8")
+}],
 "loop": 1,
 "name": &"walk_east",
 "speed": 8.0
-},
-{
-"frames": [{"duration": 1.0, "texture": ExtResource("tex6")}],
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_vvnfb")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_upbom")
+}],
 "loop": 1,
-"name": &"dash_east",
-"speed": 1.0
-},
-{
-"frames": [{"duration": 1.0, "texture": ExtResource("tex7")}],
-"loop": 1,
-"name": &"idle_south",
-"speed": 1.0
-},
-{
-"frames": [{"duration": 1.0, "texture": ExtResource("tex8")}, {"duration": 1.0, "texture": ExtResource("tex7")}, {"duration": 1.0, "texture": ExtResource("tex8")}, {"duration": 1.0, "texture": ExtResource("tex7")}],
+"name": &"walk_north",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wqyfs")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_te1mx")
+}],
 "loop": 1,
 "name": &"walk_south",
 "speed": 8.0
-},
-{
-"frames": [{"duration": 1.0, "texture": ExtResource("tex9")}],
-"loop": 1,
-"name": &"dash_south",
-"speed": 1.0
-},
-{
-"frames": [{"duration": 1.0, "texture": ExtResource("tex10")}],
-"loop": 1,
-"name": &"idle_west",
-"speed": 1.0
-},
-{
-"frames": [{"duration": 1.0, "texture": ExtResource("tex11")}, {"duration": 1.0, "texture": ExtResource("tex10")}, {"duration": 1.0, "texture": ExtResource("tex11")}, {"duration": 1.0, "texture": ExtResource("tex10")}],
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_10e6r")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pmx5i")
+}],
 "loop": 1,
 "name": &"walk_west",
 "speed": 8.0
-},
-{
-"frames": [{"duration": 1.0, "texture": ExtResource("tex12")}],
-"loop": 1,
-"name": &"dash_west",
-"speed": 1.0
-},
-{
-"frames": [{"duration": 1.0, "texture": ExtResource("tex13")}, {"duration": 1.0, "texture": ExtResource("tex14")}, {"duration": 1.0, "texture": ExtResource("tex15")}, {"duration": 1.0, "texture": ExtResource("tex16")}],
-"loop": 0,
-"name": &"attack_phys",
-"speed": 18.0
-}
-]
+}]

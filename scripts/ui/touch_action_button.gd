@@ -12,15 +12,25 @@ var _active_touch_index: int = -1
 var _is_action_active: bool = false
 
 func _ready() -> void:
-	texture_normal = null
-	texture_pressed = null
-	texture_hover = null
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	ignore_texture_size = true
+	stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
+	_apply_action_textures()
 	custom_minimum_size = Vector2(80, 80)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	pivot_offset = size * 0.5
 	button_down.connect(_on_button_down)
 	button_up.connect(_on_button_up)
 	queue_redraw()
+
+func _apply_action_textures() -> void:
+	var use_red: bool = (action_name == "attack_physical")
+	var normal_path: String = "res://assets/ui/Button_Red.png" if use_red else "res://assets/ui/Button_Blue.png"
+	var pressed_path: String = "res://assets/ui/Button_Red_Pressed.png" if use_red else "res://assets/ui/Button_Blue_Pressed.png"
+	var hover_path: String = "res://assets/ui/Button_Hover.png"
+	texture_normal = load(normal_path) as Texture2D if ResourceLoader.exists(normal_path) else null
+	texture_pressed = load(pressed_path) as Texture2D if ResourceLoader.exists(pressed_path) else texture_normal
+	texture_hover = load(hover_path) as Texture2D if ResourceLoader.exists(hover_path) else texture_normal
 
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventScreenTouch:
@@ -77,6 +87,8 @@ func _exit_tree() -> void:
 		_is_action_active = false
 
 func _draw() -> void:
+	if texture_normal != null:
+		return
 	var center: Vector2 = size * 0.5
 	var radius: float = minf(size.x, size.y) * 0.46
 	var fill: Color = pressed_color if _is_action_active else button_color

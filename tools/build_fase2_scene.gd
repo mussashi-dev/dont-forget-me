@@ -33,7 +33,9 @@ func _init() -> void:
 
 	for y: int in CORRIDOR_ROWS:
 		for x: int in CORRIDOR_COLS:
-			if x < CORRIDOR_COLS / 2:
+			if y == 0:
+				tile_layer.set_cell(Vector2i(x, y), 4, Vector2i(0, 0))
+			elif x < CORRIDOR_COLS / 2:
 				var wood_source: int = 0 if (x + y) % 2 == 0 else 1
 				tile_layer.set_cell(Vector2i(x, y), wood_source, Vector2i(0, 0))
 			else:
@@ -56,6 +58,10 @@ func _init() -> void:
 	_add_wall_rect(walls, root_node, "WallLeft", Vector2(wall_t * 0.5, h_px * 0.5), Vector2(wall_t, h_px))
 	_add_wall_rect(walls, root_node, "WallRight", Vector2(w_px - wall_t * 0.5, h_px * 0.5), Vector2(wall_t, h_px))
 
+	# 2b. Tapetes decorativos abaixo do Y-sort (arte final reference)
+	_add_floor_decal(root_node, "TapeteQuarto", "res://assets/tilesets/final_reference/rug_warm.png", Vector2(180, 176), 82.0)
+	_add_floor_decal(root_node, "TapeteEsquecido", "res://assets/tilesets/final_reference/rug_forgotten.png", Vector2(590, 176), 82.0)
+
 	# 3. Móveis do Quarto com StaticBody2D (colisão) na metade esquerda
 	var furniture_group := Node2D.new()
 	furniture_group.name = "MoveisQuarto"
@@ -63,9 +69,9 @@ func _init() -> void:
 	root_node.add_child(furniture_group)
 	furniture_group.owner = root_node
 
-	_add_furniture(furniture_group, root_node, "Cama", "res://assets/environments/bedroom/furn_bed.png", Vector2(88, 92), Vector2(40, 22))
-	_add_furniture(furniture_group, root_node, "GuardaRoupa", "res://assets/environments/bedroom/furn_wardrobe.png", Vector2(200, 74), Vector2(36, 20))
-	_add_furniture(furniture_group, root_node, "Estante", "res://assets/environments/bedroom/furn_bookshelf.png", Vector2(310, 74), Vector2(32, 18))
+	_add_furniture(furniture_group, root_node, "Cama", "res://assets/tilesets/final_reference/bed_clean.png", Vector2(88, 92), Vector2(40, 22), 44.0)
+	_add_furniture(furniture_group, root_node, "GuardaRoupa", "res://assets/tilesets/final_reference/wardrobe.png", Vector2(200, 74), Vector2(36, 20), 42.0)
+	_add_furniture(furniture_group, root_node, "Estante", "res://assets/tilesets/final_reference/bookcase.png", Vector2(310, 74), Vector2(32, 18), 44.0)
 
 	# 4. Pablita + HUD
 	var pablita_scene: PackedScene = load("res://scenes/characters/pablita.tscn")
@@ -109,6 +115,9 @@ func _init() -> void:
 	mobs_group.add_child(flor)
 	flor.owner = root_node
 
+	# 6. Puzzles da Fase 2 (porta sônica + relíquia secreta)
+	_add_puzzles(root_node)
+
 	var packed := PackedScene.new()
 	var pack_err: int = packed.pack(root_node)
 	var save_err: int = ResourceSaver.save(packed, SCENE_PATH)
@@ -124,10 +133,11 @@ func _create_corridor_tileset() -> TileSet:
 	ts.set_physics_layer_collision_mask(0, 0)
 
 	var tile_paths: Array[String] = [
-		"res://assets/environments/bedroom/tile_bedroom_wood_0.png",
-		"res://assets/environments/bedroom/tile_bedroom_wood_1.png",
-		"res://assets/environments/esquecido_fase3/tile_deep_void_stone.png",
-		"res://assets/environments/esquecido_fase3/tile_stone_a.png",
+		"res://assets/tilesets/final_reference/grid_32x32/floor_wood_a.png",
+		"res://assets/tilesets/final_reference/grid_32x32/floor_wood_b.png",
+		"res://assets/tilesets/final_reference/grid_32x32/floor_forgotten_a.png",
+		"res://assets/tilesets/final_reference/grid_32x32/floor_forgotten_b.png",
+		"res://assets/tilesets/final_reference/grid_32x32/wall_corridor.png",
 	]
 	for idx: int in tile_paths.size():
 		var src := TileSetAtlasSource.new()
@@ -147,7 +157,23 @@ func _add_wall_rect(parent: StaticBody2D, owner_node: Node, node_name: String, p
 	parent.add_child(cs)
 	cs.owner = owner_node
 
-func _add_furniture(parent: Node2D, owner_node: Node, node_name: String, tex_path: String, pos: Vector2, col_size: Vector2) -> void:
+func _add_floor_decal(owner_node: Node, node_name: String, tex_path: String, pos: Vector2, target_width: float) -> void:
+	if not ResourceLoader.exists(tex_path):
+		return
+	var spr := Sprite2D.new()
+	spr.name = node_name
+	spr.position = pos
+	spr.z_index = -5
+	spr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	var tex: Texture2D = load(tex_path)
+	spr.texture = tex
+	if tex != null and tex.get_width() > 0:
+		var s: float = target_width / float(tex.get_width())
+		spr.scale = Vector2(s, s)
+	owner_node.add_child(spr)
+	spr.owner = owner_node
+
+func _add_furniture(parent: Node2D, owner_node: Node, node_name: String, tex_path: String, pos: Vector2, col_size: Vector2, target_width: float = 44.0) -> void:
 	var body := StaticBody2D.new()
 	body.name = node_name
 	body.position = pos
@@ -163,6 +189,9 @@ func _add_furniture(parent: Node2D, owner_node: Node, node_name: String, tex_pat
 	if ResourceLoader.exists(tex_path):
 		var tex: Texture2D = load(tex_path)
 		spr.texture = tex
+		if tex != null and tex.get_width() > 0:
+			var s: float = target_width / float(tex.get_width())
+			spr.scale = Vector2(s, s)
 		spr.offset = Vector2(0, -tex.get_height() * 0.5)
 	body.add_child(spr)
 	spr.owner = owner_node
@@ -175,3 +204,70 @@ func _add_furniture(parent: Node2D, owner_node: Node, node_name: String, tex_pat
 	cs.shape = shape
 	body.add_child(cs)
 	cs.owner = owner_node
+
+func _add_puzzles(root_node: Node2D) -> void:
+	var puzzles := Node2D.new()
+	puzzles.name = "Puzzles"
+	puzzles.y_sort_enabled = true
+	root_node.add_child(puzzles)
+	puzzles.owner = root_node
+
+	var door := StaticBody2D.new()
+	door.name = "BlockedDoor"
+	door.y_sort_enabled = true
+	door.position = Vector2(560, 176)
+	door.collision_layer = 2
+	door.collision_mask = 0
+	puzzles.add_child(door)
+	door.owner = root_node
+
+	var door_vis := ColorRect.new()
+	door_vis.name = "DoorVisual"
+	door_vis.offset_left = -10.0
+	door_vis.offset_top = -32.0
+	door_vis.offset_right = 10.0
+	door_vis.offset_bottom = 32.0
+	door_vis.color = Color(0.55, 0.25, 0.68, 0.92)
+	door.add_child(door_vis)
+	door_vis.owner = root_node
+
+	var door_cs := CollisionShape2D.new()
+	door_cs.name = "CollisionShape2D"
+	var door_shape := RectangleShape2D.new()
+	door_shape.size = Vector2(20, 64)
+	door_cs.shape = door_shape
+	door.add_child(door_cs)
+	door_cs.owner = root_node
+
+	var relic := Node2D.new()
+	relic.name = "SecretRelic"
+	relic.visible = false
+	relic.y_sort_enabled = true
+	relic.position = Vector2(440, 112)
+	puzzles.add_child(relic)
+	relic.owner = root_node
+
+	var gem := Polygon2D.new()
+	gem.name = "RelicGem"
+	gem.color = Color(0.32, 0.95, 0.88, 1)
+	gem.polygon = PackedVector2Array([Vector2(0, -14), Vector2(10, -4), Vector2(0, 6), Vector2(-10, -4)])
+	relic.add_child(gem)
+	gem.owner = root_node
+
+	var crystal := Area2D.new()
+	crystal.name = "ResonanceCrystal"
+	crystal.position = Vector2(390, 224)
+	crystal.set_script(load("res://scripts/systems/ResonanceCrystal.gd"))
+	crystal.set("crystal_id", "fase2_corridor_crystal")
+	crystal.set("target_door_path", NodePath("../BlockedDoor"))
+	crystal.set("target_reveal_path", NodePath("../SecretRelic"))
+	puzzles.add_child(crystal)
+	crystal.owner = root_node
+
+	var crys_cs := CollisionShape2D.new()
+	crys_cs.name = "CollisionShape2D"
+	var crys_shape := CircleShape2D.new()
+	crys_shape.radius = 42.0
+	crys_cs.shape = crys_shape
+	crystal.add_child(crys_cs)
+	crys_cs.owner = root_node
