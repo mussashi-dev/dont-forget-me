@@ -131,10 +131,16 @@ func _on_story_flag_changed(_flag_name: String, _value: Variant) -> void:
 func _on_input_device_changed(_is_mobile: bool) -> void:
 	_refresh_pipop_and_device_ui()
 
+func _is_mobile_platform() -> bool:
+	if OS.has_feature("mobile") or DisplayServer.is_touchscreen_available():
+		return true
+	var gm := GameManagerService.get_gm()
+	return gm != null and gm.is_mobile_device
+
 func _refresh_pipop_and_device_ui() -> void:
 	var gm := GameManagerService.get_gm()
 	var pipop_unlocked: bool = gm.is_pipop_acquired() if gm else true
-	var is_mobile: bool = gm.is_mobile_device if gm else (OS.has_feature("mobile") or OS.get_name() in ["Android", "iOS"])
+	var is_mobile: bool = _is_mobile_platform()
 	var any_modal_open: bool = (
 		_is_dialogue_open
 		or (pause_panel != null and pause_panel.visible)
@@ -149,27 +155,29 @@ func _refresh_pipop_and_device_ui() -> void:
 	if btn_open_encartes:
 		btn_open_encartes.visible = pipop_unlocked
 	if physical_attack_btn:
-		physical_attack_btn.visible = pipop_unlocked
+		physical_attack_btn.visible = is_mobile and pipop_unlocked
 	if sonic_attack_btn:
-		sonic_attack_btn.visible = pipop_unlocked
+		sonic_attack_btn.visible = is_mobile and pipop_unlocked
 	if dash_btn_node:
 		dash_btn_node.visible = is_mobile
 	if interact_button:
 		if pipop_unlocked:
-			interact_button.offset_left = -136.0
-			interact_button.offset_top = -126.0
-			interact_button.offset_right = -78.0
-			interact_button.offset_bottom = -68.0
+			interact_button.offset_left = -192.0
+			interact_button.offset_top = -192.0
+			interact_button.offset_right = -112.0
+			interact_button.offset_bottom = -112.0
 		else:
-			interact_button.offset_left = -72.0
-			interact_button.offset_top = -72.0
-			interact_button.offset_right = -12.0
-			interact_button.offset_bottom = -12.0
+			interact_button.offset_left = -96.0
+			interact_button.offset_top = -96.0
+			interact_button.offset_right = -16.0
+			interact_button.offset_bottom = -16.0
 
 	if virtual_joystick_node:
 		virtual_joystick_node.visible = is_mobile and not any_modal_open
 	if touch_controls_node:
-		touch_controls_node.visible = (is_mobile or (interact_button != null and interact_button.visible)) and not any_modal_open
+		touch_controls_node.visible = is_mobile and not any_modal_open
+	if prompt_container and not is_mobile:
+		prompt_container.visible = false
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_pause"):
@@ -195,38 +203,42 @@ func _build_dynamic_ui() -> void:
 	touch_controls_node = root_ctrl.get_node_or_null("TouchControls")
 	capacity_row_node = root_ctrl.get_node_or_null("TopLeftMargin/VBoxContainer/CapacityRow")
 
-	# Ajustar tamanho mínimo dos botões touch existentes para facilitar toque mobile
+	# Ajustar tamanho mínimo dos botões touch (mínimo 80x80, espaçamento 16px, fixos no canto inferior direito)
 	var touch_ctrl: Control = touch_controls_node
 	if touch_ctrl:
 		var phys_btn: Control = touch_ctrl.get_node_or_null("PhysicalAttackBtn")
 		physical_attack_btn = phys_btn
 		if phys_btn:
-			phys_btn.offset_left = -68.0
-			phys_btn.offset_top = -68.0
-			phys_btn.offset_right = -4.0
-			phys_btn.offset_bottom = -4.0
+			phys_btn.custom_minimum_size = Vector2(80, 80)
+			phys_btn.offset_left = -96.0
+			phys_btn.offset_top = -96.0
+			phys_btn.offset_right = -16.0
+			phys_btn.offset_bottom = -16.0
 			_attach_action_button_icon(phys_btn, "res://assets/ui/hud_btn_physical_gauntlet.png")
 		var sonic_btn: Control = touch_ctrl.get_node_or_null("SonicAttackBtn")
 		sonic_attack_btn = sonic_btn
 		if sonic_btn:
-			sonic_btn.offset_left = -136.0
-			sonic_btn.offset_top = -60.0
-			sonic_btn.offset_right = -78.0
-			sonic_btn.offset_bottom = -2.0
+			sonic_btn.custom_minimum_size = Vector2(80, 80)
+			sonic_btn.offset_left = -192.0
+			sonic_btn.offset_top = -96.0
+			sonic_btn.offset_right = -112.0
+			sonic_btn.offset_bottom = -16.0
 			_attach_action_button_icon(sonic_btn, "res://assets/ui/hud_btn_sonic_waves.png")
 		var dash_btn: Control = touch_ctrl.get_node_or_null("DashBtn")
 		dash_btn_node = dash_btn
 		if dash_btn:
-			dash_btn.offset_left = -64.0
-			dash_btn.offset_top = -132.0
-			dash_btn.offset_right = -8.0
-			dash_btn.offset_bottom = -76.0
+			dash_btn.custom_minimum_size = Vector2(80, 80)
+			dash_btn.offset_left = -96.0
+			dash_btn.offset_top = -192.0
+			dash_btn.offset_right = -16.0
+			dash_btn.offset_bottom = -112.0
 		var act_btn: Control = touch_ctrl.get_node_or_null("InteractButton")
 		if act_btn:
-			act_btn.offset_left = -136.0
-			act_btn.offset_top = -126.0
-			act_btn.offset_right = -78.0
-			act_btn.offset_bottom = -68.0
+			act_btn.custom_minimum_size = Vector2(80, 80)
+			act_btn.offset_left = -192.0
+			act_btn.offset_top = -192.0
+			act_btn.offset_right = -112.0
+			act_btn.offset_bottom = -112.0
 
 	var top_left_vbox := root_ctrl.get_node_or_null("TopLeftMargin/VBoxContainer") as VBoxContainer
 	var label_parent: Control = top_left_vbox if top_left_vbox != null else root_ctrl
@@ -695,7 +707,7 @@ func hide_boss_health() -> void:
 
 func update_interaction_prompt(prompt_text: String, is_visible: bool) -> void:
 	prompt_label.text = prompt_text
-	prompt_container.visible = is_visible
+	prompt_container.visible = is_visible and _is_mobile_platform()
 	if interact_button:
 		interact_button.visible = is_visible or _is_dialogue_open
 	_refresh_pipop_and_device_ui()

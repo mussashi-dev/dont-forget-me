@@ -5,8 +5,8 @@ extends TextureButton
 ## impedir que um toque em botão acione outra ação global.
 
 @export var action_name: String = ""
-@export var button_color: Color = Color(0.85, 0.3, 0.45, 0.78)
-@export var pressed_color: Color = Color(1.0, 0.75, 0.35, 0.95)
+@export var button_color: Color = Color(0.4, 0.2, 0.5, 0.8)
+@export var pressed_color: Color = Color(0.95, 0.65, 0.8, 0.95)
 
 var _active_touch_index: int = -1
 var _is_action_active: bool = false
@@ -15,7 +15,7 @@ func _ready() -> void:
 	texture_normal = null
 	texture_pressed = null
 	texture_hover = null
-	custom_minimum_size = Vector2(56, 56)
+	custom_minimum_size = Vector2(80, 80)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	pivot_offset = size * 0.5
 	button_down.connect(_on_button_down)
@@ -80,13 +80,15 @@ func _draw() -> void:
 	var center: Vector2 = size * 0.5
 	var radius: float = minf(size.x, size.y) * 0.46
 	var fill: Color = pressed_color if _is_action_active else button_color
-	if action_name == "attack_sonic":
-		fill = pressed_color if _is_action_active else Color(0.15, 0.72, 0.95, 0.85)
+	if action_name == "attack_physical":
+		fill = pressed_color if _is_action_active else Color(0.72, 0.32, 0.52, 0.82)
+	elif action_name == "attack_sonic":
+		fill = pressed_color if _is_action_active else Color(0.42, 0.22, 0.56, 0.85)
 	elif action_name == "dash":
-		fill = pressed_color if _is_action_active else Color(0.45, 0.55, 0.92, 0.80)
+		fill = pressed_color if _is_action_active else Color(0.32, 0.22, 0.44, 0.82)
 	elif action_name == "interact":
-		fill = pressed_color if _is_action_active else Color(0.25, 0.85, 0.45, 0.85)
+		fill = pressed_color if _is_action_active else Color(0.55, 0.34, 0.62, 0.85)
 	draw_circle(center, radius, fill)
-	draw_arc(center, radius, 0.0, TAU, 24, Color(1, 1, 1, 0.92), 2.0)
+	draw_arc(center, radius, 0.0, TAU, 28, Color(0.92, 0.82, 0.96, 0.85), 2.0)
 
 
