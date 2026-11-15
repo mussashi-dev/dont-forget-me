@@ -2,7 +2,7 @@ class_name PipopCompanion
 extends CharacterBody2D
 ## Pipop: Fuggler único que acompanha Pablita e assume duas manifestações de combate.
 ## Estados explícitos: FOLLOW, PHYSICAL, SONIC_APPROACH, SONIC_ATTACK, SONIC_RETURN.
-## Representação visual: Placeholder geométrico (sem sprites).
+## Representação visual: sprites top-down recortados das referências do projeto.
 
 signal state_changed(new_state: State)
 signal sonic_pulse_emitted(front_global_pos: Vector2, direction: Vector2)
